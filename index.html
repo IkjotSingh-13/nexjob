@@ -1,106 +1,653 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexJob - Premium Job Search</title>
-    <meta name="description" content="Find your next career move with NexJob. Browse top jobs in tech, design, and engineering.">
-    
-    <!-- Google Fonts -->
+    <title>BuilderLoop — Connecting exceptional builders with category-defining companies</title>
+    <meta name="description" content="Find your next role in engineering, design, and product at teams like Stripe, Supabase, Linear, and Figma.">
+
+    <!-- Google Fonts: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <!-- Background Elements -->
-    <div class="bg-shape shape-1"></div>
-    <div class="bg-shape shape-2"></div>
-    <div class="bg-shape shape-3"></div>
+    <!-- Centered Fullscreen Page Preloader -->
+    <div id="page-preloader" class="page-preloader" aria-label="Loading BuilderLoop">
+        <div class="preloader-card">
+            <div class="preloader-logo">
+                <div class="logo-symbol pulse-glow">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="3" ry="3"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                        <line x1="20" y1="9" x2="23" y2="9"></line>
+                        <line x1="20" y1="14" x2="23" y2="14"></line>
+                        <line x1="1" y1="9" x2="4" y2="9"></line>
+                        <line x1="1" y1="14" x2="4" y2="14"></line>
+                    </svg>
+                </div>
+                <span class="logo-text">Builder<span class="gradient-brand">Loop</span></span>
+            </div>
+            <p class="preloader-tagline">Connecting exceptional builders with top companies</p>
+            
+            <div class="preloader-bar-container">
+                <div id="preloader-bar" class="preloader-bar"></div>
+            </div>
+            
+            <div class="preloader-meta">
+                <span class="preloader-status-text" id="preloader-status-text">Fetching latest opportunities...</span>
+                <span class="preloader-percent-num" id="preloader-percent">0%</span>
+            </div>
+        </div>
+    </div>
 
-    <header class="main-header glass-nav">
-        <div class="container header-content">
-            <a href="#" class="logo">
-                <span class="logo-icon">✨</span> Nex<span class="highlight">Job</span>
+    <!-- Background Ambient Gradients -->
+    <div class="ambient-glow glow-1" aria-hidden="true"></div>
+    <div class="ambient-glow glow-2" aria-hidden="true"></div>
+
+    <!-- Header Navigation -->
+    <header class="site-header" id="site-header">
+        <div class="header-container">
+            <!-- Brand Logo -->
+            <a href="#" class="brand-logo" id="brand-logo-btn" aria-label="BuilderLoop Home">
+                <div class="logo-symbol">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="16" height="16" rx="3" ry="3"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                        <line x1="20" y1="9" x2="23" y2="9"></line>
+                        <line x1="20" y1="14" x2="23" y2="14"></line>
+                        <line x1="1" y1="9" x2="4" y2="9"></line>
+                        <line x1="1" y1="14" x2="4" y2="14"></line>
+                    </svg>
+                </div>
+                <span class="logo-text">BuilderLoop</span>
             </a>
-            <nav class="main-nav" aria-label="Main Navigation">
-                <ul>
-                    <li><a href="#" class="active">Find Jobs</a></li>
-                    <li><a href="#">Companies</a></li>
-                    <li><a href="#">Saved</a></li>
+
+            <!-- Desktop Navigation Links -->
+            <nav class="desktop-nav" aria-label="Main Navigation">
+                <ul class="nav-list">
+                    <li><a href="#" class="nav-link active" id="nav-all-roles">Explore Roles</a></li>
+                    <li><a href="#browse-disciplines" class="nav-link">Disciplines</a></li>
+                    <li>
+                        <button type="button" class="nav-link nav-btn-link" id="nav-saved-btn">
+                            Saved Roles
+                            <span class="saved-counter-pill" id="nav-saved-count">0</span>
+                        </button>
+                    </li>
                 </ul>
             </nav>
-            <div class="user-actions">
-                <button class="btn outline-btn">Sign In</button>
-                <button class="btn primary-btn">Post a Job</button>
+
+            <!-- Header Action Controls -->
+            <div class="header-actions">
+                <!-- Theme Toggle Button (Tokyo Night Dark / Emerald Porcelain Light) -->
+                <button type="button" class="icon-btn theme-toggle" id="theme-toggle" aria-label="Switch to light mode" title="Toggle theme (Tokyo Night / Emerald Porcelain)">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <!-- User Auth Button / Login CTA (Desktop) -->
+                <div id="auth-header-wrapper" class="auth-header-wrapper">
+                    <button type="button" class="btn outline-btn auth-nav-btn" id="header-login-btn">
+                        <span>Sign In</span>
+                    </button>
+                </div>
+
+                <!-- Hamburger Menu Button for Mobile -->
+                <button type="button" class="icon-btn hamburger-btn" id="hamburger-toggle" aria-label="Open mobile menu" aria-expanded="false" aria-controls="mobile-drawer">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+
+                <!-- Post Job CTA (Desktop) -->
+                <button type="button" class="btn primary-btn desktop-post-btn" id="post-job-cta">Post a Role</button>
             </div>
         </div>
     </header>
 
-    <main class="container main-content">
-        <section class="hero-section">
-            <h1 class="hero-title">Discover Your Next <span class="gradient-text">Great Opportunity</span></h1>
-            <p class="hero-subtitle">Explore thousands of job openings from top companies and innovative startups around the globe.</p>
-            
-            <form id="search-form" class="search-box glass-panel" aria-label="Job Search Form">
-                <div class="input-group">
-                    <span class="input-icon">🔍</span>
-                    <input type="text" id="search-input" placeholder="Job title, keywords, or company..." aria-label="Search jobs">
+    <!-- Mobile Drawer / Navigation Sheet -->
+    <div class="mobile-drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+    <aside class="mobile-drawer" id="mobile-drawer" aria-label="Mobile Navigation" aria-hidden="true">
+        <div class="drawer-header">
+            <div class="brand-logo">
+                <div class="logo-symbol mini">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <rect x="4" y="4" width="16" height="16" rx="3" ry="3"></rect>
+                    </svg>
                 </div>
-                <div class="input-group divider">
-                    <span class="input-icon">📁</span>
-                    <select id="type-filter" aria-label="Filter by job type">
-                        <option value="all">All Job Types</option>
-                        <option value="full-time">Full-Time</option>
-                        <option value="part-time">Part-Time</option>
-                        <option value="contract">Contract</option>
-                    </select>
+                <span class="logo-text">BuilderLoop</span>
+            </div>
+            <button type="button" class="icon-btn drawer-close-btn" id="drawer-close" aria-label="Close menu">✕</button>
+        </div>
+
+        <nav class="drawer-nav">
+            <!-- Mobile User Auth Status -->
+            <div id="drawer-auth-wrapper" class="drawer-auth-wrapper">
+                <button type="button" class="btn outline-btn full-width" id="drawer-login-btn">Sign In</button>
+            </div>
+
+            <ul class="drawer-list">
+                <li><a href="#" class="drawer-link active" id="drawer-all-roles">Explore All Roles</a></li>
+                <li><a href="#browse-disciplines" class="drawer-link" id="drawer-disciplines-link">Browse Disciplines</a></li>
+                <li>
+                    <button type="button" class="drawer-link drawer-btn-link" id="drawer-saved-btn">
+                        Saved Roles
+                        <span class="saved-counter-pill" id="drawer-saved-count">0</span>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="drawer-theme-toggle-row">
+                <span class="drawer-theme-label">Theme Mode</span>
+                <button type="button" class="btn outline-btn drawer-theme-btn" id="drawer-theme-toggle">
+                    <span id="drawer-theme-text">Switch to Emerald Light</span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="drawer-footer">
+            <button type="button" class="btn primary-btn full-width" id="drawer-post-job-btn">Post a Role</button>
+            <p class="drawer-copyright">&copy; 2026 BuilderLoop. Built for high-agency builders.</p>
+        </div>
+    </aside>
+
+    <!-- Main Page Content -->
+    <main class="main-layout" id="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section" aria-labelledby="hero-heading">
+            <!-- Live Role Count Badge -->
+            <div class="live-role-badge" role="status">
+                <span class="pulse-dot" aria-hidden="true"></span>
+                <span class="badge-text">Now listing <strong>1,248</strong> new builder roles</span>
+            </div>
+
+            <!-- Hero Headline & Subtext -->
+            <h1 class="hero-heading" id="hero-heading">
+                Connecting exceptional <span class="builders-gradient">builders</span> with category-defining companies.
+            </h1>
+            <p class="hero-description">
+                Find your next role in engineering, design, and product at teams like Stripe, Supabase, Linear, and Figma.
+            </p>
+
+            <!-- Dual Search Form -->
+            <form class="search-panel" id="search-form" role="search" aria-label="Search Job Listings">
+                <!-- Keyword Input Group -->
+                <div class="search-input-field">
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input 
+                        type="text" 
+                        id="search-keyword" 
+                        name="keyword" 
+                        placeholder="Job title, keywords, or company..." 
+                        aria-label="Job title, keywords, or company"
+                        autocomplete="off"
+                    >
                 </div>
-                <button type="submit" class="btn primary-btn search-btn">Search</button>
+
+                <div class="field-separator" aria-hidden="true"></div>
+
+                <!-- Location Input Group -->
+                <div class="search-input-field">
+                    <span class="field-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </span>
+                    <input 
+                        type="text" 
+                        id="search-location" 
+                        name="location" 
+                        placeholder="City or 'Remote'..." 
+                        aria-label="City or Remote location"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <!-- Primary Action Button -->
+                <button type="submit" class="btn primary-btn search-submit-btn" id="search-btn" aria-label="Execute search">
+                    <span>Search</span>
+                    <span class="btn-arrow" aria-hidden="true">&rarr;</span>
+                </button>
             </form>
+
+            <!-- Popular Searches Quick Links -->
+            <div class="popular-searches-container" aria-label="Popular search queries">
+                <span class="popular-label">Popular searches:</span>
+                <div class="popular-chips-list">
+                    <button type="button" class="popular-chip" data-search="Frontend">Frontend</button>
+                    <button type="button" class="popular-chip" data-search="Backend">Backend</button>
+                    <button type="button" class="popular-chip" data-search="React">React</button>
+                    <button type="button" class="popular-chip" data-search="Design">Design</button>
+                    <button type="button" class="popular-chip" data-search="Product">Product</button>
+                </div>
+            </div>
         </section>
 
-        <section class="jobs-section">
-            <div class="section-header">
-                <h2>Recommended for You</h2>
-                <span class="results-count">Showing latest opportunities</span>
+        <!-- Trust / Stats Section -->
+        <section class="trust-stats-section" aria-label="Platform Statistics">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number">1,248+</span>
+                        <span class="stat-label">Live Roles</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                            <line x1="9" y1="6" x2="9" y2="6.01"></line>
+                            <line x1="15" y1="6" x2="15" y2="6.01"></line>
+                            <line x1="9" y1="10" x2="9" y2="10.01"></line>
+                            <line x1="15" y1="10" x2="15" y2="10.01"></line>
+                            <line x1="9" y1="14" x2="9" y2="14.01"></line>
+                            <line x1="15" y1="14" x2="15" y2="14.01"></line>
+                            <line x1="9" y1="18" x2="15" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number">620+</span>
+                        <span class="stat-label">Companies</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number">98K+</span>
+                        <span class="stat-label">Builders</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-number">12K+</span>
+                        <span class="stat-label">Hires Made</span>
+                    </div>
+                </div>
             </div>
-            
-            <!-- Grid Container for Jobs -->
-            <div id="jobs-container" class="jobs-grid">
-                <!-- Jobs will be dynamically injected here by JS -->
+        </section>
+
+        <!-- Browse by Discipline Section -->
+        <section class="disciplines-section" id="browse-disciplines" aria-labelledby="discipline-heading">
+            <div class="section-title-bar">
+                <h2 class="section-heading" id="discipline-heading">Browse by discipline</h2>
+                <button type="button" class="view-all-link" id="reset-discipline-filter">View all &rarr;</button>
+            </div>
+
+            <div class="discipline-scroll-wrapper">
+                <div class="discipline-grid" role="tablist" aria-label="Job disciplines">
+                    <!-- Engineering -->
+                    <button type="button" class="discipline-card active" data-discipline="all" role="tab" aria-selected="true">
+                        <div class="discipline-icon">&lt;/&gt;</div>
+                        <span class="discipline-title">All Disciplines</span>
+                    </button>
+
+                    <button type="button" class="discipline-card" data-discipline="Engineering" role="tab" aria-selected="false">
+                        <div class="discipline-icon">&lt;/&gt;</div>
+                        <span class="discipline-title">Engineering</span>
+                    </button>
+
+                    <!-- Design -->
+                    <button type="button" class="discipline-card" data-discipline="Design" role="tab" aria-selected="false">
+                        <div class="discipline-icon">✏️</div>
+                        <span class="discipline-title">Design</span>
+                    </button>
+
+                    <!-- Product -->
+                    <button type="button" class="discipline-card" data-discipline="Product" role="tab" aria-selected="false">
+                        <div class="discipline-icon">🧊</div>
+                        <span class="discipline-title">Product</span>
+                    </button>
+
+                    <!-- Marketing -->
+                    <button type="button" class="discipline-card" data-discipline="Marketing" role="tab" aria-selected="false">
+                        <div class="discipline-icon">📢</div>
+                        <span class="discipline-title">Marketing</span>
+                    </button>
+
+                    <!-- Data -->
+                    <button type="button" class="discipline-card" data-discipline="Data" role="tab" aria-selected="false">
+                        <div class="discipline-icon">📊</div>
+                        <span class="discipline-title">Data</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Opportunities Section -->
+        <section class="opportunities-section" id="opportunities" aria-labelledby="featured-heading">
+            <div class="section-title-bar">
+                <div>
+                    <h2 class="section-heading" id="featured-heading">Featured opportunities</h2>
+                    <p class="section-subheading" id="results-count-text">Showing latest builder roles</p>
+                </div>
+
+                <div class="opportunities-actions">
+                    <button type="button" class="filter-tab-btn active" id="tab-all-roles">All Roles</button>
+                    <button type="button" class="filter-tab-btn" id="tab-saved-roles">
+                        Saved (<span id="saved-tab-count">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Job Cards Container (Populated dynamically) -->
+            <div class="jobs-layout-grid" id="jobs-container" role="feed" aria-busy="true">
+                <!-- Injected via ES6 JS Modules -->
+                <div class="skeleton-loader-grid">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alert / CTA Banner -->
+        <section class="alert-banner-section" aria-label="Job Alert Subscription">
+            <div class="alert-banner-card">
+                <div class="alert-banner-left">
+                    <span class="alert-sparkle-icon" aria-hidden="true">✨</span>
+                    <span class="alert-banner-text">New roles every day. Don't miss the perfect one.</span>
+                </div>
+                <button type="button" class="btn primary-btn alert-action-btn" id="create-alert-btn">Create Alert</button>
             </div>
         </section>
     </main>
 
-    <footer class="main-footer">
-        <div class="container footer-content">
-            <div class="brand-info">
-                <a href="#" class="logo">Nex<span class="highlight">Job</span></a>
-                <p>Empowering professionals to find their dream careers with the most advanced job search platform.</p>
+    <!-- Footer Section -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <!-- Brand Section -->
+            <div class="footer-block brand-block">
+                <div class="footer-logo">
+                    <div class="logo-symbol mini">B</div>
+                    <span class="logo-text">BuilderLoop</span>
+                </div>
+                <p class="footer-tagline">The home for builders.<br>Find your next role. Build what's next.</p>
             </div>
-            <div class="footer-links">
-                <div class="link-column">
-                    <h4>Platform</h4>
-                    <a href="#">Browse Jobs</a>
-                    <a href="#">Browse Companies</a>
-                    <a href="#">Salaries</a>
-                </div>
-                <div class="link-column">
-                    <h4>Resources</h4>
-                    <a href="#">Career Blog</a>
-                    <a href="#">Help Center</a>
-                    <a href="#">Guidelines</a>
-                </div>
+
+            <!-- Quick Links -->
+            <div class="footer-block">
+                <h3 class="footer-heading">
+                    <span class="footer-icon" aria-hidden="true">🔗</span> Quick Links
+                </h3>
+                <ul class="footer-nav">
+                    <li><a href="#" id="footer-browse-link">Browse Roles</a></li>
+                    <li><a href="#browse-disciplines">Companies</a></li>
+                    <li><a href="#" id="footer-saved-link">Saved Roles</a></li>
+                    <li><a href="#">Pricing</a></li>
+                </ul>
+            </div>
+
+            <!-- Resources -->
+            <div class="footer-block">
+                <h3 class="footer-heading">
+                    <span class="footer-icon" aria-hidden="true">📄</span> Resources
+                </h3>
+                <ul class="footer-nav">
+                    <li><a href="#">Career Guide</a></li>
+                    <li><a href="#">Resume Tips</a></li>
+                    <li><a href="#">Interview Prep</a></li>
+                    <li><a href="#">Engineering Blog</a></li>
+                </ul>
+            </div>
+
+            <!-- Connect Social Links -->
+            <div class="footer-block">
+                <h3 class="footer-heading">
+                    <span class="footer-icon" aria-hidden="true">🌐</span> Connect
+                </h3>
+                <ul class="footer-nav social-nav">
+                    <li><a href="https://twitter.com" target="_blank" rel="noopener noreferrer">X (Twitter)</a></li>
+                    <li><a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                    <li><a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                    <li><a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                </ul>
             </div>
         </div>
-        <div class="container copyright">
-            <p>&copy; 2026 NexJob. All rights reserved.</p>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 BuilderLoop. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- ES6 Module Entry Point -->
+    <!-- Job Details & Application Dialog Modal -->
+    <dialog id="job-dialog" class="custom-dialog" aria-modal="true">
+        <div class="dialog-card" id="dialog-job-content">
+            <!-- Injected by ui.js -->
+        </div>
+    </dialog>
+
+    <!-- Create Alert Dialog Modal -->
+    <dialog id="alert-dialog" class="custom-dialog" aria-modal="true">
+        <div class="dialog-card">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Create Role Alert</h2>
+                    <p class="modal-subtitle">Get instant notifications when relevant builder roles drop.</p>
+                </div>
+                <button type="button" class="modal-close-btn" id="close-alert-modal-btn" aria-label="Close dialog">✕</button>
+            </div>
+
+            <form id="alert-form" class="application-form">
+                <div class="form-group">
+                    <label for="alert-email">Email Address</label>
+                    <input type="email" id="alert-email" required placeholder="alex@builder.dev">
+                </div>
+
+                <div class="form-group">
+                    <label for="alert-discipline">Preferred Discipline</label>
+                    <select id="alert-discipline">
+                        <option value="All">All Disciplines</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Design">Design</option>
+                        <option value="Product">Product</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Data">Data</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="alert-frequency">Notification Frequency</label>
+                    <select id="alert-frequency">
+                        <option value="Daily">Daily Digest</option>
+                        <option value="Instant">Instant Alerts (as posted)</option>
+                        <option value="Weekly">Weekly Summary</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn outline-btn" id="cancel-alert-btn">Cancel</button>
+                    <button type="submit" class="btn primary-btn">Activate Alert</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Application Success Dialog Modal -->
+    <dialog id="post-role-dialog" class="custom-dialog" aria-modal="true">
+        <div class="dialog-card">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Post a Builder Role</h2>
+                    <p class="modal-subtitle">Reach 98,000+ vetted engineers, designers, and product leaders.</p>
+                </div>
+                <button type="button" class="modal-close-btn" id="close-post-role-modal" aria-label="Close dialog">✕</button>
+            </div>
+
+            <form id="post-role-form" class="application-form">
+                <div class="form-group">
+                    <label for="post-company">Company Name</label>
+                    <input type="text" id="post-company" required placeholder="e.g. Acme Corp">
+                </div>
+                <div class="form-group">
+                    <label for="post-title">Job Title</label>
+                    <input type="text" id="post-title" required placeholder="e.g. Senior Frontend Engineer">
+                </div>
+                <div class="form-group">
+                    <label for="post-discipline">Discipline</label>
+                    <select id="post-discipline">
+                        <option value="Engineering">Engineering</option>
+                        <option value="Design">Design</option>
+                        <option value="Product">Product</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Data">Data</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-location">Location</label>
+                    <input type="text" id="post-location" required placeholder="e.g. Remote or San Francisco, CA">
+                </div>
+                <div class="form-group">
+                    <label for="post-salary">Salary Range</label>
+                    <input type="text" id="post-salary" required placeholder="e.g. $140k – $180k">
+                </div>
+                <div class="form-group">
+                    <label for="post-tags">Tags (comma-separated)</label>
+                    <input type="text" id="post-tags" placeholder="React, TypeScript, CSS Grid">
+                </div>
+                <div class="form-group">
+                    <label for="post-description">Job Description</label>
+                    <textarea id="post-description" rows="3" required placeholder="Describe responsibilities and mission..."></textarea>
+                </div>
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn outline-btn" id="cancel-post-role">Cancel</button>
+                    <button type="submit" class="btn primary-btn">Publish Role</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Login & Register Dialog Modal (Stored in LocalStorage) -->
+    <dialog id="auth-dialog" class="custom-dialog" aria-modal="true">
+        <div class="dialog-card auth-dialog-card">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="auth-modal-title">Welcome to BuilderLoop</h2>
+                    <p class="modal-subtitle" id="auth-modal-subtitle">Sign in to save roles, apply, and track applications.</p>
+                </div>
+                <button type="button" class="modal-close-btn" id="close-auth-modal" aria-label="Close dialog">✕</button>
+            </div>
+
+            <!-- Auth Mode Tabs -->
+            <div class="auth-tabs" role="tablist">
+                <button type="button" class="auth-tab active" id="tab-login" role="tab" aria-selected="true">Sign In</button>
+                <button type="button" class="auth-tab" id="tab-register" role="tab" aria-selected="false">Create Account</button>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="auth-error-msg" class="auth-error-banner" style="display: none;" role="alert"></div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="application-form auth-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" required placeholder="jane@builder.dev" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+
+                <div class="demo-auth-box">
+                    <button type="button" class="demo-login-btn" id="demo-login-btn">
+                        <span>⚡ One-Click Demo Login (Jane Builder)</span>
+                    </button>
+                </div>
+
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn outline-btn" id="cancel-auth-btn">Cancel</button>
+                    <button type="submit" class="btn primary-btn" id="login-submit-btn">Sign In &rarr;</button>
+                </div>
+            </form>
+
+            <!-- Register Form (Hidden by default) -->
+            <form id="register-form" class="application-form auth-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" required placeholder="Alex Rivera" autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" required placeholder="alex@builder.dev" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Create Password</label>
+                    <input type="password" id="register-password" required placeholder="At least 6 characters" minlength="6" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="register-role">Your Craft / Discipline</label>
+                    <select id="register-role">
+                        <option value="Staff Frontend Engineer">Frontend Engineering</option>
+                        <option value="Backend Systems Architect">Backend Engineering</option>
+                        <option value="Senior Product Designer">Product Design</option>
+                        <option value="Principal Product Manager">Product Management</option>
+                        <option value="Data Infrastructure Lead">Data / AI</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn outline-btn" id="cancel-register-btn">Cancel</button>
+                    <button type="submit" class="btn primary-btn" id="register-submit-btn">Create Account &rarr;</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Interactive Toast Notification Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- ES6 Module Application Entry Point -->
     <script type="module" src="./main.js"></script>
 </body>
 </html>
