@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "title": "Frontend Developer",
+    "company": "TechNova",
+    "location": "San Francisco, CA",
+    "type": "Full-Time",
+    "salary": "$110k - $130k",
+    "description": "We are looking for a creative Frontend Developer proficient in modern HTML, CSS, and JavaScript. You will be building interactive user interfaces and engaging web experiences.",
+    "tags": ["HTML5", "CSS3", "JavaScript"]
+  },
+  {
+    "id": 2,
+    "title": "React Engineer",
+    "company": "Pixel Web",
+    "location": "Remote",
+    "type": "Full-Time",
+    "salary": "$120k - $145k",
+    "description": "Join our remote team to build complex web applications using React. Strong understanding of state management, Hooks, and ES6+ features required.",
+    "tags": ["React", "JavaScript", "ES6+"]
+  },
+  {
+    "id": 3,
+    "title": "Web Designer",
+    "company": "Creative Agency",
+    "location": "New York, NY",
+    "type": "Part-Time",
+    "salary": "$50 - $75/hr",
+    "description": "Seeking a talented Web Designer with a strong eye for aesthetics. You will work closely with developers to implement responsive and accessible designs.",
+    "tags": ["UI/UX", "Figma", "CSS3"]
+  },
+  {
+    "id": 4,
+    "title": "Junior Web Developer",
+    "company": "StartUp Inc.",
+    "location": "Austin, TX",
+    "type": "Full-Time",
+    "salary": "$70k - $90k",
+    "description": "Great opportunity for a junior developer to learn and grow. You will assist in building features, fixing bugs, and improving site performance.",
+    "tags": ["HTML", "CSS", "JS"]
+  },
+  {
+    "id": 5,
+    "title": "Full Stack Developer",
+    "company": "Global Solutions",
+    "location": "London, UK",
+    "type": "Contract",
+    "salary": "£400 - £600/day",
+    "description": "Experienced Full Stack Developer needed for a 6-month contract. You will work on a variety of projects utilizing modern frontend and backend technologies.",
+    "tags": ["Node.js", "React", "MongoDB"]
+  },
+  {
+    "id": 6,
+    "title": "UI Engineer",
+    "company": "Appify",
+    "location": "Seattle, WA",
+    "type": "Full-Time",
+    "salary": "$115k - $140k",
+    "description": "Focus on crafting beautiful and performant user interfaces. Expertise in CSS Grid, Flexbox, and micro-animations is highly valued.",
+    "tags": ["CSS Grid", "Flexbox", "Animations"]
+  }
+]

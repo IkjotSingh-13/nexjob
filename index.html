@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexJob - Premium Job Search</title>
+    <meta name="description" content="Find your next career move with NexJob. Browse top jobs in tech, design, and engineering.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <header class="main-header glass-nav">
+        <div class="container header-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">✨</span> Nex<span class="highlight">Job</span>
+            </a>
+            <nav class="main-nav" aria-label="Main Navigation">
+                <ul>
+                    <li><a href="#" class="active">Find Jobs</a></li>
+                    <li><a href="#">Companies</a></li>
+                    <li><a href="#">Saved</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="btn outline-btn">Sign In</button>
+                <button class="btn primary-btn">Post a Job</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <section class="hero-section">
+            <h1 class="hero-title">Discover Your Next <span class="gradient-text">Great Opportunity</span></h1>
+            <p class="hero-subtitle">Explore thousands of job openings from top companies and innovative startups around the globe.</p>
+            
+            <form id="search-form" class="search-box glass-panel" aria-label="Job Search Form">
+                <div class="input-group">
+                    <span class="input-icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="Job title, keywords, or company..." aria-label="Search jobs">
+                </div>
+                <div class="input-group divider">
+                    <span class="input-icon">📁</span>
+                    <select id="type-filter" aria-label="Filter by job type">
+                        <option value="all">All Job Types</option>
+                        <option value="full-time">Full-Time</option>
+                        <option value="part-time">Part-Time</option>
+                        <option value="contract">Contract</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn primary-btn search-btn">Search</button>
+            </form>
+        </section>
+
+        <section class="jobs-section">
+            <div class="section-header">
+                <h2>Recommended for You</h2>
+                <span class="results-count">Showing latest opportunities</span>
+            </div>
+            
+            <!-- Grid Container for Jobs -->
+            <div id="jobs-container" class="jobs-grid">
+                <!-- Jobs will be dynamically injected here by JS -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-content">
+            <div class="brand-info">
+                <a href="#" class="logo">Nex<span class="highlight">Job</span></a>
+                <p>Empowering professionals to find their dream careers with the most advanced job search platform.</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-column">
+                    <h4>Platform</h4>
+                    <a href="#">Browse Jobs</a>
+                    <a href="#">Browse Companies</a>
+                    <a href="#">Salaries</a>
+                </div>
+                <div class="link-column">
+                    <h4>Resources</h4>
+                    <a href="#">Career Blog</a>
+                    <a href="#">Help Center</a>
+                    <a href="#">Guidelines</a>
+                </div>
+            </div>
+        </div>
+        <div class="container copyright">
+            <p>&copy; 2026 NexJob. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ES6 Module Entry Point -->
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
