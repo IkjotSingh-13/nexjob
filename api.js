@@ -1,5 +1,5 @@
 /**
- * API module for BuilderLoop
+ * API module for NexJob
  * Fetches job listings asynchronously from jobs.json
  */
 

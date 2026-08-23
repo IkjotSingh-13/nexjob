@@ -1,5 +1,5 @@
 /**
- * UI Rendering and DOM manipulation module for BuilderLoop
+ * UI Rendering and DOM manipulation module for NexJob
  */
 import { isJobSaved } from './storage.js';
 

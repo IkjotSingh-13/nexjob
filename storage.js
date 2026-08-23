@@ -1,11 +1,11 @@
 /**
- * Storage module for BuilderLoop
+ * Storage module for NexJob
  * Manages localStorage for saved bookmarks, theme preference, and job alerts.
  */
 
-const SAVED_JOBS_KEY = 'builderloop_saved_jobs';
-const THEME_KEY = 'builderloop_theme';
-const ALERTS_KEY = 'builderloop_alerts';
+const SAVED_JOBS_KEY = 'NexJob_saved_jobs';
+const THEME_KEY = 'NexJob_theme';
+const ALERTS_KEY = 'NexJob_alerts';
 
 /**
  * Retrieve saved job IDs from localStorage
@@ -91,8 +91,8 @@ export const saveAlert = (alertData) => {
 /* --------------------------------------------------------------------------
    User Authentication & LocalStorage Management
    -------------------------------------------------------------------------- */
-const USER_KEY = 'builderloop_user';
-const USERS_LIST_KEY = 'builderloop_users_database';
+const USER_KEY = 'NexJob_user';
+const USERS_LIST_KEY = 'NexJob_users_database';
 
 // Pre-populate demo users if not present
 const getRegisteredUsers = () => {

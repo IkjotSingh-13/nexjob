@@ -1,5 +1,5 @@
 /**
- * Main Controller Module for BuilderLoop
+ * Main Controller Module for NexJob
  * Coordinates state, UI rendering, event handling, storage, and theme switching.
  */
 import { fetchJobs } from './api.js';
@@ -58,7 +58,7 @@ const initCenterPreloader = () => {
         setTimeout(() => setProgress(82, 'Curating verified builder opportunities...'), 1200);
         setTimeout(() => setProgress(96, 'Preparing workspace...'), 1600);
         setTimeout(() => {
-          setProgress(100, 'Welcome to BuilderLoop');
+          setProgress(100, 'Welcome to NexJob');
           setTimeout(() => {
             preloader.classList.add('fade-out');
             setTimeout(() => {
@@ -613,7 +613,7 @@ const initAuth = (drawerController) => {
     }
     if (loginForm) loginForm.style.display = isLogin ? 'flex' : 'none';
     if (registerForm) registerForm.style.display = !isLogin ? 'flex' : 'none';
-    if (authModalTitle) authModalTitle.textContent = isLogin ? 'Welcome to BuilderLoop' : 'Create Builder Account';
+    if (authModalTitle) authModalTitle.textContent = isLogin ? 'Welcome to NexJob' : 'Create Builder Account';
     if (authModalSubtitle) authModalSubtitle.textContent = isLogin 
       ? 'Sign in to save roles, apply, and track applications.' 
       : 'Join category-defining companies and exceptional builders.';
@@ -695,7 +695,7 @@ const initAuth = (drawerController) => {
       if (res.success) {
         renderAuthUI();
         closeAuth();
-        showToast(`🚀 Account created for ${res.user.name}! Welcome to BuilderLoop.`, 'success');
+        showToast(`🚀 Account created for ${res.user.name}! Welcome to NexJob.`, 'success');
       } else {
         if (authErrorMsg) {
           authErrorMsg.textContent = res.message || 'Registration failed';
