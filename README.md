@@ -1,8 +1,8 @@
-# BuilderLoop (NexJob)
+# NexJob
 
 > **Connecting exceptional builders with category-defining companies.**
 
-BuilderLoop is a modern, responsive web application designed to help job seekers find their next role in engineering, design, and product at top-tier companies like Stripe, Supabase, Linear, and Figma. 
+NexJob is a modern, responsive web application designed to help job seekers find their next role in engineering, design, and product at top-tier companies like Stripe, Supabase, Linear, and Figma. 
 
 ## ✨ Features
 
