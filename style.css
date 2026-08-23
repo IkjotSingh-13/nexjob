@@ -1596,18 +1596,247 @@ ul {
   color: var(--text-primary);
 }
 
-.modal-footer-actions {
+/* --------------------------------------------------------------------------
+   14. User Authentication & Profile Menu Styles
+   -------------------------------------------------------------------------- */
+.auth-header-wrapper {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 0.85rem;
+  align-items: center;
 }
 
-.modal-footer-actions .btn {
+.auth-nav-btn {
+  padding: 0.5rem 1.15rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-pill);
+}
+
+.user-profile-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.user-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  transition: all var(--transition-fast);
+}
+
+.user-avatar-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-primary);
+}
+
+.user-avatar-initial {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.user-avatar-initial.large {
+  width: 44px;
+  height: 44px;
+  font-size: 1.15rem;
+}
+
+.user-name-short {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-dropdown-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 230px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card-hover);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-popup);
+  padding: 1rem;
+  z-index: 150;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all var(--transition-fast);
+  pointer-events: none;
+}
+
+.user-dropdown-popover.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.user-dropdown-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.dropdown-name {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dropdown-email {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+}
+
+.dropdown-role-badge {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  background: var(--accent-subtle);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-pill);
+  width: fit-content;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0.75rem 0;
+}
+
+.dropdown-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f43f5e;
+  padding: 0.45rem 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.dropdown-logout-btn:hover {
+  color: #e11d48;
+}
+
+/* Mobile Drawer User Card */
+.drawer-auth-wrapper {
+  margin-bottom: 1.25rem;
+}
+
+.drawer-user-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.drawer-user-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.drawer-user-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.drawer-user-role {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+}
+
+.drawer-logout-btn {
+  font-size: 0.825rem;
+  padding: 0.5rem;
+  border-color: rgba(244, 63, 94, 0.3);
+  color: #f43f5e;
+}
+
+/* Auth Dialog Tabs & Extras */
+.auth-dialog-card {
+  max-width: 440px;
+}
+
+.auth-tabs {
+  display: flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.auth-tab {
   flex: 1;
+  padding: 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.auth-tab.active {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-error-banner {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #f43f5e;
+  font-size: 0.825rem;
+  font-weight: 500;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+}
+
+.demo-auth-box {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.demo-login-btn {
+  width: 100%;
+  background: var(--bg-chip);
+  border: 1px dashed var(--accent-primary);
+  color: var(--accent-blue);
+  font-size: 0.825rem;
+  font-weight: 600;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.demo-login-btn:hover {
+  background: var(--bg-chip-hover);
+  color: var(--text-primary);
+  border-style: solid;
 }
 
 /* --------------------------------------------------------------------------
-   14. Toast Notification Popup System
+   15. Toast Notification Popup System
    -------------------------------------------------------------------------- */
 .toast-container {
   position: fixed;

@@ -108,6 +108,13 @@
                     </svg>
                 </button>
 
+                <!-- User Auth Button / Login CTA (Desktop) -->
+                <div id="auth-header-wrapper" class="auth-header-wrapper">
+                    <button type="button" class="btn outline-btn auth-nav-btn" id="header-login-btn">
+                        <span>Sign In</span>
+                    </button>
+                </div>
+
                 <!-- Hamburger Menu Button for Mobile -->
                 <button type="button" class="icon-btn hamburger-btn" id="hamburger-toggle" aria-label="Open mobile menu" aria-expanded="false" aria-controls="mobile-drawer">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -139,6 +146,11 @@
         </div>
 
         <nav class="drawer-nav">
+            <!-- Mobile User Auth Status -->
+            <div id="drawer-auth-wrapper" class="drawer-auth-wrapper">
+                <button type="button" class="btn outline-btn full-width" id="drawer-login-btn">Sign In</button>
+            </div>
+
             <ul class="drawer-list">
                 <li><a href="#" class="drawer-link active" id="drawer-all-roles">Explore All Roles</a></li>
                 <li><a href="#browse-disciplines" class="drawer-link" id="drawer-disciplines-link">Browse Disciplines</a></li>
@@ -551,6 +563,82 @@
                 <div class="modal-footer-actions">
                     <button type="button" class="btn outline-btn" id="cancel-post-role">Cancel</button>
                     <button type="submit" class="btn primary-btn">Publish Role</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Login & Register Dialog Modal (Stored in LocalStorage) -->
+    <dialog id="auth-dialog" class="custom-dialog" aria-modal="true">
+        <div class="dialog-card auth-dialog-card">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="auth-modal-title">Welcome to BuilderLoop</h2>
+                    <p class="modal-subtitle" id="auth-modal-subtitle">Sign in to save roles, apply, and track applications.</p>
+                </div>
+                <button type="button" class="modal-close-btn" id="close-auth-modal" aria-label="Close dialog">✕</button>
+            </div>
+
+            <!-- Auth Mode Tabs -->
+            <div class="auth-tabs" role="tablist">
+                <button type="button" class="auth-tab active" id="tab-login" role="tab" aria-selected="true">Sign In</button>
+                <button type="button" class="auth-tab" id="tab-register" role="tab" aria-selected="false">Create Account</button>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="auth-error-msg" class="auth-error-banner" style="display: none;" role="alert"></div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="application-form auth-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" required placeholder="jane@builder.dev" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+
+                <div class="demo-auth-box">
+                    <button type="button" class="demo-login-btn" id="demo-login-btn">
+                        <span>⚡ One-Click Demo Login (Jane Builder)</span>
+                    </button>
+                </div>
+
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn outline-btn" id="cancel-auth-btn">Cancel</button>
+                    <button type="submit" class="btn primary-btn" id="login-submit-btn">Sign In &rarr;</button>
+                </div>
+            </form>
+
+            <!-- Register Form (Hidden by default) -->
+            <form id="register-form" class="application-form auth-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" required placeholder="Alex Rivera" autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" required placeholder="alex@builder.dev" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Create Password</label>
+                    <input type="password" id="register-password" required placeholder="At least 6 characters" minlength="6" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="register-role">Your Craft / Discipline</label>
+                    <select id="register-role">
+                        <option value="Staff Frontend Engineer">Frontend Engineering</option>
+                        <option value="Backend Systems Architect">Backend Engineering</option>
+                        <option value="Senior Product Designer">Product Design</option>
+                        <option value="Principal Product Manager">Product Management</option>
+                        <option value="Data Infrastructure Lead">Data / AI</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn outline-btn" id="cancel-register-btn">Cancel</button>
+                    <button type="submit" class="btn primary-btn" id="register-submit-btn">Create Account &rarr;</button>
                 </div>
             </form>
         </div>

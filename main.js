@@ -4,7 +4,18 @@
  */
 import { fetchJobs } from './api.js';
 import { renderJobs, filterJobs, showToast, renderJobDetailModal } from './ui.js';
-import { getSavedJobs, toggleSaveJob, isJobSaved, getTheme, setTheme, saveAlert } from './storage.js';
+import { 
+  getSavedJobs, 
+  toggleSaveJob, 
+  isJobSaved, 
+  getTheme, 
+  setTheme, 
+  saveAlert,
+  getCurrentUser,
+  loginUser,
+  registerUser,
+  logoutUser
+} from './storage.js';
 
 // Application State
 const state = {
@@ -491,12 +502,221 @@ const setupEventListeners = (drawerController) => {
 };
 
 /**
+ * User Authentication Controller (Stored in LocalStorage)
+ */
+const initAuth = (drawerController) => {
+  const authDialog = document.getElementById('auth-dialog');
+  const closeAuthModal = document.getElementById('close-auth-modal');
+  const cancelAuthBtn = document.getElementById('cancel-auth-btn');
+  const cancelRegisterBtn = document.getElementById('cancel-register-btn');
+  
+  const tabLogin = document.getElementById('tab-login');
+  const tabRegister = document.getElementById('tab-register');
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const authErrorMsg = document.getElementById('auth-error-msg');
+  const demoLoginBtn = document.getElementById('demo-login-btn');
+  
+  const authModalTitle = document.getElementById('auth-modal-title');
+  const authModalSubtitle = document.getElementById('auth-modal-subtitle');
+  
+  const headerAuthWrapper = document.getElementById('auth-header-wrapper');
+  const drawerAuthWrapper = document.getElementById('drawer-auth-wrapper');
+
+  const renderAuthUI = () => {
+    const user = getCurrentUser();
+
+    // Render Desktop Header Auth
+    if (headerAuthWrapper) {
+      if (user) {
+        headerAuthWrapper.innerHTML = `
+          <div class="user-profile-menu">
+            <button type="button" class="user-avatar-btn" id="user-profile-toggle" aria-label="User Account Menu" title="${user.name} (${user.role})">
+              <span class="user-avatar-initial" style="background-color: ${user.avatarBg || '#ec4899'};">${user.avatarInitial}</span>
+              <span class="user-name-short">${user.name.split(' ')[0]}</span>
+            </button>
+            <div class="user-dropdown-popover" id="user-dropdown">
+              <div class="user-dropdown-info">
+                <p class="dropdown-name">${user.name}</p>
+                <p class="dropdown-email">${user.email}</p>
+                <span class="dropdown-role-badge">${user.role}</span>
+              </div>
+              <div class="dropdown-divider"></div>
+              <button type="button" class="dropdown-logout-btn" id="header-logout-btn">
+                <span>🚪 Sign Out</span>
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        headerAuthWrapper.innerHTML = `
+          <button type="button" class="btn outline-btn auth-nav-btn" id="header-login-btn">
+            <span>Sign In</span>
+          </button>
+        `;
+      }
+    }
+
+    // Render Mobile Drawer Auth
+    if (drawerAuthWrapper) {
+      if (user) {
+        drawerAuthWrapper.innerHTML = `
+          <div class="drawer-user-card">
+            <div class="drawer-user-header">
+              <span class="user-avatar-initial large" style="background-color: ${user.avatarBg || '#ec4899'};">${user.avatarInitial}</span>
+              <div>
+                <p class="drawer-user-name">${user.name}</p>
+                <p class="drawer-user-role">${user.role}</p>
+              </div>
+            </div>
+            <button type="button" class="btn outline-btn full-width drawer-logout-btn" id="drawer-logout-btn">
+              Sign Out
+            </button>
+          </div>
+        `;
+      } else {
+        drawerAuthWrapper.innerHTML = `
+          <button type="button" class="btn outline-btn full-width" id="drawer-login-btn">
+            Sign In / Register
+          </button>
+        `;
+      }
+    }
+  };
+
+  const openAuthModal = (mode = 'login') => {
+    if (drawerController) drawerController.closeDrawer();
+    if (authErrorMsg) {
+      authErrorMsg.style.display = 'none';
+      authErrorMsg.textContent = '';
+    }
+    setAuthMode(mode);
+    if (authDialog) authDialog.showModal();
+  };
+
+  const closeAuth = () => {
+    if (authDialog) authDialog.close();
+    if (loginForm) loginForm.reset();
+    if (registerForm) registerForm.reset();
+    if (authErrorMsg) authErrorMsg.style.display = 'none';
+  };
+
+  const setAuthMode = (mode) => {
+    const isLogin = mode === 'login';
+    if (tabLogin) {
+      tabLogin.classList.toggle('active', isLogin);
+      tabLogin.setAttribute('aria-selected', isLogin ? 'true' : 'false');
+    }
+    if (tabRegister) {
+      tabRegister.classList.toggle('active', !isLogin);
+      tabRegister.setAttribute('aria-selected', !isLogin ? 'true' : 'false');
+    }
+    if (loginForm) loginForm.style.display = isLogin ? 'flex' : 'none';
+    if (registerForm) registerForm.style.display = !isLogin ? 'flex' : 'none';
+    if (authModalTitle) authModalTitle.textContent = isLogin ? 'Welcome to BuilderLoop' : 'Create Builder Account';
+    if (authModalSubtitle) authModalSubtitle.textContent = isLogin 
+      ? 'Sign in to save roles, apply, and track applications.' 
+      : 'Join category-defining companies and exceptional builders.';
+  };
+
+  if (tabLogin) tabLogin.addEventListener('click', () => setAuthMode('login'));
+  if (tabRegister) tabRegister.addEventListener('click', () => setAuthMode('register'));
+  if (closeAuthModal) closeAuthModal.addEventListener('click', closeAuth);
+  if (cancelAuthBtn) cancelAuthBtn.addEventListener('click', closeAuth);
+  if (cancelRegisterBtn) cancelRegisterBtn.addEventListener('click', closeAuth);
+
+  // Delegated clicks for header & drawer auth buttons
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#header-login-btn') || e.target.closest('#drawer-login-btn')) {
+      openAuthModal('login');
+      return;
+    }
+
+    if (e.target.closest('#header-logout-btn') || e.target.closest('#drawer-logout-btn')) {
+      logoutUser();
+      renderAuthUI();
+      showToast('👋 You have been signed out.', 'info');
+      return;
+    }
+
+    // Toggle dropdown popover on desktop
+    const userToggle = e.target.closest('#user-profile-toggle');
+    const popover = document.getElementById('user-dropdown');
+    if (userToggle && popover) {
+      popover.classList.toggle('show');
+    } else if (popover && !e.target.closest('.user-profile-menu')) {
+      popover.classList.remove('show');
+    }
+  });
+
+  // Demo Login Button
+  if (demoLoginBtn) {
+    demoLoginBtn.addEventListener('click', () => {
+      const res = loginUser('jane@builder.dev', 'password123');
+      if (res.success) {
+        renderAuthUI();
+        closeAuth();
+        showToast(`🎉 Logged in as ${res.user.name} (${res.user.role})!`, 'success');
+      }
+    });
+  }
+
+  // Login Form Submit
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email')?.value || '';
+      const password = document.getElementById('login-password')?.value || '';
+
+      const res = loginUser(email, password);
+      if (res.success) {
+        renderAuthUI();
+        closeAuth();
+        showToast(`🎉 Welcome back, ${res.user.name}!`, 'success');
+      } else {
+        if (authErrorMsg) {
+          authErrorMsg.textContent = res.message || 'Login failed';
+          authErrorMsg.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  // Register Form Submit
+  if (registerForm) {
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('register-name')?.value || '';
+      const email = document.getElementById('register-email')?.value || '';
+      const password = document.getElementById('register-password')?.value || '';
+      const role = document.getElementById('register-role')?.value || 'Software Builder';
+
+      const res = registerUser({ name, email, password, role });
+      if (res.success) {
+        renderAuthUI();
+        closeAuth();
+        showToast(`🚀 Account created for ${res.user.name}! Welcome to BuilderLoop.`, 'success');
+      } else {
+        if (authErrorMsg) {
+          authErrorMsg.textContent = res.message || 'Registration failed';
+          authErrorMsg.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  // Initial render of Auth UI
+  renderAuthUI();
+};
+
+/**
  * Bootstrap the Application
  */
 document.addEventListener('DOMContentLoaded', async () => {
   const loaderController = initCenterPreloader();
   initTheme();
   const drawerController = initMobileDrawer();
+  initAuth(drawerController);
 
   try {
     // Fetch jobs asynchronously

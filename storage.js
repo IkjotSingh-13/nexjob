@@ -87,3 +87,137 @@ export const saveAlert = (alertData) => {
     return false;
   }
 };
+
+/* --------------------------------------------------------------------------
+   User Authentication & LocalStorage Management
+   -------------------------------------------------------------------------- */
+const USER_KEY = 'builderloop_user';
+const USERS_LIST_KEY = 'builderloop_users_database';
+
+// Pre-populate demo users if not present
+const getRegisteredUsers = () => {
+  try {
+    const raw = localStorage.getItem(USERS_LIST_KEY);
+    if (raw) return JSON.parse(raw);
+    const initialUsers = [
+      {
+        id: 1,
+        name: 'Jane Builder',
+        email: 'jane@builder.dev',
+        password: 'password123',
+        role: 'Staff Frontend Engineer',
+        avatarInitial: 'J',
+        avatarBg: '#ec4899'
+      },
+      {
+        id: 2,
+        name: 'Alex Rivera',
+        email: 'alex@builder.dev',
+        password: 'password123',
+        role: 'Senior Product Designer',
+        avatarInitial: 'A',
+        avatarBg: '#3ecf8e'
+      }
+    ];
+    localStorage.setItem(USERS_LIST_KEY, JSON.stringify(initialUsers));
+    return initialUsers;
+  } catch (err) {
+    console.error('Failed to get registered users:', err);
+    return [];
+  }
+};
+
+/**
+ * Get current logged in user from localStorage
+ * @returns {Object|null}
+ */
+export const getCurrentUser = () => {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    console.error('Failed to read user from localStorage:', err);
+    return null;
+  }
+};
+
+/**
+ * Log in a user by email and password
+ * @param {string} email 
+ * @param {string} password 
+ * @returns {{ success: boolean, user?: Object, message?: string }}
+ */
+export const loginUser = (email, password) => {
+  const users = getRegisteredUsers();
+  const normalizedEmail = email.trim().toLowerCase();
+  const found = users.find((u) => u.email.toLowerCase() === normalizedEmail);
+
+  if (!found) {
+    return { success: false, message: 'No account found with this email address.' };
+  }
+
+  if (found.password !== password) {
+    return { success: false, message: 'Invalid password. Try again or use demo credentials.' };
+  }
+
+  const sessionUser = {
+    id: found.id,
+    name: found.name,
+    email: found.email,
+    role: found.role,
+    avatarInitial: found.avatarInitial || found.name.charAt(0).toUpperCase(),
+    avatarBg: found.avatarBg || '#ec4899',
+    loggedInAt: new Date().toISOString()
+  };
+
+  localStorage.setItem(USER_KEY, JSON.stringify(sessionUser));
+  return { success: true, user: sessionUser };
+};
+
+/**
+ * Register a new user and save to localStorage database
+ * @param {{ name: string, email: string, password: string, role?: string }} userData 
+ * @returns {{ success: boolean, user?: Object, message?: string }}
+ */
+export const registerUser = ({ name, email, password, role = 'Software Builder' }) => {
+  const users = getRegisteredUsers();
+  const normalizedEmail = email.trim().toLowerCase();
+  const exists = users.some((u) => u.email.toLowerCase() === normalizedEmail);
+
+  if (exists) {
+    return { success: false, message: 'An account with this email already exists.' };
+  }
+
+  const newUser = {
+    id: Date.now(),
+    name: name.trim(),
+    email: normalizedEmail,
+    password: password,
+    role: role.trim() || 'Software Builder',
+    avatarInitial: name.trim().charAt(0).toUpperCase(),
+    avatarBg: '#7c3aed'
+  };
+
+  const updatedUsers = [...users, newUser];
+  localStorage.setItem(USERS_LIST_KEY, JSON.stringify(updatedUsers));
+
+  const sessionUser = {
+    id: newUser.id,
+    name: newUser.name,
+    email: newUser.email,
+    role: newUser.role,
+    avatarInitial: newUser.avatarInitial,
+    avatarBg: newUser.avatarBg,
+    loggedInAt: new Date().toISOString()
+  };
+
+  localStorage.setItem(USER_KEY, JSON.stringify(sessionUser));
+  return { success: true, user: sessionUser };
+};
+
+/**
+ * Log out user and clear session in localStorage
+ */
+export const logoutUser = () => {
+  localStorage.removeItem(USER_KEY);
+};
