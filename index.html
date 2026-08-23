@@ -49,6 +49,7 @@
     </div>
 
     <!-- Background Ambient Gradients -->
+    <div class="noise-overlay" aria-hidden="true"></div>
     <div class="ambient-glow glow-1" aria-hidden="true"></div>
     <div class="ambient-glow glow-2" aria-hidden="true"></div>
 
@@ -179,7 +180,7 @@
     <!-- Main Page Content -->
     <main class="main-layout" id="main-content">
         <!-- Hero Section -->
-        <section class="hero-section" aria-labelledby="hero-heading">
+        <section class="hero-section animate-on-scroll is-visible" aria-labelledby="hero-heading">
             <!-- Live Role Count Badge -->
             <div class="live-role-badge" role="status">
                 <span class="pulse-dot" aria-hidden="true"></span>
@@ -257,7 +258,7 @@
         <!-- Trust / Stats Section -->
         <section class="trust-stats-section" aria-label="Platform Statistics">
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card animate-on-scroll stagger-1">
                     <div class="stat-icon" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
@@ -270,7 +271,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card animate-on-scroll stagger-2">
                     <div class="stat-icon" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
@@ -289,7 +290,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card animate-on-scroll stagger-3">
                     <div class="stat-icon" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -304,7 +305,7 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card animate-on-scroll stagger-4">
                     <div class="stat-icon" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -319,7 +320,7 @@
         </section>
 
         <!-- Browse by Discipline Section -->
-        <section class="disciplines-section" id="browse-disciplines" aria-labelledby="discipline-heading">
+        <section class="disciplines-section animate-on-scroll" id="browse-disciplines" aria-labelledby="discipline-heading">
             <div class="section-title-bar">
                 <h2 class="section-heading" id="discipline-heading">Browse by discipline</h2>
                 <button type="button" class="view-all-link" id="reset-discipline-filter">View all &rarr;</button>
@@ -366,7 +367,7 @@
         </section>
 
         <!-- Featured Opportunities Section -->
-        <section class="opportunities-section" id="opportunities" aria-labelledby="featured-heading">
+        <section class="opportunities-section animate-on-scroll stagger-1" id="opportunities" aria-labelledby="featured-heading">
             <div class="section-title-bar">
                 <div>
                     <h2 class="section-heading" id="featured-heading">Featured opportunities</h2>
