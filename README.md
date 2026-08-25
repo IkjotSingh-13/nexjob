@@ -1,56 +1,95 @@
 # NexJob
 
-> **Connecting exceptional builders with category-defining companies.**
+A job board for engineering, design and product roles, built with plain HTML, CSS
+and JavaScript. No framework, no build step, no dependencies.
 
-NexJob is a modern, responsive web application designed to help job seekers find their next role in engineering, design, and product at top-tier companies like Stripe, Supabase, Linear, and Figma. 
+Listings are sample data held in `jobs.json`. Everything the app remembers — saved
+roles, theme, alerts, accounts — lives in the browser's `localStorage`.
 
-## ✨ Features
+## Running it
 
-- **Job Exploration**: Browse through a curated list of opportunities across various disciplines.
-- **Save Roles**: Bookmark your favorite jobs for later viewing. Uses local storage to keep your saved roles across sessions.
-- **Dark & Light Modes**: Seamlessly toggle between "Tokyo Night Dark" and "Emerald Porcelain Light" themes for optimal viewing comfort.
-- **Responsive Design**: Fully responsive interface that looks great on desktop, tablet, and mobile devices.
-- **Fast & Lightweight**: Built with Vanilla JS, HTML, and CSS without any heavy frameworks.
+The app loads `jobs.json` with `fetch` and uses ES modules, so it needs to be
+served over HTTP. Opening `index.html` from the file system will leave the
+listings empty.
 
-## 🛠️ Technology Stack
+```bash
+python -m http.server 8000
+```
 
-- **HTML5**: Semantic markup for better accessibility and SEO.
-- **CSS3 (Vanilla)**: Custom styling with modern features like CSS variables, flexbox, and grid.
-- **JavaScript (ES6+)**: Modular vanilla JavaScript for fetching data (`api.js`), handling UI interactions (`ui.js`), and managing local storage (`storage.js`).
-- **Fonts**: Inter and Outfit from Google Fonts.
+Then open <http://localhost:8000>. In VS Code, the Live Server extension works too.
 
-## 🚀 Getting Started
+## What it does
 
-### Prerequisites
+- **Search** by title, company, description or skill tag, and by location
+- **Filter** by discipline, with an all/saved scope switch
+- **Save roles** to a bookmark list that survives a reload
+- **View details** in a dialog with the full description, requirements and an
+  application form
+- **Post a role**, which prepends it to the current session's listings
+- **Set up alerts** by discipline and frequency
+- **Sign in or register**, against a demo account list in `localStorage`
+- **Switch themes** between light and dark
 
-You only need a modern web browser to run this project. If you wish to serve it locally, a simple HTTP server (like VS Code Live Server or Python's `http.server`) is recommended because of the use of ES modules and fetch API.
+Demo account: `jane@example.com` / `password123`.
 
-### Installation
+## Layout
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/IkjotSingh-13/nexjob.git
-   ```
+Mobile-first. Base styles target a phone; three `min-width` breakpoints progressively
+widen the layout.
 
-2. Navigate into the project directory:
-   ```bash
-   cd nexjob
-   ```
+The listing is the piece worth looking at. On a phone each role is a card with its
+pay, location and type stacked as labelled field/value pairs. At 860px the same
+markup becomes a dense table row — the `<dl>` switches to `display: contents` so its
+pairs drop into the row's grid as aligned columns, with pay right-aligned and set in
+tabular figures. One set of markup, two layouts, no duplication.
 
-3. Open the project:
-   - **Using VS Code**: Right-click on `index.html` and select "Open with Live Server".
-   - **Using Python**: Run `python -m http.server` and open `http://localhost:8000` in your browser.
+## Design system
 
-## 📂 Project Structure
+Every colour, typeface and radius is a custom property defined once in
+`style.css`, so the two themes are the same rules with a different token set.
 
-- `index.html`: The main entry point of the application.
-- `style.css`: Contains all the styling for the application including theme variables.
-- `main.js`: Main JavaScript file that initializes the application.
-- `api.js`: Handles asynchronous fetching of job listings.
-- `ui.js`: Manages DOM manipulation and UI state.
-- `storage.js`: Handles saving and retrieving bookmarked jobs from local storage.
-- `jobs.json`: A static JSON file containing the mock job data.
+| | Light | Dark |
+|---|---|---|
+| Ground | `#f8fbf9` | `#080b0a` |
+| Panel | `#ffffff` | `#101614` |
+| Ink | `#0e1613` | `#eaf2ee` |
+| Brand | `#12503b` | `#3cb98a` |
 
-## 📄 License
+Type is [Chivo](https://fonts.google.com/specimen/Chivo) for the interface and
+[JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) for data —
+pay, location, counts and field labels. The monospace face is what makes a listing
+scannable: figures line up, and labels read as labels.
 
-This project is open-source and available under the [MIT License](LICENSE).
+Colour is used sparingly and always means something. Green marks the primary
+action and saved state, amber marks a recent posting, and the only other colour on
+the page comes from the company marks, which carry each employer's real brand
+colour out of `jobs.json`.
+
+## Accessibility
+
+- Semantic landmarks (`header`, `nav`, `main`, `footer`, `aside`) and a skip link
+- Native `<dialog>` with `showModal()`, so focus trapping and Escape come free
+- Every control labelled; icon-only buttons carry `aria-label`
+- Save buttons expose state through `aria-pressed`
+- Visible focus ring on every interactive element
+- `prefers-reduced-motion` honoured
+
+## Files
+
+| File | Role |
+|---|---|
+| `index.html` | Markup and the inline script that sets the theme before first paint |
+| `style.css` | Tokens, components and breakpoints |
+| `main.js` | State, event wiring, bootstrap |
+| `ui.js` | Rendering, filtering, summary figures |
+| `storage.js` | `localStorage` for saves, theme, alerts, accounts |
+| `api.js` | Fetches `jobs.json` |
+| `jobs.json` | Sample listings |
+
+`main.js` holds all the state and event binding; `ui.js` only turns data into
+markup and never reads state. Keeping that split means the render functions can be
+reasoned about on their own.
+
+## Licence
+
+MIT.

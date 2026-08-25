@@ -1,740 +1,497 @@
 /**
- * Main Controller Module for NexJob
- * Coordinates state, UI rendering, event handling, storage, and theme switching.
+ * Application controller.
+ *
+ * Holds the current query, wires up events, and asks ui.js to re-render
+ * whenever that query changes.
  */
 import { fetchJobs } from './api.js';
-import { renderJobs, filterJobs, showToast, renderJobDetailModal } from './ui.js';
-import { 
-  getSavedJobs, 
-  toggleSaveJob, 
-  isJobSaved, 
-  getTheme, 
-  setTheme, 
-  saveAlert,
-  getCurrentUser,
-  loginUser,
-  registerUser,
-  logoutUser
+import { renderJobs, filterJobs, summarise, showToast, renderJobDetail } from './ui.js';
+import {
+  getSavedJobs, toggleSaveJob, isJobSaved,
+  getTheme, setTheme, saveAlert,
+  getCurrentUser, signIn, register, signOut
 } from './storage.js';
 
-// Application State
+const $ = (id) => document.getElementById(id);
+
 const state = {
-  allJobs: [],
-  filters: {
-    keyword: '',
-    location: '',
-    discipline: 'all',
-    savedOnly: false
+  jobs: [],
+  query: { keyword: '', location: '', discipline: 'all', savedOnly: false }
+};
+
+/* ------------------------------------------------------------- Rendering */
+
+const paintCounts = () => {
+  const count = getSavedJobs().length;
+  ['count-nav', 'count-drawer', 'count-scope'].forEach((id) => {
+    const el = $(id);
+    if (el) el.textContent = count;
+  });
+};
+
+const paintSummary = () => {
+  const { roles, companies, remote, medianFloor } = summarise(state.jobs);
+  const figures = { 'fig-roles': roles, 'fig-companies': companies, 'fig-remote': remote, 'fig-pay': medianFloor };
+
+  Object.entries(figures).forEach(([id, value]) => {
+    const el = $(id);
+    if (el) el.textContent = value;
+  });
+};
+
+const render = () => {
+  const matches = filterJobs(state.jobs, state.query);
+  renderJobs(matches, $('jobs'));
+
+  const heading = $('listings-title');
+  const note = $('result-count');
+
+  if (heading) heading.textContent = state.query.savedOnly ? 'Saved roles' : 'Open positions';
+
+  if (note) {
+    note.textContent = state.query.savedOnly
+      ? `${matches.length} saved`
+      : `${matches.length} of ${state.jobs.length}`;
   }
+
+  paintCounts();
 };
 
-/**
- * Centered Fullscreen Preloader Controller
- * Deliberate, smooth 2-second progression with real-time percentage and status text.
- */
-const initCenterPreloader = () => {
-  const preloader = document.getElementById('page-preloader');
-  const bar = document.getElementById('preloader-bar');
-  const percentText = document.getElementById('preloader-percent');
-  const statusText = document.getElementById('preloader-status-text');
+/* ----------------------------------------------------------------- Theme */
 
-  if (!preloader) return { complete: () => Promise.resolve() };
-
-  const setProgress = (percent, status) => {
-    if (bar) bar.style.width = `${percent}%`;
-    if (percentText) percentText.textContent = `${percent}%`;
-    if (statusText && status) statusText.textContent = status;
-  };
-
-  // Initial step
-  setProgress(8, 'Connecting to platform...');
-
-  return {
-    complete: () => {
-      return new Promise((resolve) => {
-        // Deliberate stepped progress over ~2 seconds
-        setTimeout(() => setProgress(28, 'Loading developer & design roles...'), 350);
-        setTimeout(() => setProgress(58, 'Syncing category-defining companies...'), 750);
-        setTimeout(() => setProgress(82, 'Curating verified builder opportunities...'), 1200);
-        setTimeout(() => setProgress(96, 'Preparing workspace...'), 1600);
-        setTimeout(() => {
-          setProgress(100, 'Welcome to NexJob');
-          setTimeout(() => {
-            preloader.classList.add('fade-out');
-            setTimeout(() => {
-              preloader.style.display = 'none';
-              resolve();
-            }, 600);
-          }, 450);
-        }, 2000);
-      });
-    }
-  };
-};
-
-/**
- * Theme Controller (Tokyo Night Dark / Emerald Porcelain Light)
- */
 const initTheme = () => {
-  const currentTheme = getTheme();
-  document.documentElement.setAttribute('data-theme', currentTheme);
+  const apply = (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    setTheme(theme);
 
-  const themeToggleBtn = document.getElementById('theme-toggle');
-  const drawerThemeToggleBtn = document.getElementById('drawer-theme-toggle');
-  const drawerThemeText = document.getElementById('drawer-theme-text');
+    const toggle = $('theme-toggle');
+    const label = `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`;
+    if (toggle) toggle.setAttribute('aria-label', label);
 
-  const applyTheme = (themeName) => {
-    document.documentElement.setAttribute('data-theme', themeName);
-    setTheme(themeName);
-
-    if (themeToggleBtn) updateThemeButtonAria(themeToggleBtn, themeName);
-    if (drawerThemeText) {
-      drawerThemeText.textContent = themeName === 'dark' 
-        ? '☀️ Switch to Emerald Light' 
-        : '🌌 Switch to Tokyo Night Dark';
-    }
-
-    showToast(
-      themeName === 'dark' ? '🌌 Switched to Tokyo Night (Dark)' : '🌿 Switched to Emerald Porcelain (Light)',
-      'info'
-    );
+    const drawerText = $('drawer-theme-text');
+    if (drawerText) drawerText.textContent = label;
   };
 
-  // Sync initial states
-  if (themeToggleBtn) updateThemeButtonAria(themeToggleBtn, currentTheme);
-  if (drawerThemeText) {
-    drawerThemeText.textContent = currentTheme === 'dark' 
-      ? '☀️ Switch to Emerald Light' 
-      : '🌌 Switch to Tokyo Night Dark';
-  }
+  apply(getTheme());
 
-  const toggleTheme = () => {
-    const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-    const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
-    applyTheme(newTheme);
+  const flip = () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    apply(current === 'dark' ? 'light' : 'dark');
   };
 
-  if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
-  if (drawerThemeToggleBtn) drawerThemeToggleBtn.addEventListener('click', toggleTheme);
+  $('theme-toggle')?.addEventListener('click', flip);
+  $('drawer-theme')?.addEventListener('click', flip);
 };
 
-const updateThemeButtonAria = (btn, theme) => {
-  const isDark = theme === 'dark';
-  btn.setAttribute('aria-label', `Switch to ${isDark ? 'Emerald Porcelain Light' : 'Tokyo Night Dark'} mode`);
-  btn.setAttribute('title', `Switch to ${isDark ? 'Emerald Porcelain Light' : 'Tokyo Night Dark'} mode`);
-};
+/* ---------------------------------------------------------------- Drawer */
 
-/**
- * Update saved roles count badges across header, drawer, and filter tabs
- */
-const updateSavedCounts = () => {
-  const savedIds = getSavedJobs();
-  const count = savedIds.length;
+const initDrawer = () => {
+  const drawer = $('drawer');
+  const scrim = $('scrim');
+  const trigger = $('drawer-open');
+  if (!drawer || !scrim || !trigger) return { close: () => {} };
 
-  const navCount = document.getElementById('nav-saved-count');
-  const drawerCount = document.getElementById('drawer-saved-count');
-  const tabCount = document.getElementById('saved-tab-count');
-
-  if (navCount) navCount.textContent = count;
-  if (drawerCount) drawerCount.textContent = count;
-  if (tabCount) tabCount.textContent = count;
-};
-
-/**
- * Filter and render current job listings
- */
-const applyFiltersAndRender = () => {
-  const jobsContainer = document.getElementById('jobs-container');
-  const resultsCountText = document.getElementById('results-count-text');
-  const opportunitiesTitle = document.getElementById('featured-heading');
-
-  const filtered = filterJobs(state.allJobs, state.filters);
-  renderJobs(filtered, jobsContainer);
-
-  if (resultsCountText) {
-    if (state.filters.savedOnly) {
-      resultsCountText.textContent = `Showing ${filtered.length} saved ${filtered.length === 1 ? 'role' : 'roles'}`;
-      if (opportunitiesTitle) opportunitiesTitle.textContent = 'Saved Opportunities';
-    } else {
-      resultsCountText.textContent = `Showing ${filtered.length} of ${state.allJobs.length} available builder roles`;
-      if (opportunitiesTitle) opportunitiesTitle.textContent = 'Featured opportunities';
-    }
-  }
-
-  updateSavedCounts();
-};
-
-/**
- * Mobile Drawer Navigation Controller
- */
-const initMobileDrawer = () => {
-  const hamburgerBtn = document.getElementById('hamburger-toggle');
-  const drawer = document.getElementById('mobile-drawer');
-  const backdrop = document.getElementById('drawer-backdrop');
-  const closeBtn = document.getElementById('drawer-close');
-
-  if (!hamburgerBtn || !drawer || !backdrop) return;
-
-  const openDrawer = () => {
-    drawer.classList.add('open');
-    backdrop.classList.add('open');
+  const open = () => {
+    scrim.hidden = false;
+    requestAnimationFrame(() => scrim.classList.add('is-open'));
+    drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
-    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    trigger.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
+    $('drawer-close')?.focus();
   };
 
-  const closeDrawer = () => {
-    drawer.classList.remove('open');
-    backdrop.classList.remove('open');
+  const close = () => {
+    scrim.classList.remove('is-open');
+    drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
-    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    trigger.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
+    setTimeout(() => { scrim.hidden = true; }, 200);
   };
 
-  hamburgerBtn.addEventListener('click', openDrawer);
-  backdrop.addEventListener('click', closeDrawer);
-  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  trigger.addEventListener('click', open);
+  scrim.addEventListener('click', close);
+  $('drawer-close')?.addEventListener('click', close);
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && drawer.classList.contains('open')) {
-      closeDrawer();
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && drawer.classList.contains('is-open')) close();
+  });
+
+  return { close };
+};
+
+/* --------------------------------------------------------------- Dialogs */
+
+const openDialog = (id) => $(id)?.showModal();
+const closeDialog = (id) => $(id)?.close();
+
+/** Close on backdrop click and on any [data-close] button. */
+const initDialogs = () => {
+  document.querySelectorAll('dialog').forEach((dialog) => {
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    const closer = event.target.closest('[data-close]');
+    if (closer) closeDialog(closer.dataset.close);
+  });
+};
+
+/* ---------------------------------------------------------------- Account */
+
+const paintAccount = () => {
+  const user = getCurrentUser();
+  const header = $('account-slot');
+  const drawer = $('drawer-account-slot');
+
+  if (header) {
+    header.innerHTML = user
+      ? `<div class="account">
+           <button type="button" class="account-trigger" id="account-open" aria-expanded="false">
+             <span class="avatar" style="background:${user.avatarBg}">${user.initial}</span>
+             <span class="account-name hide-sm">${user.name.split(' ')[0]}</span>
+           </button>
+           <div class="account-menu" id="account-menu">
+             <div class="account-card">
+               <p class="account-card-name">${user.name}</p>
+               <p class="account-card-mail">${user.email}</p>
+               <span class="account-card-role">${user.role}</span>
+             </div>
+             <div class="account-sep"></div>
+             <button type="button" class="account-action" data-signout>Sign out</button>
+           </div>
+         </div>`
+      : `<button type="button" class="btn btn--outline btn--sm" data-signin>Sign in</button>`;
+  }
+
+  if (drawer) {
+    drawer.innerHTML = user
+      ? `<div class="drawer-user">
+           <div class="drawer-user-row">
+             <span class="avatar avatar--lg" style="background:${user.avatarBg}">${user.initial}</span>
+             <div>
+               <p class="drawer-user-name">${user.name}</p>
+               <p class="drawer-user-role">${user.role}</p>
+             </div>
+           </div>
+           <button type="button" class="btn btn--outline btn--block" data-signout>Sign out</button>
+         </div>`
+      : `<button type="button" class="btn btn--outline btn--block" data-signin>Sign in or create an account</button>`;
+  }
+};
+
+const initAuth = (drawer) => {
+  const error = $('auth-error');
+  const signinForm = $('signin-form');
+  const registerForm = $('register-form');
+
+  const showError = (message) => {
+    if (!error) return;
+    error.textContent = message;
+    error.hidden = false;
+  };
+
+  const setMode = (mode) => {
+    const signingIn = mode === 'signin';
+    $('tab-signin')?.classList.toggle('is-active', signingIn);
+    $('tab-register')?.classList.toggle('is-active', !signingIn);
+    $('tab-signin')?.setAttribute('aria-selected', String(signingIn));
+    $('tab-register')?.setAttribute('aria-selected', String(!signingIn));
+    if (signinForm) signinForm.hidden = !signingIn;
+    if (registerForm) registerForm.hidden = signingIn;
+    if (error) error.hidden = true;
+
+    const title = $('auth-dialog-title');
+    const sub = $('auth-dialog-sub');
+    if (title) title.textContent = signingIn ? 'Sign in' : 'Create an account';
+    if (sub) {
+      sub.textContent = signingIn
+        ? "Save roles and track the ones you've applied to."
+        : 'Takes a moment. Everything stays in this browser.';
+    }
+  };
+
+  $('tab-signin')?.addEventListener('click', () => setMode('signin'));
+  $('tab-register')?.addEventListener('click', () => setMode('register'));
+
+  $('demo-fill')?.addEventListener('click', () => {
+    $('signin-email').value = 'jane@example.com';
+    $('signin-password').value = 'password123';
+  });
+
+  signinForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const result = signIn($('signin-email').value, $('signin-password').value);
+
+    if (!result.ok) return showError(result.message);
+
+    paintAccount();
+    closeDialog('auth-dialog');
+    signinForm.reset();
+    showToast(`Signed in as ${result.user.name}`, 'success');
+  });
+
+  registerForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const result = register({
+      name: $('register-name').value,
+      email: $('register-email').value,
+      password: $('register-password').value,
+      role: $('register-role').value
+    });
+
+    if (!result.ok) return showError(result.message);
+
+    paintAccount();
+    closeDialog('auth-dialog');
+    registerForm.reset();
+    showToast(`Account created for ${result.user.name}`, 'success');
+  });
+
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-signin]')) {
+      drawer.close();
+      setMode('signin');
+      openDialog('auth-dialog');
+      return;
+    }
+
+    if (event.target.closest('[data-signout]')) {
+      signOut();
+      paintAccount();
+      drawer.close();
+      showToast('Signed out', 'info');
+      return;
+    }
+
+    const menu = $('account-menu');
+    if (!menu) return;
+
+    if (event.target.closest('#account-open')) {
+      const open = menu.classList.toggle('is-open');
+      $('account-open')?.setAttribute('aria-expanded', String(open));
+    } else if (!event.target.closest('.account')) {
+      menu.classList.remove('is-open');
+      $('account-open')?.setAttribute('aria-expanded', 'false');
     }
   });
 
-  return { closeDrawer };
+  paintAccount();
 };
 
-/**
- * Setup Event Listeners
- */
-const setupEventListeners = (drawerController) => {
-  const searchForm = document.getElementById('search-form');
-  const searchKeyword = document.getElementById('search-keyword');
-  const searchLocation = document.getElementById('search-location');
-  const jobsContainer = document.getElementById('jobs-container');
+/* ---------------------------------------------------------------- Events */
 
-  // 1. Dual Search Form Submit & Live Input
-  if (searchForm) {
-    searchForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      state.filters.keyword = searchKeyword ? searchKeyword.value : '';
-      state.filters.location = searchLocation ? searchLocation.value : '';
-      applyFiltersAndRender();
-      
-      const targetSection = document.getElementById('opportunities');
-      if (targetSection) {
-        targetSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }
+const initEvents = (drawer) => {
+  const keyword = $('q');
+  const location = $('where');
 
-  if (searchKeyword) {
-    searchKeyword.addEventListener('input', (e) => {
-      state.filters.keyword = e.target.value;
-      applyFiltersAndRender();
-    });
-  }
+  /* Search */
+  $('search')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    $('listings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
-  if (searchLocation) {
-    searchLocation.addEventListener('input', (e) => {
-      state.filters.location = e.target.value;
-      applyFiltersAndRender();
-    });
-  }
+  keyword?.addEventListener('input', (event) => {
+    state.query.keyword = event.target.value;
+    render();
+  });
 
-  // 2. Popular Searches Chips
-  const popularChips = document.querySelectorAll('.popular-chip');
-  popularChips.forEach((chip) => {
+  location?.addEventListener('input', (event) => {
+    state.query.location = event.target.value;
+    render();
+  });
+
+  /* Suggested searches */
+  document.querySelectorAll('.quick-item').forEach((chip) => {
     chip.addEventListener('click', () => {
-      const searchTerm = chip.getAttribute('data-search') || chip.textContent.trim();
-      if (searchKeyword) {
-        searchKeyword.value = searchTerm;
-        state.filters.keyword = searchTerm;
-        applyFiltersAndRender();
-        showToast(`Filtered by "${searchTerm}"`, 'info');
-      }
+      const term = chip.dataset.term;
+      if (keyword) keyword.value = term;
+      state.query.keyword = term;
+      render();
+      $('listings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 
-  // 3. Discipline Category Cards
-  const disciplineCards = document.querySelectorAll('.discipline-card');
-  const resetDisciplineBtn = document.getElementById('reset-discipline-filter');
-
-  const setDiscipline = (disc) => {
-    state.filters.discipline = disc;
-    disciplineCards.forEach((card) => {
-      const cardDisc = card.getAttribute('data-discipline');
-      const isActive = cardDisc.toLowerCase() === disc.toLowerCase();
-      card.classList.toggle('active', isActive);
-      card.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  /* Discipline filters */
+  const filters = document.querySelectorAll('.filter');
+  const setDiscipline = (value) => {
+    state.query.discipline = value;
+    filters.forEach((btn) => {
+      btn.classList.toggle('is-active', btn.dataset.discipline === value);
     });
-    applyFiltersAndRender();
+    render();
   };
 
-  disciplineCards.forEach((card) => {
-    card.addEventListener('click', () => {
-      const disc = card.getAttribute('data-discipline') || 'all';
-      setDiscipline(disc);
-    });
+  filters.forEach((btn) => {
+    btn.addEventListener('click', () => setDiscipline(btn.dataset.discipline));
   });
 
-  if (resetDisciplineBtn) {
-    resetDisciplineBtn.addEventListener('click', () => {
+  /* All / Saved scope */
+  const setScope = (savedOnly) => {
+    state.query.savedOnly = savedOnly;
+    $('scope-all')?.classList.toggle('is-active', !savedOnly);
+    $('scope-saved')?.classList.toggle('is-active', savedOnly);
+    render();
+    drawer.close();
+  };
+
+  const goToSaved = () => {
+    setScope(true);
+    $('listings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  $('scope-all')?.addEventListener('click', () => setScope(false));
+  $('scope-saved')?.addEventListener('click', () => setScope(true));
+  $('nav-saved')?.addEventListener('click', goToSaved);
+  $('drawer-saved')?.addEventListener('click', goToSaved);
+  $('foot-saved')?.addEventListener('click', goToSaved);
+  $('foot-all')?.addEventListener('click', () => setScope(false));
+
+  $('brand-home')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    setScope(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* Listing interactions, delegated so re-renders don't need rebinding */
+  $('jobs')?.addEventListener('click', (event) => {
+    const saveBtn = event.target.closest('[data-save]');
+    if (saveBtn) {
+      const { saved } = toggleSaveJob(saveBtn.dataset.save);
+      showToast(saved ? 'Role saved' : 'Role removed from saved', saved ? 'success' : 'info');
+      render();
+      return;
+    }
+
+    const detailBtn = event.target.closest('[data-open]');
+    if (detailBtn) {
+      const job = state.jobs.find((j) => String(j.id) === detailBtn.dataset.open);
+      if (job) {
+        renderJobDetail(job, $('job-dialog-body'));
+        openDialog('job-dialog');
+      }
+      return;
+    }
+
+    if (event.target.closest('[data-reset]')) {
+      state.query = { keyword: '', location: '', discipline: 'all', savedOnly: false };
+      if (keyword) keyword.value = '';
+      if (location) location.value = '';
       setDiscipline('all');
-      showToast('Showing all disciplines', 'info');
-    });
-  }
-
-  // 4. Filter Tabs: All Roles vs Saved Roles
-  const tabAllRoles = document.getElementById('tab-all-roles');
-  const tabSavedRoles = document.getElementById('tab-saved-roles');
-  const navSavedBtn = document.getElementById('nav-saved-btn');
-  const drawerSavedBtn = document.getElementById('drawer-saved-btn');
-  const footerSavedLink = document.getElementById('footer-saved-link');
-  const navAllRoles = document.getElementById('nav-all-roles');
-  const drawerAllRoles = document.getElementById('drawer-all-roles');
-  const brandLogoBtn = document.getElementById('brand-logo-btn');
-  const footerBrowseLink = document.getElementById('footer-browse-link');
-
-  const switchToSavedRoles = () => {
-    state.filters.savedOnly = true;
-    if (tabSavedRoles) tabSavedRoles.classList.add('active');
-    if (tabAllRoles) tabAllRoles.classList.remove('active');
-    applyFiltersAndRender();
-    if (drawerController) drawerController.closeDrawer();
-    
-    const oppsSection = document.getElementById('opportunities');
-    if (oppsSection) oppsSection.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const switchToAllRoles = () => {
-    state.filters.savedOnly = false;
-    if (tabAllRoles) tabAllRoles.classList.add('active');
-    if (tabSavedRoles) tabSavedRoles.classList.remove('active');
-    applyFiltersAndRender();
-    if (drawerController) drawerController.closeDrawer();
-  };
-
-  if (tabAllRoles) tabAllRoles.addEventListener('click', switchToAllRoles);
-  if (tabSavedRoles) tabSavedRoles.addEventListener('click', switchToSavedRoles);
-  if (navSavedBtn) navSavedBtn.addEventListener('click', switchToSavedRoles);
-  if (drawerSavedBtn) drawerSavedBtn.addEventListener('click', switchToSavedRoles);
-  if (footerSavedLink) footerSavedLink.addEventListener('click', (e) => { e.preventDefault(); switchToSavedRoles(); });
-  if (navAllRoles) navAllRoles.addEventListener('click', (e) => { e.preventDefault(); switchToAllRoles(); });
-  if (drawerAllRoles) drawerAllRoles.addEventListener('click', (e) => { e.preventDefault(); switchToAllRoles(); });
-  if (brandLogoBtn) brandLogoBtn.addEventListener('click', (e) => { e.preventDefault(); switchToAllRoles(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-  if (footerBrowseLink) footerBrowseLink.addEventListener('click', (e) => { e.preventDefault(); switchToAllRoles(); });
-
-  // 5. Job Card Event Delegation (Save & Detail Modal)
-  const jobDialog = document.getElementById('job-dialog');
-  const dialogJobContent = document.getElementById('dialog-job-content');
-
-  if (jobsContainer) {
-    // Reset filters button in empty state
-    jobsContainer.addEventListener('click', (e) => {
-      if (e.target.id === 'reset-filters-btn') {
-        state.filters = { keyword: '', location: '', discipline: 'all', savedOnly: false };
-        if (searchKeyword) searchKeyword.value = '';
-        if (searchLocation) searchLocation.value = '';
-        setDiscipline('all');
-        switchToAllRoles();
-        showToast('All filters have been reset', 'info');
-      }
-    });
-
-    // Save bookmark toggle
-    jobsContainer.addEventListener('click', (e) => {
-      const saveBtn = e.target.closest('.save-btn');
-      if (saveBtn) {
-        e.stopPropagation();
-        const jobId = Number(saveBtn.getAttribute('data-job-id'));
-        const { isSaved } = toggleSaveJob(jobId);
-
-        showToast(
-          isSaved ? 'Role bookmarked to your saved list' : 'Role removed from bookmarks',
-          isSaved ? 'success' : 'info'
-        );
-
-        applyFiltersAndRender();
-        return;
-      }
-
-      // View details modal trigger
-      const detailsBtn = e.target.closest('.view-details-btn') || e.target.closest('.apply-fast-btn');
-      if (detailsBtn) {
-        const jobId = Number(detailsBtn.getAttribute('data-job-id'));
-        const job = state.allJobs.find((j) => j.id === jobId);
-        if (job && jobDialog && dialogJobContent) {
-          renderJobDetailModal(job, dialogJobContent);
-          jobDialog.showModal();
-        }
-      }
-    });
-  }
-
-  // Modal interactions
-  if (jobDialog) {
-    jobDialog.addEventListener('click', (e) => {
-      // Backdrop click closes dialog
-      const rect = jobDialog.getBoundingClientRect();
-      const isInDialog = (
-        rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
-        rect.left <= e.clientX && e.clientX <= rect.left + rect.width
-      );
-      if (!isInDialog || e.target.id === 'close-modal-btn') {
-        jobDialog.close();
-      }
-
-      // Save toggle inside modal
-      const modalSaveBtn = e.target.closest('#modal-save-toggle-btn');
-      if (modalSaveBtn) {
-        const jobId = Number(modalSaveBtn.getAttribute('data-job-id'));
-        const { isSaved } = toggleSaveJob(jobId);
-        modalSaveBtn.innerHTML = isSaved ? '★ Bookmarked' : '☆ Save Role';
-        applyFiltersAndRender();
-        showToast(isSaved ? 'Role bookmarked!' : 'Role removed from bookmarks', 'info');
-      }
-    });
-
-    // Application Form Submission
-    jobDialog.addEventListener('submit', (e) => {
-      if (e.target.id === 'application-form') {
-        e.preventDefault();
-        const applicantName = document.getElementById('applicant-name')?.value || 'Applicant';
-        jobDialog.close();
-        showToast(`🎉 Application submitted for ${applicantName}! Best of luck.`, 'success');
-      }
-    });
-  }
-
-  // 6. Create Alert Modal
-  const alertDialog = document.getElementById('alert-dialog');
-  const createAlertBtn = document.getElementById('create-alert-btn');
-  const closeAlertModalBtn = document.getElementById('close-alert-modal-btn');
-  const cancelAlertBtn = document.getElementById('cancel-alert-btn');
-  const alertForm = document.getElementById('alert-form');
-
-  if (createAlertBtn && alertDialog) {
-    createAlertBtn.addEventListener('click', () => {
-      alertDialog.showModal();
-    });
-  }
-
-  const closeAlertDialog = () => {
-    if (alertDialog) alertDialog.close();
-  };
-
-  if (closeAlertModalBtn) closeAlertModalBtn.addEventListener('click', closeAlertDialog);
-  if (cancelAlertBtn) cancelAlertBtn.addEventListener('click', closeAlertDialog);
-
-  if (alertForm) {
-    alertForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('alert-email')?.value;
-      const discipline = document.getElementById('alert-discipline')?.value;
-      const frequency = document.getElementById('alert-frequency')?.value;
-
-      saveAlert({ email, discipline, frequency });
-      closeAlertDialog();
-      alertForm.reset();
-      showToast(`🔔 Alert created for ${email} (${discipline} roles)`, 'success');
-    });
-  }
-
-  // 7. Post a Role Modal
-  const postRoleDialog = document.getElementById('post-role-dialog');
-  const postJobCta = document.getElementById('post-job-cta');
-  const drawerPostJobBtn = document.getElementById('drawer-post-job-btn');
-  const closePostRoleModal = document.getElementById('close-post-role-modal');
-  const cancelPostRole = document.getElementById('cancel-post-role');
-  const postRoleForm = document.getElementById('post-role-form');
-
-  const openPostDialog = () => {
-    if (drawerController) drawerController.closeDrawer();
-    if (postRoleDialog) postRoleDialog.showModal();
-  };
-
-  const closePostDialog = () => {
-    if (postRoleDialog) postRoleDialog.close();
-  };
-
-  if (postJobCta) postJobCta.addEventListener('click', openPostDialog);
-  if (drawerPostJobBtn) drawerPostJobBtn.addEventListener('click', openPostDialog);
-  if (closePostRoleModal) closePostRoleModal.addEventListener('click', closePostDialog);
-  if (cancelPostRole) cancelPostRole.addEventListener('click', closePostDialog);
-
-  if (postRoleForm) {
-    postRoleForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const company = document.getElementById('post-company')?.value || 'Startup';
-      const title = document.getElementById('post-title')?.value || 'Builder';
-      const discipline = document.getElementById('post-discipline')?.value || 'Engineering';
-      const location = document.getElementById('post-location')?.value || 'Remote';
-      const salary = document.getElementById('post-salary')?.value || '$120k – $160k';
-      const tagsRaw = document.getElementById('post-tags')?.value || 'Full-stack, TypeScript';
-      const description = document.getElementById('post-description')?.value || '';
-
-      const newJob = {
-        id: Date.now(),
-        title,
-        company,
-        companyInitial: company.charAt(0).toUpperCase(),
-        companyBg: '#6366F1',
-        companyColor: '#FFFFFF',
-        location,
-        type: 'Full-time',
-        discipline,
-        salary,
-        postedTime: 'Just now',
-        featured: true,
-        tags: tagsRaw.split(',').map((t) => t.trim()).filter(Boolean),
-        description,
-        requirements: ['High agency and execution speed', 'Strong collaboration and ownership']
-      };
-
-      state.allJobs.unshift(newJob);
-      applyFiltersAndRender();
-      closePostDialog();
-      postRoleForm.reset();
-      showToast(`🚀 "${title}" posted successfully!`, 'success');
-    });
-  }
-};
-
-/**
- * User Authentication Controller (Stored in LocalStorage)
- */
-const initAuth = (drawerController) => {
-  const authDialog = document.getElementById('auth-dialog');
-  const closeAuthModal = document.getElementById('close-auth-modal');
-  const cancelAuthBtn = document.getElementById('cancel-auth-btn');
-  const cancelRegisterBtn = document.getElementById('cancel-register-btn');
-  
-  const tabLogin = document.getElementById('tab-login');
-  const tabRegister = document.getElementById('tab-register');
-  const loginForm = document.getElementById('login-form');
-  const registerForm = document.getElementById('register-form');
-  const authErrorMsg = document.getElementById('auth-error-msg');
-  const demoLoginBtn = document.getElementById('demo-login-btn');
-  
-  const authModalTitle = document.getElementById('auth-modal-title');
-  const authModalSubtitle = document.getElementById('auth-modal-subtitle');
-  
-  const headerAuthWrapper = document.getElementById('auth-header-wrapper');
-  const drawerAuthWrapper = document.getElementById('drawer-auth-wrapper');
-
-  const renderAuthUI = () => {
-    const user = getCurrentUser();
-
-    // Render Desktop Header Auth
-    if (headerAuthWrapper) {
-      if (user) {
-        headerAuthWrapper.innerHTML = `
-          <div class="user-profile-menu">
-            <button type="button" class="user-avatar-btn" id="user-profile-toggle" aria-label="User Account Menu" title="${user.name} (${user.role})">
-              <span class="user-avatar-initial" style="background-color: ${user.avatarBg || '#ec4899'};">${user.avatarInitial}</span>
-              <span class="user-name-short">${user.name.split(' ')[0]}</span>
-            </button>
-            <div class="user-dropdown-popover" id="user-dropdown">
-              <div class="user-dropdown-info">
-                <p class="dropdown-name">${user.name}</p>
-                <p class="dropdown-email">${user.email}</p>
-                <span class="dropdown-role-badge">${user.role}</span>
-              </div>
-              <div class="dropdown-divider"></div>
-              <button type="button" class="dropdown-logout-btn" id="header-logout-btn">
-                <span>🚪 Sign Out</span>
-              </button>
-            </div>
-          </div>
-        `;
-      } else {
-        headerAuthWrapper.innerHTML = `
-          <button type="button" class="btn outline-btn auth-nav-btn" id="header-login-btn">
-            <span>Sign In</span>
-          </button>
-        `;
-      }
-    }
-
-    // Render Mobile Drawer Auth
-    if (drawerAuthWrapper) {
-      if (user) {
-        drawerAuthWrapper.innerHTML = `
-          <div class="drawer-user-card">
-            <div class="drawer-user-header">
-              <span class="user-avatar-initial large" style="background-color: ${user.avatarBg || '#ec4899'};">${user.avatarInitial}</span>
-              <div>
-                <p class="drawer-user-name">${user.name}</p>
-                <p class="drawer-user-role">${user.role}</p>
-              </div>
-            </div>
-            <button type="button" class="btn outline-btn full-width drawer-logout-btn" id="drawer-logout-btn">
-              Sign Out
-            </button>
-          </div>
-        `;
-      } else {
-        drawerAuthWrapper.innerHTML = `
-          <button type="button" class="btn outline-btn full-width" id="drawer-login-btn">
-            Sign In / Register
-          </button>
-        `;
-      }
-    }
-  };
-
-  const openAuthModal = (mode = 'login') => {
-    if (drawerController) drawerController.closeDrawer();
-    if (authErrorMsg) {
-      authErrorMsg.style.display = 'none';
-      authErrorMsg.textContent = '';
-    }
-    setAuthMode(mode);
-    if (authDialog) authDialog.showModal();
-  };
-
-  const closeAuth = () => {
-    if (authDialog) authDialog.close();
-    if (loginForm) loginForm.reset();
-    if (registerForm) registerForm.reset();
-    if (authErrorMsg) authErrorMsg.style.display = 'none';
-  };
-
-  const setAuthMode = (mode) => {
-    const isLogin = mode === 'login';
-    if (tabLogin) {
-      tabLogin.classList.toggle('active', isLogin);
-      tabLogin.setAttribute('aria-selected', isLogin ? 'true' : 'false');
-    }
-    if (tabRegister) {
-      tabRegister.classList.toggle('active', !isLogin);
-      tabRegister.setAttribute('aria-selected', !isLogin ? 'true' : 'false');
-    }
-    if (loginForm) loginForm.style.display = isLogin ? 'flex' : 'none';
-    if (registerForm) registerForm.style.display = !isLogin ? 'flex' : 'none';
-    if (authModalTitle) authModalTitle.textContent = isLogin ? 'Welcome to NexJob' : 'Create Builder Account';
-    if (authModalSubtitle) authModalSubtitle.textContent = isLogin 
-      ? 'Sign in to save roles, apply, and track applications.' 
-      : 'Join category-defining companies and exceptional builders.';
-  };
-
-  if (tabLogin) tabLogin.addEventListener('click', () => setAuthMode('login'));
-  if (tabRegister) tabRegister.addEventListener('click', () => setAuthMode('register'));
-  if (closeAuthModal) closeAuthModal.addEventListener('click', closeAuth);
-  if (cancelAuthBtn) cancelAuthBtn.addEventListener('click', closeAuth);
-  if (cancelRegisterBtn) cancelRegisterBtn.addEventListener('click', closeAuth);
-
-  // Delegated clicks for header & drawer auth buttons
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('#header-login-btn') || e.target.closest('#drawer-login-btn')) {
-      openAuthModal('login');
-      return;
-    }
-
-    if (e.target.closest('#header-logout-btn') || e.target.closest('#drawer-logout-btn')) {
-      logoutUser();
-      renderAuthUI();
-      showToast('👋 You have been signed out.', 'info');
-      return;
-    }
-
-    // Toggle dropdown popover on desktop
-    const userToggle = e.target.closest('#user-profile-toggle');
-    const popover = document.getElementById('user-dropdown');
-    if (userToggle && popover) {
-      popover.classList.toggle('show');
-    } else if (popover && !e.target.closest('.user-profile-menu')) {
-      popover.classList.remove('show');
+      setScope(false);
+      showToast('Filters cleared', 'info');
     }
   });
 
-  // Demo Login Button
-  if (demoLoginBtn) {
-    demoLoginBtn.addEventListener('click', () => {
-      const res = loginUser('jane@builder.dev', 'password123');
-      if (res.success) {
-        renderAuthUI();
-        closeAuth();
-        showToast(`🎉 Logged in as ${res.user.name} (${res.user.role})!`, 'success');
-      }
+  /* Detail dialog: save toggle and application */
+  $('job-dialog')?.addEventListener('click', (event) => {
+    const saveBtn = event.target.closest('[data-detail-save]');
+    if (!saveBtn) return;
+
+    const { saved } = toggleSaveJob(saveBtn.dataset.save);
+    saveBtn.textContent = saved ? 'Saved' : 'Save role';
+    render();
+  });
+
+  $('job-dialog')?.addEventListener('submit', (event) => {
+    if (event.target.id !== 'apply-form') return;
+    event.preventDefault();
+    closeDialog('job-dialog');
+    showToast('Application sent', 'success');
+  });
+
+  /* Alerts */
+  $('alert-open')?.addEventListener('click', () => openDialog('alert-dialog'));
+  $('foot-alert')?.addEventListener('click', () => openDialog('alert-dialog'));
+
+  $('alert-form')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    saveAlert({
+      email: $('alert-email').value,
+      discipline: $('alert-discipline').value,
+      frequency: $('alert-frequency').value
     });
-  }
+    closeDialog('alert-dialog');
+    event.target.reset();
+    showToast('Alert created', 'success');
+  });
 
-  // Login Form Submit
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('login-email')?.value || '';
-      const password = document.getElementById('login-password')?.value || '';
+  /* Post a role */
+  const openPost = () => {
+    drawer.close();
+    openDialog('post-dialog');
+  };
 
-      const res = loginUser(email, password);
-      if (res.success) {
-        renderAuthUI();
-        closeAuth();
-        showToast(`🎉 Welcome back, ${res.user.name}!`, 'success');
-      } else {
-        if (authErrorMsg) {
-          authErrorMsg.textContent = res.message || 'Login failed';
-          authErrorMsg.style.display = 'block';
-        }
-      }
+  $('post-role-open')?.addEventListener('click', openPost);
+  $('drawer-post-role')?.addEventListener('click', openPost);
+  $('foot-post')?.addEventListener('click', openPost);
+
+  $('post-form')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const company = $('post-company').value.trim();
+    const title = $('post-title').value.trim();
+
+    state.jobs.unshift({
+      id: Date.now(),
+      title,
+      company,
+      companyInitial: company.charAt(0).toUpperCase(),
+      companyBg: '#12503b',
+      companyColor: '#ffffff',
+      location: $('post-location').value.trim(),
+      type: 'Full-time',
+      discipline: $('post-discipline').value,
+      salary: $('post-salary').value.trim(),
+      postedTime: 'Just now',
+      featured: false,
+      tags: $('post-tags').value.split(',').map((t) => t.trim()).filter(Boolean),
+      description: $('post-description').value.trim(),
+      requirements: []
     });
-  }
 
-  // Register Form Submit
-  if (registerForm) {
-    registerForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('register-name')?.value || '';
-      const email = document.getElementById('register-email')?.value || '';
-      const password = document.getElementById('register-password')?.value || '';
-      const role = document.getElementById('register-role')?.value || 'Software Builder';
+    closeDialog('post-dialog');
+    event.target.reset();
+    paintSummary();
+    render();
+    showToast(`${title} published`, 'success');
+  });
 
-      const res = registerUser({ name, email, password, role });
-      if (res.success) {
-        renderAuthUI();
-        closeAuth();
-        showToast(`🚀 Account created for ${res.user.name}! Welcome to NexJob.`, 'success');
-      } else {
-        if (authErrorMsg) {
-          authErrorMsg.textContent = res.message || 'Registration failed';
-          authErrorMsg.style.display = 'block';
-        }
-      }
-    });
-  }
-
-  // Initial render of Auth UI
-  renderAuthUI();
+  /* Drawer links that only scroll */
+  $('drawer-browse')?.addEventListener('click', () => drawer.close());
 };
 
-/**
- * Bootstrap the Application
- */
-document.addEventListener('DOMContentLoaded', async () => {
-  const loaderController = initCenterPreloader();
+/* -------------------------------------------------------------- Bootstrap */
+
+const start = async () => {
   initTheme();
-  const drawerController = initMobileDrawer();
-  initAuth(drawerController);
+  const drawer = initDrawer();
+  initDialogs();
+  initAuth(drawer);
+  initEvents(drawer);
 
-  try {
-    // Fetch jobs asynchronously
-    const fetchedJobs = await fetchJobs();
-    state.allJobs = fetchedJobs;
+  const jobs = await fetchJobs();
 
-    // Initial render
-    applyFiltersAndRender();
-    updateSavedCounts();
-  } catch (error) {
-    console.error('Initialization error:', error);
-    showToast('Failed to load job listings. Please refresh.', 'warning');
-  } finally {
-    if (loaderController) {
-      await loaderController.complete();
+  if (!jobs.length) {
+    const container = $('jobs');
+    if (container) {
+      container.setAttribute('aria-busy', 'false');
+      container.innerHTML = `
+        <div class="empty">
+          <h3>Listings didn't load</h3>
+          <p>Serve this page over HTTP rather than opening the file directly, then reload.</p>
+        </div>`;
     }
+    const note = $('result-count');
+    if (note) note.textContent = 'Unavailable';
+    return;
   }
 
-  // Register interactive event listeners
-  setupEventListeners(drawerController);
-});
+  state.jobs = jobs;
+  paintSummary();
+  render();
+};
+
+document.addEventListener('DOMContentLoaded', start);
