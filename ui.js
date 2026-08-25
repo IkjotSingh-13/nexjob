@@ -1,240 +1,245 @@
 /**
- * UI Rendering and DOM manipulation module for NexJob
+ * Rendering and DOM output.
+ *
+ * Every function here takes data and a target element and writes markup.
+ * Nothing in this module reads application state or binds events —
+ * that stays in main.js.
  */
 import { isJobSaved } from './storage.js';
 
+/** Escape text before it goes into innerHTML. */
+const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[ch]));
+
+const bookmarkIcon = (filled) => `
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="${filled ? 'currentColor' : 'none'}"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+  </svg>`;
+
+/** A listing is "recent" when it was posted within the last day. */
+const isRecent = (postedTime = '') => /\bh\b|hour|min|just now/i.test(postedTime);
+
+const jobMarkup = (job) => {
+  const saved = isJobSaved(job.id);
+  const badge = esc(job.companyInitial || job.company.charAt(0));
+
+  const flag = job.featured
+    ? '<span class="job-flag job-flag--featured">Featured</span>'
+    : isRecent(job.postedTime)
+      ? `<span class="job-flag job-flag--recent">${esc(job.postedTime)}</span>`
+      : '';
+
+  return `
+    <article class="job${job.featured ? ' is-featured' : ''}" data-id="${esc(job.id)}">
+      <div class="job-top">
+        <span class="job-badge" aria-hidden="true"
+              style="background:${esc(job.companyBg || '#12503b')};color:${esc(job.companyColor || '#ffffff')}">${badge}</span>
+
+        <div class="job-head">
+          <h3 class="job-title">${esc(job.title)}</h3>
+          <p class="job-org">${esc(job.company)}</p>
+        </div>
+
+        ${flag}
+
+        <button type="button" class="job-save${saved ? ' is-saved' : ''}" data-save="${esc(job.id)}"
+                aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Save'} ${esc(job.title)} at ${esc(job.company)}">
+          ${bookmarkIcon(saved)}
+        </button>
+      </div>
+
+      <p class="job-blurb">${esc(job.description)}</p>
+
+      <dl class="job-facts">
+        <div class="fact fact--pay">
+          <dt>Pay</dt>
+          <dd>${esc(job.salary)}</dd>
+        </div>
+        <div class="fact fact--loc">
+          <dt>Location</dt>
+          <dd>${esc(job.location)}</dd>
+        </div>
+        <div class="fact fact--type">
+          <dt>Type</dt>
+          <dd>${esc(job.type)}</dd>
+        </div>
+      </dl>
+
+      <div class="job-tags">
+        ${(job.tags || []).map((tag) => `<span class="tag">${esc(tag)}</span>`).join('')}
+      </div>
+
+      <div class="job-actions">
+        <button type="button" class="btn btn--outline btn--sm" data-open="${esc(job.id)}">Details</button>
+      </div>
+    </article>`;
+};
+
 /**
- * Renders list of jobs into the designated container
- * @param {Array} jobs 
- * @param {HTMLElement} containerElement 
- * @param {Object} options
+ * Write the listing set into its container.
+ * @param {Array} jobs
+ * @param {HTMLElement} target
  */
-export const renderJobs = (jobs, containerElement, options = {}) => {
-  if (!containerElement) return;
-  containerElement.innerHTML = '';
+export const renderJobs = (jobs, target) => {
+  if (!target) return;
+  target.setAttribute('aria-busy', 'false');
 
   if (!jobs || jobs.length === 0) {
-    containerElement.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">🔍</div>
-        <h3>No matching roles found</h3>
-        <p>Try searching for different keywords, clearing your filters, or check back later.</p>
-        <button type="button" class="btn outline-btn" id="reset-filters-btn">Clear all filters</button>
-      </div>
-    `;
+    target.innerHTML = `
+      <div class="empty">
+        <h3>No roles match those filters</h3>
+        <p>Try a different keyword, widen the location, or switch back to all disciplines.</p>
+        <button type="button" class="btn btn--outline" data-reset>Clear filters</button>
+      </div>`;
     return;
   }
 
-  const jobsHTML = jobs.map((job) => {
-    const saved = isJobSaved(job.id);
-    const savedClass = saved ? 'is-saved' : '';
-    const bookmarkSvg = saved 
-      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>`
-      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>`;
-
-    return `
-      <article class="job-card" data-id="${job.id}" tabindex="0" role="region" aria-label="${job.title} at ${job.company}">
-        <div class="job-card-top">
-          <div class="job-company-badge" style="background-color: ${job.companyBg || 'var(--accent-primary)'}; color: ${job.companyColor || '#ffffff'};">
-            ${job.companyInitial || job.company.charAt(0)}
-          </div>
-          
-          <div class="job-main-info">
-            <h3 class="job-title">${job.title}</h3>
-            <div class="job-meta-line">
-              <span class="job-company-name">${job.company}</span>
-              <span class="meta-dot">•</span>
-              <span class="job-location">${job.location}</span>
-              <span class="meta-dot">•</span>
-              <span class="job-type">${job.type}</span>
-            </div>
-          </div>
-
-          <button 
-            type="button" 
-            class="save-btn ${savedClass}" 
-            data-job-id="${job.id}"
-            aria-label="${saved ? 'Remove from saved jobs' : 'Save this job'}"
-            title="${saved ? 'Saved' : 'Save job'}"
-          >
-            ${bookmarkSvg}
-          </button>
-        </div>
-
-        <div class="job-card-middle">
-          <p class="job-description">${job.description}</p>
-        </div>
-
-        <div class="job-card-bottom">
-          <div class="job-tags" aria-label="Skills and tags">
-            ${job.tags.map((tag) => `<span class="tag-pill">${tag}</span>`).join('')}
-          </div>
-          
-          <div class="job-footer-meta">
-            <span class="job-salary-badge">${job.salary}</span>
-            <span class="job-posted-time">${job.postedTime || 'Just now'}</span>
-          </div>
-        </div>
-
-        <div class="job-card-actions">
-          <button type="button" class="btn outline-btn view-details-btn" data-job-id="${job.id}">View Details</button>
-          <button type="button" class="btn primary-btn apply-fast-btn" data-job-id="${job.id}">Apply &rarr;</button>
-        </div>
-      </article>
-    `;
-  }).join('');
-
-  containerElement.innerHTML = jobsHTML;
+  target.innerHTML = jobs.map(jobMarkup).join('');
 };
 
 /**
- * Multi-factor filter function for jobs
- * @param {Array} jobs 
- * @param {Object} filters
+ * Filter listings against the current query.
+ * @param {Array} jobs
+ * @param {{keyword?: string, location?: string, discipline?: string, savedOnly?: boolean}} query
  * @returns {Array}
  */
 export const filterJobs = (jobs, { keyword = '', location = '', discipline = 'all', savedOnly = false } = {}) => {
-  const normKeyword = keyword.trim().toLowerCase();
-  const normLocation = location.trim().toLowerCase();
-  const normDiscipline = discipline.toLowerCase();
+  const kw = keyword.trim().toLowerCase();
+  const loc = location.trim().toLowerCase();
+  const disc = discipline.toLowerCase();
 
   return jobs.filter((job) => {
-    // 1. Keyword search (matches title, company, description, or tags)
-    const matchesKeyword = !normKeyword || (
-      job.title.toLowerCase().includes(normKeyword) ||
-      job.company.toLowerCase().includes(normKeyword) ||
-      job.description.toLowerCase().includes(normKeyword) ||
-      job.tags.some((tag) => tag.toLowerCase().includes(normKeyword))
-    );
+    const haystack = [job.title, job.company, job.description, ...(job.tags || [])]
+      .join(' ')
+      .toLowerCase();
 
-    // 2. Location search (matches location or 'remote')
-    const matchesLocation = !normLocation || (
-      job.location.toLowerCase().includes(normLocation) ||
-      (normLocation === 'remote' && job.location.toLowerCase().includes('remote'))
-    );
-
-    // 3. Discipline category filter
-    const matchesDiscipline = normDiscipline === 'all' || 
-      (job.discipline && job.discipline.toLowerCase() === normDiscipline);
-
-    // 4. Saved only filter
-    const matchesSaved = !savedOnly || isJobSaved(job.id);
-
-    return matchesKeyword && matchesLocation && matchesDiscipline && matchesSaved;
+    return (!kw || haystack.includes(kw))
+      && (!loc || job.location.toLowerCase().includes(loc))
+      && (disc === 'all' || (job.discipline || '').toLowerCase() === disc)
+      && (!savedOnly || isJobSaved(job.id));
   });
 };
 
 /**
- * Toast Notification System
- * @param {string} message 
- * @param {'success' | 'info' | 'warning'} type 
+ * Figures for the summary bar, counted from the listings themselves
+ * rather than written into the page by hand.
+ * @param {Array} jobs
  */
-export const showToast = (message, type = 'info') => {
-  let toastContainer = document.getElementById('toast-container');
-  if (!toastContainer) {
-    toastContainer = document.createElement('div');
-    toastContainer.id = 'toast-container';
-    toastContainer.className = 'toast-container';
-    toastContainer.setAttribute('aria-live', 'polite');
-    document.body.appendChild(toastContainer);
-  }
+export const summarise = (jobs) => {
+  if (!jobs.length) return { roles: 0, companies: 0, remote: 0, medianFloor: '—' };
+
+  const floors = jobs
+    .map((job) => Number((job.salary.match(/\d+/) || [])[0]))
+    .filter(Boolean)
+    .sort((a, b) => a - b);
+
+  const mid = Math.floor(floors.length / 2);
+  const median = floors.length % 2 ? floors[mid] : Math.round((floors[mid - 1] + floors[mid]) / 2);
+
+  return {
+    roles: jobs.length,
+    companies: new Set(jobs.map((job) => job.company)).size,
+    remote: jobs.filter((job) => /remote/i.test(job.location)).length,
+    medianFloor: floors.length ? `$${median}k` : '—'
+  };
+};
+
+/**
+ * Short-lived status message.
+ * @param {string} message
+ * @param {'info' | 'success' | 'warning'} tone
+ */
+export const showToast = (message, tone = 'info') => {
+  const host = document.getElementById('toasts');
+  if (!host) return;
 
   const toast = document.createElement('div');
-  toast.className = `toast-message toast-${type}`;
-  toast.innerHTML = `
-    <span class="toast-dot"></span>
-    <span class="toast-text">${message}</span>
-  `;
+  toast.className = `toast toast--${tone}`;
+  toast.textContent = message;
+  host.appendChild(toast);
 
-  toastContainer.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('is-shown'));
 
-  // Trigger entrance animation
-  requestAnimationFrame(() => {
-    toast.classList.add('show');
-  });
-
-  // Auto remove after 3.2 seconds
   setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => {
-      if (toast.parentNode) {
-        toast.parentNode.removeChild(toast);
-      }
-    }, 300);
-  }, 3200);
+    toast.classList.remove('is-shown');
+    setTimeout(() => toast.remove(), 220);
+  }, 3000);
 };
 
 /**
- * Render detail view inside modal
- * @param {Object} job 
- * @param {HTMLElement} modalContentElement 
+ * Full role detail, including the application form.
+ * @param {Object} job
+ * @param {HTMLElement} target
  */
-export const renderJobDetailModal = (job, modalContentElement) => {
-  if (!modalContentElement || !job) return;
-
+export const renderJobDetail = (job, target) => {
+  if (!target || !job) return;
   const saved = isJobSaved(job.id);
 
-  modalContentElement.innerHTML = `
-    <div class="modal-header">
-      <div class="modal-company-info">
-        <div class="job-company-badge large" style="background-color: ${job.companyBg || 'var(--accent-primary)'}; color: ${job.companyColor || '#ffffff'};">
-          ${job.companyInitial || job.company.charAt(0)}
-        </div>
-        <div>
-          <h2 id="modal-job-title" class="modal-title">${job.title}</h2>
-          <p class="modal-subtitle">${job.company} • ${job.location} • ${job.type}</p>
+  target.innerHTML = `
+    <div class="sheet-head">
+      <div style="display:flex;gap:13px;align-items:flex-start;min-width:0">
+        <span class="job-badge job-badge--lg" aria-hidden="true"
+              style="background:${esc(job.companyBg || '#12503b')};color:${esc(job.companyColor || '#ffffff')}">${esc(job.companyInitial || job.company.charAt(0))}</span>
+        <div style="min-width:0">
+          <h2 class="sheet-title">${esc(job.title)}</h2>
+          <p class="sheet-sub">${esc(job.company)} · ${esc(job.location)} · ${esc(job.type)}</p>
         </div>
       </div>
-      <button type="button" class="modal-close-btn" id="close-modal-btn" aria-label="Close dialog">✕</button>
+      <button type="button" class="sheet-close" data-close="job-dialog" aria-label="Close">&times;</button>
     </div>
 
-    <div class="modal-body">
-      <div class="modal-tags">
-        <span class="modal-salary-pill">${job.salary}</span>
-        <span class="modal-discipline-pill">${job.discipline || 'Engineering'}</span>
-        ${job.tags.map((t) => `<span class="tag-pill">${t}</span>`).join('')}
+    <div class="sheet-body">
+      <div class="detail-meta">
+        <span class="meta-pill meta-pill--pay">${esc(job.salary)}</span>
+        <span class="meta-pill">${esc(job.discipline || 'Engineering')}</span>
+        ${(job.tags || []).map((tag) => `<span class="meta-pill">${esc(tag)}</span>`).join('')}
       </div>
 
-      <div class="modal-section">
-        <h4>About the Role</h4>
-        <p>${job.description}</p>
+      <div class="detail-section">
+        <h4>About the role</h4>
+        <p>${esc(job.description)}</p>
       </div>
 
-      ${job.requirements && job.requirements.length > 0 ? `
-        <div class="modal-section">
-          <h4>Requirements & Qualifications</h4>
-          <ul class="modal-requirements-list">
-            ${job.requirements.map((req) => `<li>${req}</li>`).join('')}
+      ${(job.requirements || []).length ? `
+        <div class="detail-section">
+          <h4>What they're looking for</h4>
+          <ul class="req-list">
+            ${job.requirements.map((req) => `<li>${esc(req)}</li>`).join('')}
           </ul>
-        </div>
-      ` : ''}
+        </div>` : ''}
 
-      <form id="application-form" class="application-form">
-        <h4>Apply for this position</h4>
-        <div class="form-group">
-          <label for="applicant-name">Full Name</label>
-          <input type="text" id="applicant-name" required placeholder="Jane Doe">
-        </div>
-        <div class="form-group">
-          <label for="applicant-email">Email Address</label>
-          <input type="email" id="applicant-email" required placeholder="jane@example.com">
-        </div>
-        <div class="form-group">
-          <label for="applicant-portfolio">Portfolio / GitHub / LinkedIn URL</label>
-          <input type="url" id="applicant-portfolio" placeholder="https://github.com/janedoe">
-        </div>
-        <div class="form-group">
-          <label for="applicant-note">Brief note or cover letter</label>
-          <textarea id="applicant-note" rows="3" placeholder="Why you're excited about this role..."></textarea>
-        </div>
-        
-        <div class="modal-footer-actions">
-          <button type="button" class="btn outline-btn" id="modal-save-toggle-btn" data-job-id="${job.id}">
-            ${saved ? '★ Bookmarked' : '☆ Save Role'}
-          </button>
-          <button type="submit" class="btn primary-btn submit-app-btn">Submit Application</button>
-        </div>
-      </form>
-    </div>
-  `;
+      <div class="detail-section">
+        <h4>Apply</h4>
+        <form class="form-stack" id="apply-form" style="margin-top:12px">
+          <div class="field">
+            <label for="apply-name">Full name</label>
+            <input type="text" id="apply-name" required placeholder="Alex Rivera" autocomplete="name">
+          </div>
+
+          <div class="field">
+            <label for="apply-email">Email address</label>
+            <input type="email" id="apply-email" required placeholder="you@example.com" autocomplete="email">
+          </div>
+
+          <div class="field">
+            <label for="apply-link">Portfolio or GitHub</label>
+            <input type="url" id="apply-link" placeholder="https://github.com/yourname">
+          </div>
+
+          <div class="field">
+            <label for="apply-note">Anything else</label>
+            <textarea id="apply-note" rows="3" placeholder="Optional — why this role interests you."></textarea>
+          </div>
+
+          <div class="sheet-foot">
+            <button type="button" class="btn btn--outline" data-save="${esc(job.id)}" data-detail-save>
+              ${saved ? 'Saved' : 'Save role'}
+            </button>
+            <button type="submit" class="btn btn--primary">Send application</button>
+          </div>
+        </form>
+      </div>
+    </div>`;
 };
