@@ -1075,6 +1075,87 @@
 
   .acc-body { padding: 0 var(--s5) var(--s5); }
 
+  /* ========================================================== Boot cover
+     Held over the first paint until the board is drawn, so nobody watches
+     empty scales fill in. Built from parts that already exist — a card on
+     paper, a meter, a tick, a figure — so the wait looks like the site
+     instead of like a spinner.
+
+     The failsafe animation is the load-bearing line here. If the script
+     that lifts the cover never runs, CSS lifts it anyway after eight
+     seconds: a broken boot then shows a bare page rather than a blank
+     screen with nothing behind it. */
+
+  .loader {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: grid;
+    place-items: center;
+    padding: var(--s5);
+    background: var(--paper);
+    transition: opacity var(--slow) var(--ease), visibility var(--slow) var(--ease);
+    animation: loader-lift 1ms linear 8s forwards;
+  }
+
+  .loader.is-gone { opacity: 0; visibility: hidden; }
+
+  @keyframes loader-lift { to { opacity: 0; visibility: hidden; } }
+
+  .loader-card {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 380px;
+    padding: var(--s7);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s7);
+    box-shadow: var(--e2);
+  }
+
+  /* Hung off one blue rule, like every other measured thing here. */
+  .loader-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: var(--blue);
+  }
+
+  .loader-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s3);
+    text-align: center;
+  }
+
+  .loader-note {
+    font-size: var(--t-sm);
+    line-height: 1.45;
+    color: var(--ink-2);
+    text-wrap: balance;
+  }
+
+  .loader-bar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+  }
+
+  /* The bar is stepped every 100ms, so the fill has to keep up with it. */
+  .meter--load .meter-fill { transition: width var(--fast) linear; }
+
+  .loader-read {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s3);
+  }
+
+  .loader-read .figure { font-size: var(--t-tick); }
+
   /* ============================================== Entrance for rules */
 
   @media (prefers-reduced-motion: no-preference) {
