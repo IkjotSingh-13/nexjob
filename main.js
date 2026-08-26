@@ -472,7 +472,42 @@ const start = async () => {
   initAuth(drawer);
   initEvents(drawer);
 
-  const jobs = await fetchJobs();
+  const animateLoader = () => {
+    return new Promise(resolve => {
+      let progress = 0;
+      const fill = $('loading-progress-fill');
+      const pct = $('loading-status-pct');
+      
+      if (!fill || !pct) return resolve();
+      
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 15) + 5;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+        }
+        
+        fill.style.width = `${progress}%`;
+        pct.textContent = `${progress}%`;
+        
+        if (progress === 100) {
+          setTimeout(resolve, 300); // Brief pause at 100%
+        }
+      }, 100);
+    });
+  };
+
+  const [jobs] = await Promise.all([fetchJobs(), animateLoader()]);
+
+  const hideLoader = () => {
+    const loader = $('loading-screen');
+    if (loader) {
+      setTimeout(() => {
+        loader.classList.add('is-hidden');
+        setTimeout(() => loader.remove(), 500);
+      }, 300);
+    }
+  };
 
   if (!jobs.length) {
     const container = $('jobs');
@@ -486,12 +521,14 @@ const start = async () => {
     }
     const note = $('result-count');
     if (note) note.textContent = 'Unavailable';
+    hideLoader();
     return;
   }
 
   state.jobs = jobs;
   paintSummary();
   render();
+  hideLoader();
 };
 
 document.addEventListener('DOMContentLoaded', start);
