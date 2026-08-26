@@ -1,0 +1,184 @@
+/* ==========================================================================
+   Nexjob — design tokens
+   --------------------------------------------------------------------------
+   The whole product is built from one idea: everything is a position on a
+   scale. Pay sits in a band, an application sits on a pipeline, a profile
+   sits at a percentage. So the palette has exactly two inks on paper —
+
+     blue   structure. Rules, ticks, primary actions, the system itself.
+     flag   position. Reserved for "you are here" and nothing else.
+
+   If flag ever covers more than a few hundred pixels on a screen, it has
+   stopped meaning anything. That restraint is the design.
+
+   Layer order is declared here, in the first stylesheet the page loads, so
+   later files never have to fight specificity to win.
+   ========================================================================== */
+
+@layer tokens, base, layout, components, pages, utilities;
+
+@layer tokens {
+
+  :root {
+    color-scheme: light;
+
+    /* ---------------------------------------------------------- Surfaces */
+    --paper:      #ECEDE8;   /* page ground — bone, low chroma           */
+    --panel:      #F8F8F4;   /* raised: cards, sheets, the header        */
+    --sunk:       #E2E3DC;   /* recessed: tracks, tab strips, inputs     */
+    --hover:      #E6E7E0;
+
+    /* -------------------------------------------------------------- Text */
+    --ink:        #14151A;
+    --ink-2:      #45474F;   /* 7.3:1 on paper                           */
+    --ink-3:      #5F616B;   /* 5.0:1 on paper — the quietest legal ink  */
+    --on-blue:    #FFFFFF;
+    --on-flag:    #1A0A03;
+
+    /* ------------------------------------------------------------- Lines */
+    --rule:       #D3D4CC;
+    --rule-soft:  #E0E1DA;
+
+    /* ------------------------------------- Blue — structure and actions */
+    --blue:       #2B36C4;
+    --blue-deep:  #1E27A0;
+    --blue-line:  #A9AEE8;
+    --blue-soft:  #DEE0F7;
+
+    /* ------------------------------------------ Flag — position markers */
+    --flag:       #FF5A1F;   /* fills and marks only, never text on paper */
+    --flag-ink:   #B03705;   /* 5.0:1 — the text-safe version             */
+    --flag-line:  #FFA37B;
+    --flag-soft:  #FFE6DA;
+
+    /* --------------------------------------------------- Status signals */
+    --ok:         #17694A;  --ok-soft:   #DEEDE6;
+    --warn:       #8A5A00;  --warn-soft: #F5EAD6;
+    --stop:       #A22525;  --stop-soft: #F6DFDF;
+
+    /* ---------------------------------------------------------- Typefaces
+       All three carry a width axis. In a product about measurement the
+       type contrast is width, not style. */
+    --f-display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    --f-ui:      'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --f-data:    'Martian Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+    /* ------------------------------------------------------- Type scale */
+    --t-hero:  clamp(2.5rem, 10vw, 5rem);
+    --t-xxl:   clamp(1.875rem, 6vw, 3rem);
+    --t-xl:    clamp(1.5rem, 4.5vw, 2.125rem);
+    --t-lg:    clamp(1.1875rem, 3vw, 1.5rem);
+    --t-md:    1.0625rem;
+    --t-base:  1rem;
+    --t-sm:    0.875rem;
+    --t-xs:    0.8125rem;
+    --t-tick:  0.6875rem;   /* Martian Mono label size */
+
+    /* ------------------------------------------------------------ Space */
+    --s1:  4px;   --s2:  8px;   --s3: 12px;  --s4: 16px;
+    --s5: 20px;   --s6: 24px;   --s7: 32px;  --s8: 40px;
+    --s9: 56px;   --s10: 72px;  --s11: 96px;
+
+    /* ------------------------------------------------------------ Radii
+       2px, not 0. Machined, not doctrinaire. */
+    --r1: 2px;   --r2: 3px;   --r3: 5px;   --rp: 999px;
+
+    /* -------------------------------------------------------- Elevation */
+    --e1: 0 1px 2px rgba(20, 21, 26, .05);
+    --e2: 0 2px 10px rgba(20, 21, 26, .08);
+    --e3: 0 16px 44px rgba(20, 21, 26, .18);
+
+    /* --------------------------------------------------------- Metrics */
+    --wide:   1240px;
+    --narrow: 720px;
+    --pad:    18px;
+    --head-h: 56px;
+
+    /* ---------------------------------------------------------- Motion */
+    --fast: .12s;
+    --base: .22s;
+    --slow: .44s;
+    --ease: cubic-bezier(.2, .7, .3, 1);
+  }
+
+  /* Dark palette. Declared twice so all three viewer states resolve: an
+     explicit choice through [data-theme], and the system default where no
+     attribute is set. An explicit light choice always beats a dark OS. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+
+      --paper:     #121317;
+      --panel:     #1A1C21;
+      --sunk:      #0C0D10;
+      --hover:     #22242A;
+
+      --ink:       #E9EAE4;
+      --ink-2:     #A2A4AB;
+      --ink-3:     #8A8C95;
+      --on-blue:   #0B0C14;
+      --on-flag:   #1A0A03;
+
+      --rule:      #2C2E35;
+      --rule-soft: #22242A;
+
+      --blue:      #7E8AFF;
+      --blue-deep: #98A2FF;
+      --blue-line: #3A4180;
+      --blue-soft: #1D2142;
+
+      --flag:      #FF6B3D;
+      --flag-ink:  #FF8A5C;
+      --flag-line: #7A3417;
+      --flag-soft: #2C1810;
+
+      --ok:   #4FBE92;  --ok-soft:   #12271F;
+      --warn: #D9A03C;  --warn-soft: #2A2112;
+      --stop: #E97878;  --stop-soft: #2C1717;
+
+      --e1: 0 1px 2px rgba(0, 0, 0, .5);
+      --e2: 0 2px 10px rgba(0, 0, 0, .55);
+      --e3: 0 16px 44px rgba(0, 0, 0, .7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --paper:     #121317;
+    --panel:     #1A1C21;
+    --sunk:      #0C0D10;
+    --hover:     #22242A;
+
+    --ink:       #E9EAE4;
+    --ink-2:     #A2A4AB;
+    --ink-3:     #8A8C95;
+    --on-blue:   #0B0C14;
+    --on-flag:   #1A0A03;
+
+    --rule:      #2C2E35;
+    --rule-soft: #22242A;
+
+    --blue:      #7E8AFF;
+    --blue-deep: #98A2FF;
+    --blue-line: #3A4180;
+    --blue-soft: #1D2142;
+
+    --flag:      #FF6B3D;
+    --flag-ink:  #FF8A5C;
+    --flag-line: #7A3417;
+    --flag-soft: #2C1810;
+
+    --ok:   #4FBE92;  --ok-soft:   #12271F;
+    --warn: #D9A03C;  --warn-soft: #2A2112;
+    --stop: #E97878;  --stop-soft: #2C1717;
+
+    --e1: 0 1px 2px rgba(0, 0, 0, .5);
+    --e2: 0 2px 10px rgba(0, 0, 0, .55);
+    --e3: 0 16px 44px rgba(0, 0, 0, .7);
+  }
+
+  /* Gutters widen with the viewport. Everything else stays put. */
+  @media (min-width: 700px)  { :root { --pad: 28px; } }
+  @media (min-width: 1040px) { :root { --pad: 40px; --head-h: 64px; } }
+}
