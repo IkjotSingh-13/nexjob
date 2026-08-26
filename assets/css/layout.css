@@ -1,0 +1,349 @@
+/* ==========================================================================
+   Nexjob — shell and layout primitives
+   Mobile-first throughout. Every min-width query adds; none takes away.
+   ========================================================================== */
+
+@layer layout {
+
+  /* ---------------------------------------------------------- Containers */
+
+  .wrap {
+    width: 100%;
+    max-width: var(--wide);
+    margin-inline: auto;
+    padding-inline: var(--pad);
+  }
+
+  .wrap--narrow { max-width: var(--narrow); }
+  .wrap--mid    { max-width: 940px; }
+
+  .strip        { padding-block: var(--s8); }
+  .strip--tight { padding-block: var(--s6); }
+  .strip--loose { padding-block: var(--s9); }
+  .strip--sunk  { background: var(--sunk); }
+  .strip--panel { background: var(--panel); }
+
+  @media (min-width: 700px) {
+    .strip        { padding-block: var(--s9); }
+    .strip--tight { padding-block: var(--s7); }
+    .strip--loose { padding-block: var(--s11); }
+  }
+
+  /* -------------------------------------------------------------- Header */
+
+  .mast {
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    background: color-mix(in srgb, var(--panel) 88%, transparent);
+    backdrop-filter: saturate(150%) blur(10px);
+  }
+
+  /* The header sits on the same ruled line as everything else. */
+  .mast::after {
+    content: '';
+    display: block;
+    height: 6px;
+    background:
+      linear-gradient(var(--rule), var(--rule)) left top / 100% 1px no-repeat,
+      repeating-linear-gradient(to right, var(--rule) 0 1px, transparent 1px 8px) left top / 100% 5px no-repeat;
+  }
+
+  .mast-in {
+    height: var(--head-h);
+    display: flex;
+    align-items: center;
+    gap: var(--s4);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s2);
+    text-decoration: none;
+    color: var(--ink);
+    flex: none;
+  }
+
+  .brand-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: var(--r2);
+    background: var(--blue);
+    color: var(--on-blue);
+    display: grid;
+    place-items: center;
+    flex: none;
+  }
+
+  .brand-name {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-stretch: 118%;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+  }
+
+  .mast-nav { display: none; }
+
+  .mast-nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+  }
+
+  .mast-link {
+    position: relative;
+    display: block;
+    padding: var(--s2) var(--s3);
+    border-radius: var(--r2);
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: var(--t-sm);
+    font-weight: 500;
+    transition: color var(--fast) var(--ease), background var(--fast) var(--ease);
+  }
+
+  .mast-link:hover { color: var(--ink); background: var(--hover); }
+
+  /* Current page is a position, so it gets the position colour — a tick
+     under the label rather than a filled pill. */
+  .mast-link[aria-current='page'] { color: var(--ink); }
+
+  .mast-link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: var(--s3);
+    right: var(--s3);
+    bottom: 2px;
+    height: 2px;
+    background: var(--flag);
+    border-radius: var(--rp);
+  }
+
+  .mast-side {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+  }
+
+  @media (min-width: 880px) {
+    .mast-nav { display: block; }
+  }
+
+  /* -------------------------------------------------------------- Drawer */
+
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(12, 13, 16, .5);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity var(--base) var(--ease);
+  }
+
+  .scrim.is-open { opacity: 1; }
+
+  .drawer {
+    position: fixed;
+    inset-block: 0;
+    right: 0;
+    z-index: 110;
+    width: min(330px, 88vw);
+    background: var(--panel);
+    border-left: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform var(--base) var(--ease);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .drawer.is-open { transform: translateX(0); }
+
+  .drawer-top {
+    height: var(--head-h);
+    padding-inline: var(--s5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--rule);
+    flex: none;
+  }
+
+  .drawer-body {
+    padding: var(--s5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s6);
+  }
+
+  .drawer-group { display: flex; flex-direction: column; gap: var(--s1); }
+
+  .drawer-group > .tick { margin-bottom: var(--s2); }
+
+  .drawer-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s3);
+    width: 100%;
+    padding: var(--s3) var(--s3);
+    margin-inline: calc(var(--s3) * -1);
+    border-radius: var(--r2);
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: var(--t-sm);
+    font-weight: 500;
+    text-align: left;
+    transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+  }
+
+  .drawer-link:hover { background: var(--hover); color: var(--ink); }
+
+  .drawer-link[aria-current='page'] {
+    color: var(--ink);
+    box-shadow: inset 2px 0 0 var(--flag);
+  }
+
+  @media (min-width: 880px) {
+    .drawer, .scrim { display: none; }
+  }
+
+  /* -------------------------------------------------------------- Footer */
+
+  .foot {
+    margin-top: var(--s10);
+    background: var(--panel);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* When a page ends on a tinted section, that section already provides the
+     separation the margin is there for. The footer is a sibling of <main>,
+     so this has to reach inside it. */
+  main:has(> .strip--panel:last-child) + .foot,
+  main:has(> .strip--sunk:last-child) + .foot { margin-top: 0; }
+
+  .foot-in { padding-block: var(--s8) var(--s6); }
+
+  .foot-grid {
+    display: grid;
+    gap: var(--s7);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 620px)  { .foot-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1000px) { .foot-grid { grid-template-columns: 1.6fr repeat(4, 1fr); } }
+
+  .foot-brand { display: flex; flex-direction: column; gap: var(--s3); max-width: 34ch; }
+
+  .foot-col { display: flex; flex-direction: column; gap: var(--s3); }
+
+  .foot-col ul { display: flex; flex-direction: column; gap: var(--s2); }
+
+  .foot-col a {
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: var(--t-sm);
+  }
+
+  .foot-col a:hover { color: var(--ink); text-decoration: underline; }
+
+  .foot-base {
+    margin-top: var(--s7);
+    padding-top: var(--s5);
+    border-top: 1px solid var(--rule-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3) var(--s6);
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* --------------------------------------------------------- Page splits */
+
+  .split {
+    display: grid;
+    gap: var(--s6);
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .split--rail-left  { grid-template-columns: 268px minmax(0, 1fr); gap: var(--s8); }
+    .split--rail-wide  { grid-template-columns: 348px minmax(0, 1fr); gap: var(--s8); }
+    .split--rail-right { grid-template-columns: minmax(0, 1fr) 320px; gap: var(--s8); }
+    .split--half       { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  .rail-sticky {
+    position: sticky;
+    top: calc(var(--head-h) + var(--s5));
+  }
+
+  /* ------------------------------------------------------------- Section */
+
+  .sec-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--s3) var(--s5);
+    margin-bottom: var(--s5);
+  }
+
+  .sec-head p { color: var(--ink-2); font-size: var(--t-sm); }
+
+  .stack   { display: flex; flex-direction: column; gap: var(--s4); }
+  .stack-2 { display: flex; flex-direction: column; gap: var(--s2); }
+  .stack-6 { display: flex; flex-direction: column; gap: var(--s6); }
+  .stack-8 { display: flex; flex-direction: column; gap: var(--s8); }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s3);
+  }
+
+  .row--tight { gap: var(--s2); }
+  .row--end   { justify-content: flex-end; }
+  .row--split { justify-content: space-between; }
+
+  .grid-cards {
+    display: grid;
+    gap: var(--s4);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 620px)  { .grid-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1000px) { .grid-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+  .grid-2 { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
+  @media (min-width: 700px) { .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+}
+
+/* --------------------------------------------------------- Visibility
+   These live in the last layer on purpose. A visibility utility has to be
+   able to hide a component, and component rules are declared after layout
+   ones — so anywhere earlier, `.btn { display: inline-flex }` would quietly
+   win against `.only-wide { display: none }`. */
+
+@layer utilities {
+
+  .only-wide  { display: none; }
+  .mast-burger { display: grid; }
+
+  @media (min-width: 880px) {
+    .only-wide  { display: inline-flex; }
+    .mast-burger { display: none; }
+  }
+
+  @media (max-width: 559px) { .not-narrow { display: none; } }
+
+  .flush-top { margin-top: 0; }
+  .full      { width: 100%; }
+}

@@ -1,0 +1,730 @@
+[
+  {
+    "id": 1,
+    "title": "Frontend Engineer",
+    "companyId": "stripe",
+    "location": "Remote",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Mid",
+    "salaryMin": 140000,
+    "salaryMax": 180000,
+    "postedHoursAgo": 2,
+    "featured": true,
+    "tags": ["React", "TypeScript", "Accessibility"],
+    "summary": "Build the dashboards and checkout surfaces businesses use to move money, on a team that treats interface latency as a correctness problem.",
+    "responsibilities": [
+      "Ship features across the merchant dashboard, from data-dense tables to onboarding flows",
+      "Take interfaces from a rough spec through design review to production",
+      "Keep the shared component library healthy as more teams adopt it"
+    ],
+    "requirements": [
+      "Three or more years writing production JavaScript, most of it in React",
+      "Fluency in modern CSS layout and a working knowledge of WCAG",
+      "Comfort reasoning about state, caching and network failure in the browser"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Backend Engineer",
+    "companyId": "supabase",
+    "location": "Remote",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Senior",
+    "salaryMin": 130000,
+    "salaryMax": 170000,
+    "postedHoursAgo": 26,
+    "featured": true,
+    "tags": ["PostgreSQL", "Rust", "Distributed systems"],
+    "summary": "Work on the realtime engine, connection pooling and edge functions sitting between Postgres and several hundred thousand projects.",
+    "responsibilities": [
+      "Extend the realtime replication layer and its client protocol",
+      "Profile and remove bottlenecks in the connection pooler",
+      "Review community pull requests and land your own work in the open"
+    ],
+    "requirements": [
+      "Strong systems programming background in Rust, Go or C++",
+      "Deep familiarity with Postgres internals, replication and query planning",
+      "Experience operating async services under real production load"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Product Designer",
+    "companyId": "linear",
+    "location": "San Francisco, CA",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Design",
+    "level": "Senior",
+    "salaryMin": 150000,
+    "salaryMax": 190000,
+    "postedHoursAgo": 3,
+    "featured": true,
+    "tags": ["Interaction design", "Prototyping", "Figma"],
+    "summary": "Design planning and tracking software for engineering teams who notice every frame of latency and every misaligned pixel.",
+    "responsibilities": [
+      "Own a product area end to end, from problem framing to shipped detail",
+      "Design keyboard-first flows that stay fast for people who live in the tool",
+      "Prototype interactions in code or Figma before committing to them"
+    ],
+    "requirements": [
+      "A portfolio of shipped desktop or web software, not only concepts",
+      "Command of typography, motion and interaction detail",
+      "Ability to hold a strong opinion and change it when the evidence does"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Senior Design Technologist",
+    "companyId": "figma",
+    "location": "New York, NY",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Design",
+    "level": "Senior",
+    "salaryMin": 160000,
+    "salaryMax": 210000,
+    "postedHoursAgo": 5,
+    "featured": false,
+    "tags": ["Design systems", "WebGL", "TypeScript"],
+    "summary": "Sit between design and engineering, turning canvas interactions and foundational components into code the rest of the product builds on.",
+    "responsibilities": [
+      "Build and maintain the component primitives every product team consumes",
+      "Prototype canvas features against the real rendering pipeline",
+      "Set the standard for how motion and micro-interaction get implemented"
+    ],
+    "requirements": [
+      "Five or more years bridging design systems and production frontend",
+      "Advanced CSS architecture plus working knowledge of Canvas or WebGL",
+      "Track record of shipping interactions that feel considered, not decorative"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Principal Product Manager",
+    "companyId": "vercel",
+    "location": "Remote",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Product",
+    "level": "Principal",
+    "salaryMin": 170000,
+    "salaryMax": 220000,
+    "postedHoursAgo": 6,
+    "featured": true,
+    "tags": ["Developer experience", "Cloud", "Strategy"],
+    "summary": "Set direction for the build and deploy platform underneath a large share of the modern web, for customers who read your changelog closely.",
+    "responsibilities": [
+      "Own the roadmap for build infrastructure and deployment workflows",
+      "Turn noisy developer feedback into a small number of decisive bets",
+      "Write the specs, the launch posts and the deprecation notices"
+    ],
+    "requirements": [
+      "Demonstrated ownership of a developer platform product",
+      "A technical background deep enough to argue with engineers productively",
+      "Exceptional written communication — most decisions here happen in docs"
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Growth Marketing Lead",
+    "companyId": "retool",
+    "location": "San Francisco, CA",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Marketing",
+    "level": "Senior",
+    "salaryMin": 125000,
+    "salaryMax": 165000,
+    "postedHoursAgo": 30,
+    "featured": false,
+    "tags": ["B2B SaaS", "Attribution", "Experimentation"],
+    "summary": "Run acquisition for a product bought by engineers, where the usual playbook of gated ebooks and webinars does not work.",
+    "responsibilities": [
+      "Own self-serve signup growth from first touch to activated team",
+      "Design and read multi-channel experiments with real statistical care",
+      "Build the attribution model the rest of the company trusts"
+    ],
+    "requirements": [
+      "Experience marketing to a technical audience",
+      "Hands-on SQL and comfort building your own dashboards",
+      "A history of experiments that changed a decision, not only a slide"
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Staff Data Engineer",
+    "companyId": "github",
+    "location": "Remote",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Data",
+    "level": "Staff",
+    "salaryMin": 165000,
+    "salaryMax": 215000,
+    "postedHoursAgo": 50,
+    "featured": false,
+    "tags": ["Spark", "Kafka", "Data quality"],
+    "summary": "Own the telemetry pipelines behind developer AI tooling, at a volume where a one percent inefficiency is a budget line.",
+    "responsibilities": [
+      "Design streaming and batch pipelines that survive schema drift",
+      "Set the data quality and governance standard across teams",
+      "Cut query latency on the warehouse tables everyone depends on"
+    ],
+    "requirements": [
+      "Deep experience with Spark, Kafka and a cloud warehouse",
+      "Fluency in Python and SQL, and the willingness to read Scala",
+      "Judgement about when a pipeline should be deleted rather than fixed"
+    ]
+  },
+  {
+    "id": 8,
+    "title": "AI Platform Engineer",
+    "companyId": "openai",
+    "location": "San Francisco, CA",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Senior",
+    "salaryMin": 190000,
+    "salaryMax": 260000,
+    "postedHoursAgo": 7,
+    "featured": true,
+    "tags": ["Python", "Kubernetes", "Inference"],
+    "summary": "Keep high-throughput inference endpoints fast and up, for frontier models serving a very large number of concurrent requests.",
+    "responsibilities": [
+      "Build and tune the serving layer in front of model inference",
+      "Design caching and batching strategies that hold under burst load",
+      "Own on-call for systems where downtime is immediately visible"
+    ],
+    "requirements": [
+      "Strong backend engineering in Python or C++",
+      "Experience running large Kubernetes clusters in production",
+      "Working understanding of inference optimisation and GPU scheduling"
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Edge Systems Engineer",
+    "companyId": "cloudflare",
+    "location": "Austin, TX",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Staff",
+    "salaryMin": 175000,
+    "salaryMax": 225000,
+    "postedHoursAgo": 9,
+    "featured": false,
+    "tags": ["Rust", "Networking", "WebAssembly"],
+    "summary": "Write code that runs in 300-plus cities at once, where a rollout bug is a global incident and a millisecond is a real number.",
+    "responsibilities": [
+      "Extend the Workers runtime and its isolate scheduling",
+      "Improve cold start and memory behaviour across the fleet",
+      "Design deploys that fail safely at global scale"
+    ],
+    "requirements": [
+      "Systems programming in Rust or C++ with real production exposure",
+      "Solid grounding in TCP, TLS and HTTP internals",
+      "Experience with progressive rollout and blast-radius control"
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Design Systems Engineer",
+    "companyId": "notion",
+    "location": "San Francisco, CA",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Design",
+    "level": "Mid",
+    "salaryMin": 145000,
+    "salaryMax": 185000,
+    "postedHoursAgo": 12,
+    "featured": false,
+    "tags": ["Design systems", "React", "Tokens"],
+    "summary": "Maintain the component and token layer that keeps an extremely flexible product feeling like one coherent thing.",
+    "responsibilities": [
+      "Own the token pipeline from design source to shipped CSS",
+      "Build accessible primitives teams can compose without asking you",
+      "Track and reduce visual drift across the product surface"
+    ],
+    "requirements": [
+      "Two or more years on a design system used by multiple teams",
+      "Strong CSS fundamentals, including cascade layers and container queries",
+      "Patience for API design — components are interfaces too"
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Ledger Engineer",
+    "companyId": "ramp",
+    "location": "New York, NY",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Senior",
+    "salaryMin": 170000,
+    "salaryMax": 215000,
+    "postedHoursAgo": 14,
+    "featured": true,
+    "tags": ["Python", "Postgres", "Fintech"],
+    "summary": "Build the double-entry ledger behind corporate cards and reimbursements, where every row has to reconcile to the cent.",
+    "responsibilities": [
+      "Extend the ledger primitives all money movement writes through",
+      "Design reconciliation jobs that catch drift before finance does",
+      "Model new card and payment products without forking the core"
+    ],
+    "requirements": [
+      "Backend experience in Python or Java on transactional systems",
+      "Real comfort with Postgres isolation levels and idempotency",
+      "Care about correctness in a domain where rounding is a bug"
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Time Series Engineer",
+    "companyId": "datadog",
+    "location": "New York, NY",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Staff",
+    "salaryMin": 180000,
+    "salaryMax": 235000,
+    "postedHoursAgo": 20,
+    "featured": false,
+    "tags": ["Go", "Storage engines", "Query planning"],
+    "summary": "Work on the storage and query engine that turns trillions of points into a dashboard rendering before anyone gets bored.",
+    "responsibilities": [
+      "Improve compression and retention in the time series store",
+      "Push down aggregations so queries touch less data",
+      "Instrument the engine well enough to debug it from its own product"
+    ],
+    "requirements": [
+      "Experience building or operating a storage or query engine",
+      "Strong Go or C++ and a habit of profiling before optimising",
+      "Understanding of cardinality and how it ruins everything"
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Junior Frontend Engineer",
+    "companyId": "supabase",
+    "location": "Remote",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Junior",
+    "salaryMin": 85000,
+    "salaryMax": 110000,
+    "postedHoursAgo": 34,
+    "featured": false,
+    "tags": ["TypeScript", "React", "Open source"],
+    "summary": "Your first or second engineering role, on a codebase you can read in public before you ever apply.",
+    "responsibilities": [
+      "Ship scoped improvements to the dashboard with review support",
+      "Write documentation for the features you build",
+      "Triage community issues and turn good ones into pull requests"
+    ],
+    "requirements": [
+      "Working knowledge of JavaScript, TypeScript and React",
+      "Something you have built and can talk about in detail",
+      "Willingness to work in the open, including the parts that go wrong"
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Developer Advocate",
+    "companyId": "vercel",
+    "location": "Remote",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Marketing",
+    "level": "Mid",
+    "salaryMin": 120000,
+    "salaryMax": 155000,
+    "postedHoursAgo": 40,
+    "featured": false,
+    "tags": ["Content", "Public speaking", "Next.js"],
+    "summary": "Explain the platform to the developers using it, and bring back the parts of their experience nobody internally wants to hear.",
+    "responsibilities": [
+      "Write demos, guides and talks that solve a real problem end to end",
+      "Represent developer pain in roadmap conversations with evidence",
+      "Maintain example repositories people actually clone"
+    ],
+    "requirements": [
+      "Enough engineering skill to build the demo yourself",
+      "Clear writing and comfortable public speaking",
+      "Judgement about when marketing has crossed into overpromising"
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Analytics Engineer",
+    "companyId": "notion",
+    "location": "Remote (US)",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Data",
+    "level": "Mid",
+    "salaryMin": 130000,
+    "salaryMax": 165000,
+    "postedHoursAgo": 44,
+    "featured": false,
+    "tags": ["dbt", "SQL", "Modelling"],
+    "summary": "Turn raw product events into models the whole company queries, and be the reason two dashboards finally agree.",
+    "responsibilities": [
+      "Own the dbt models behind activation and retention reporting",
+      "Define metrics once and defend the definition",
+      "Build tests that fail loudly before a stakeholder notices"
+    ],
+    "requirements": [
+      "Fluent SQL and production experience with dbt or equivalent",
+      "Understanding of dimensional modelling and slowly changing dimensions",
+      "Ability to say no to a metric that would not survive scrutiny"
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Product Manager, Billing",
+    "companyId": "stripe",
+    "location": "London, UK",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Product",
+    "level": "Senior",
+    "salaryMin": 115000,
+    "salaryMax": 150000,
+    "postedHoursAgo": 55,
+    "featured": false,
+    "tags": ["Billing", "Pricing", "B2B"],
+    "summary": "Own subscription and usage billing for customers whose own revenue depends on getting the invoice right.",
+    "responsibilities": [
+      "Shape the roadmap for subscriptions, metering and invoicing",
+      "Work through tax, currency and compliance edges with legal",
+      "Run migrations that move customers without breaking their revenue"
+    ],
+    "requirements": [
+      "Experience owning a billing, payments or pricing surface",
+      "Comfort with the detail — this domain punishes hand-waving",
+      "Track record of shipping to enterprise customers"
+    ]
+  },
+  {
+    "id": 17,
+    "title": "Brand Designer",
+    "companyId": "ramp",
+    "location": "New York, NY",
+    "remote": false,
+    "type": "Contract",
+    "discipline": "Design",
+    "level": "Mid",
+    "salaryMin": 95000,
+    "salaryMax": 125000,
+    "postedHoursAgo": 60,
+    "featured": false,
+    "tags": ["Brand", "Typography", "Motion"],
+    "summary": "A six-month contract to push the visual identity into places it has not been yet — campaigns, events and product moments.",
+    "responsibilities": [
+      "Extend the identity system into campaign and event work",
+      "Art direct photography and motion with outside partners",
+      "Hand off assets and rules the in-house team can run with"
+    ],
+    "requirements": [
+      "A brand portfolio with range beyond one house style",
+      "Strong typographic craft and layout instincts",
+      "Experience working to a contract scope and delivering on it"
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Machine Learning Engineer",
+    "companyId": "openai",
+    "location": "San Francisco, CA",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Data",
+    "level": "Principal",
+    "salaryMin": 230000,
+    "salaryMax": 310000,
+    "postedHoursAgo": 15,
+    "featured": true,
+    "tags": ["PyTorch", "Distributed training", "Evaluation"],
+    "summary": "Own training and evaluation infrastructure for frontier models, at the point where research ideas meet very large clusters.",
+    "responsibilities": [
+      "Scale distributed training runs and diagnose them when they stall",
+      "Build evaluation harnesses researchers trust enough to act on",
+      "Reduce the cost of a training run without changing its outcome"
+    ],
+    "requirements": [
+      "Deep PyTorch experience including distributed and mixed precision",
+      "History of debugging multi-node training failures to root cause",
+      "Research literacy — you can read the paper and implement it"
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Support Engineer",
+    "companyId": "retool",
+    "location": "Remote",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Operations",
+    "level": "Junior",
+    "salaryMin": 70000,
+    "salaryMax": 95000,
+    "postedHoursAgo": 70,
+    "featured": false,
+    "tags": ["SQL", "Debugging", "Customer facing"],
+    "summary": "First line for customers who are themselves engineers, which means the questions are good and the answers have to be real.",
+    "responsibilities": [
+      "Reproduce and diagnose customer issues, in their environment",
+      "Write the docs page that stops the ticket from coming back",
+      "Escalate with a clear reproduction, not a forwarded email"
+    ],
+    "requirements": [
+      "Enough SQL and JavaScript to debug a customer application",
+      "Clear written English under time pressure",
+      "Patience, and a genuine interest in why something broke"
+    ]
+  },
+  {
+    "id": 20,
+    "title": "Technical Writer",
+    "companyId": "github",
+    "location": "Remote",
+    "remote": true,
+    "type": "Part-time",
+    "discipline": "Operations",
+    "level": "Mid",
+    "salaryMin": 55000,
+    "salaryMax": 80000,
+    "postedHoursAgo": 80,
+    "featured": false,
+    "tags": ["Documentation", "Git", "Information architecture"],
+    "summary": "Three days a week on the documentation millions of developers read when something has already gone wrong.",
+    "responsibilities": [
+      "Own a documentation area end to end, including its structure",
+      "Test every example you publish against the real product",
+      "Cut pages that no longer earn their place in the tree"
+    ],
+    "requirements": [
+      "Published technical documentation you can point at",
+      "Working command of Git and the command line",
+      "Ruthlessness about unnecessary words"
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Site Reliability Engineer",
+    "companyId": "cloudflare",
+    "location": "Berlin, Germany",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Senior",
+    "salaryMin": 135000,
+    "salaryMax": 175000,
+    "postedHoursAgo": 90,
+    "featured": false,
+    "tags": ["Kubernetes", "Observability", "Terraform"],
+    "summary": "Keep a global network healthy, and make the next incident shorter than the last by changing the system rather than the runbook.",
+    "responsibilities": [
+      "Own SLOs for a set of edge services and defend the error budget",
+      "Automate the toil out of deploy, rollback and capacity work",
+      "Run incident reviews that produce changes, not blame"
+    ],
+    "requirements": [
+      "Production Kubernetes and infrastructure-as-code experience",
+      "Strong Linux, networking and debugging fundamentals",
+      "Calm under an active incident"
+    ]
+  },
+  {
+    "id": 22,
+    "title": "Growth Product Manager",
+    "companyId": "linear",
+    "location": "San Francisco, CA",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Product",
+    "level": "Mid",
+    "salaryMin": 140000,
+    "salaryMax": 180000,
+    "postedHoursAgo": 100,
+    "featured": false,
+    "tags": ["Onboarding", "Experimentation", "Analytics"],
+    "summary": "Own the path from a first signup to a team that has moved its work over, without adding a single growth dark pattern.",
+    "responsibilities": [
+      "Improve activation for new workspaces with measurable experiments",
+      "Find and remove the steps where teams quietly stop",
+      "Keep growth work consistent with a product known for restraint"
+    ],
+    "requirements": [
+      "Experience owning activation or conversion in a self-serve product",
+      "Comfort with data — you write your own queries",
+      "Taste, and the discipline not to ship the cheap win"
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Data Scientist, Risk",
+    "companyId": "stripe",
+    "location": "Bengaluru, India",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Data",
+    "level": "Senior",
+    "salaryMin": 90000,
+    "salaryMax": 120000,
+    "postedHoursAgo": 110,
+    "featured": false,
+    "tags": ["Python", "Statistics", "Fraud"],
+    "summary": "Model fraud and credit risk where a false positive blocks a real business and a false negative costs real money.",
+    "responsibilities": [
+      "Build and monitor risk models in production, not in a notebook",
+      "Quantify the trade-off between blocked fraud and blocked customers",
+      "Partner with policy teams on decisions that are not purely statistical"
+    ],
+    "requirements": [
+      "Strong applied statistics and production Python",
+      "Experience with imbalanced classification and drift monitoring",
+      "Ability to explain a model to someone who will not read the maths"
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Security Engineer",
+    "companyId": "figma",
+    "location": "Remote",
+    "remote": true,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Staff",
+    "salaryMin": 175000,
+    "salaryMax": 220000,
+    "postedHoursAgo": 120,
+    "featured": false,
+    "tags": ["AppSec", "Threat modelling", "Cryptography"],
+    "summary": "Secure a multiplayer product where documents are shared constantly and the sharing model is the product.",
+    "responsibilities": [
+      "Threat model new features before they are built, not after",
+      "Build the guardrails that make the secure path the easy path",
+      "Run the vulnerability disclosure programme and close the loop"
+    ],
+    "requirements": [
+      "Deep application security experience in a web product",
+      "Working knowledge of applied cryptography and authorisation design",
+      "Ability to advise engineers without becoming a blocker"
+    ]
+  },
+  {
+    "id": 25,
+    "title": "Mobile Engineer, iOS",
+    "companyId": "notion",
+    "location": "Toronto, Canada",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Engineering",
+    "level": "Mid",
+    "salaryMin": 125000,
+    "salaryMax": 160000,
+    "postedHoursAgo": 130,
+    "featured": false,
+    "tags": ["Swift", "Offline sync", "Performance"],
+    "summary": "Make a document editor feel native on a phone, including the part where the network disappears in a lift.",
+    "responsibilities": [
+      "Build editor and navigation features in Swift",
+      "Improve offline sync and conflict resolution behaviour",
+      "Hold the line on startup time and scroll performance"
+    ],
+    "requirements": [
+      "Two or more years shipping Swift to the App Store",
+      "Experience with local persistence and sync conflicts",
+      "Instinct for the small details that make an app feel native"
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Content Marketing Manager",
+    "companyId": "datadog",
+    "location": "Singapore",
+    "remote": false,
+    "type": "Full-time",
+    "discipline": "Marketing",
+    "level": "Mid",
+    "salaryMin": 95000,
+    "salaryMax": 130000,
+    "postedHoursAgo": 150,
+    "featured": false,
+    "tags": ["Editorial", "SEO", "APAC"],
+    "summary": "Own technical content for the APAC region, for readers who will close the tab the moment it reads like a brochure.",
+    "responsibilities": [
+      "Plan and commission a technical editorial calendar for the region",
+      "Edit engineer-written drafts without draining the substance out",
+      "Report on what content actually influenced a pipeline decision"
+    ],
+    "requirements": [
+      "Experience editing technical content for a developer audience",
+      "Understanding of search intent beyond keyword volume",
+      "Familiarity with the APAC technology market"
+    ]
+  },
+  {
+    "id": 27,
+    "title": "Engineering Intern, Summer",
+    "companyId": "vercel",
+    "location": "Remote",
+    "remote": true,
+    "type": "Internship",
+    "discipline": "Engineering",
+    "level": "Junior",
+    "salaryMin": 60000,
+    "salaryMax": 75000,
+    "postedHoursAgo": 170,
+    "featured": false,
+    "tags": ["Next.js", "TypeScript", "Mentorship"],
+    "summary": "Twelve weeks with a named mentor, a scoped project and a real deploy at the end of it.",
+    "responsibilities": [
+      "Ship one meaningful project to production over the internship",
+      "Take part in code review as both author and reviewer",
+      "Present what you built to the team in the final week"
+    ],
+    "requirements": [
+      "Currently studying computer science or equivalent self-taught depth",
+      "Working JavaScript or TypeScript and some React exposure",
+      "Curiosity that survives the first hard bug"
+    ]
+  },
+  {
+    "id": 28,
+    "title": "Product Design Intern",
+    "companyId": "figma",
+    "location": "San Francisco, CA",
+    "remote": false,
+    "type": "Internship",
+    "discipline": "Design",
+    "level": "Junior",
+    "salaryMin": 65000,
+    "salaryMax": 85000,
+    "postedHoursAgo": 200,
+    "featured": false,
+    "tags": ["Product design", "Research", "Prototyping"],
+    "summary": "A summer on a product team, working the way the full-time designers do, on a problem that has not been solved yet.",
+    "responsibilities": [
+      "Take one product problem from research through to a shipped prototype",
+      "Participate in design critique every week",
+      "Document what you learned for the team that picks it up"
+    ],
+    "requirements": [
+      "A portfolio showing how you think, not only what you made",
+      "Working knowledge of Figma and prototyping",
+      "Openness to critique and a habit of asking why"
+    ]
+  }
+]
