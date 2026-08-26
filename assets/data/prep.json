@@ -1,0 +1,414 @@
+[
+  {
+    "companyId": "stripe",
+    "bar": 88,
+    "loopWeeks": "4–6",
+    "route": "Stripe hires for judgement under ambiguity more than for raw puzzle speed. The interviews are deliberately practical: you write real code in a real editor against a real repository, and you are graded on how you get unstuck as much as on whether you finish.",
+    "stages": [
+      { "name": "Application review", "detail": "A recruiter reads the CV against the specific team. A referral or a public project moves this along materially.", "typical": "5–10 days" },
+      { "name": "Recruiter screen", "detail": "Thirty minutes on motivation, level and compensation range. Come with a number.", "typical": "30 min" },
+      { "name": "Technical phone screen", "detail": "One practical coding problem in a shared editor, in your own language, with tests you are expected to run.", "typical": "60 min" },
+      { "name": "Onsite loop", "detail": "Integration coding, debugging an unfamiliar codebase, system design, and a values interview.", "typical": "4–5 hours" },
+      { "name": "Team match and offer", "detail": "Hiring manager conversations, then a written offer with the band.", "typical": "1–2 weeks" }
+    ],
+    "focus": [
+      { "topic": "Practical coding in a real repo", "weight": 92, "note": "No whiteboards. Bring a language you can debug in without help." },
+      { "topic": "API and data modelling", "weight": 85, "note": "Design an idempotent endpoint and defend the schema behind it." },
+      { "topic": "Reading unfamiliar code", "weight": 80, "note": "You will be dropped into a codebase and asked to fix it." },
+      { "topic": "Algorithms and complexity", "weight": 45, "note": "Present, but rarely the deciding factor." }
+    ],
+    "signals": [
+      "A shipped side project with users, not a tutorial clone",
+      "Written communication — Stripe runs on documents",
+      "Evidence you have handled money, correctness or compliance before"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Stripe Engineering Internship, Summer", "window": "Applications typically open August–October", "status": "open", "eligibility": "Penultimate-year undergraduates and master's students", "detail": "Twelve weeks, paid, with a named mentor and a project that ships. Historically converts to full-time at a high rate." },
+      { "kind": "Assessment", "name": "Online technical assessment", "window": "Sent within a week of application review", "status": "rolling", "eligibility": "All engineering candidates", "detail": "Two practical problems, roughly 90 minutes, run in a browser IDE with tests." },
+      { "kind": "Programme", "name": "Stripe Fellowship for early-career engineers", "window": "Cohort intake once a year", "status": "upcoming", "eligibility": "Career changers and non-traditional backgrounds", "detail": "A paid apprenticeship route into a full-time engineering role." }
+    ],
+    "prepare": [
+      { "label": "Build one thing end to end", "detail": "A small payments or billing app with webhooks, retries and idempotency. This is the exact vocabulary of the interview." },
+      { "label": "Practise in your editor, not a whiteboard", "detail": "Time yourself solving problems with real tests and a debugger, since that is the format." },
+      { "label": "Write a design doc", "detail": "One page on a system you built: the decision, the alternatives, the trade-off. Bring it." },
+      { "label": "Know your number", "detail": "Research the band for your level and location before the recruiter screen." }
+    ]
+  },
+  {
+    "companyId": "openai",
+    "bar": 95,
+    "loopWeeks": "5–8",
+    "route": "The hardest bar on this list. Interviews weight depth over breadth: they would rather see one area you know unusually well than five you know adequately. Research-adjacent roles expect you to have read the literature and, ideally, reproduced some of it.",
+    "stages": [
+      { "name": "Application review", "detail": "Publications, open source and demonstrable systems work carry more weight than the CV format.", "typical": "1–3 weeks" },
+      { "name": "Recruiter screen", "detail": "Role fit, level calibration and timeline.", "typical": "30 min" },
+      { "name": "Technical screen", "detail": "Coding, plus a domain conversation matched to the role — inference, training or product infrastructure.", "typical": "60–90 min" },
+      { "name": "Onsite loop", "detail": "Multiple deep technical rounds, a systems design round at large scale, and a practical take-home or pairing session.", "typical": "5–6 hours" },
+      { "name": "Team match and offer", "detail": "Matching to a specific team, then offer.", "typical": "2–3 weeks" }
+    ],
+    "focus": [
+      { "topic": "Depth in one domain", "weight": 96, "note": "Distributed training, inference optimisation or large-scale serving. Pick one and go far." },
+      { "topic": "Systems design at scale", "weight": 90, "note": "GPU scheduling, batching, caching, queueing. Real numbers expected." },
+      { "topic": "Applied research literacy", "weight": 82, "note": "Read the paper, implement the paper, explain what the paper got wrong." },
+      { "topic": "Production Python", "weight": 78, "note": "Not scripts — services that stay up." }
+    ],
+    "signals": [
+      "A reproduction of a published result, with your write-up of what differed",
+      "Open source contributions to a serving or training framework",
+      "Evidence you have run something large and had it break"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Residency and internship programmes", "window": "Applications typically open in the autumn", "status": "open", "eligibility": "Graduate students, and career changers with strong technical backgrounds", "detail": "A six-month residency aimed at people moving into AI from an adjacent technical field." },
+      { "kind": "Assessment", "name": "Take-home technical exercise", "window": "Role dependent", "status": "rolling", "eligibility": "Selected engineering candidates", "detail": "A scoped multi-hour exercise, usually profiling or optimising a piece of real inference code." }
+    ],
+    "prepare": [
+      { "label": "Pick one depth area and go three levels down", "detail": "Breadth loses here. Choose inference, training or data infrastructure and know it better than the interviewer expects." },
+      { "label": "Reproduce a paper", "detail": "Even partially. Write up what did not replicate — that write-up is the strongest artefact you can bring." },
+      { "label": "Get comfortable with very large numbers", "detail": "Practise estimating throughput, memory and cost out loud. Design rounds are quantitative." },
+      { "label": "Contribute upstream", "detail": "A merged PR to a serving or training framework is a direct, verifiable signal." }
+    ]
+  },
+  {
+    "companyId": "linear",
+    "bar": 86,
+    "loopWeeks": "3–5",
+    "route": "A very small team, so every hire is visible. Linear hires on taste and speed: they want to see that you notice the details other people ship past. The work-sample stage matters far more than the conversation stages.",
+    "stages": [
+      { "name": "Application review", "detail": "Read carefully by a human. A portfolio or repo that shows craft beats a long CV.", "typical": "1 week" },
+      { "name": "Intro call", "detail": "A conversation with a founder or team lead about what you care about in software.", "typical": "45 min" },
+      { "name": "Work sample", "detail": "A paid, scoped project close to the real work. This is the main gate.", "typical": "1–2 days" },
+      { "name": "Team conversations", "detail": "Two or three sessions reviewing the work sample and how you think.", "typical": "3 hours" },
+      { "name": "Offer", "detail": "Fast decisions once the loop finishes.", "typical": "Days" }
+    ],
+    "focus": [
+      { "topic": "Craft and detail", "weight": 95, "note": "Alignment, motion, empty states, keyboard paths. They will notice." },
+      { "topic": "Speed of execution", "weight": 88, "note": "Prototype fast, iterate faster, do not gold-plate the wrong thing." },
+      { "topic": "Product judgement", "weight": 84, "note": "Be able to explain what you chose not to build." },
+      { "topic": "Performance discipline", "weight": 70, "note": "Sub-100ms is a stated product value, not a stretch goal." }
+    ],
+    "signals": [
+      "A portfolio piece where you can articulate every decision",
+      "Something you built that is genuinely fast",
+      "Strong opinions about tools you actually use daily"
+    ],
+    "openings": [
+      { "kind": "Programme", "name": "Work-sample hiring for all roles", "window": "Continuous", "status": "rolling", "eligibility": "All candidates who pass the intro call", "detail": "Paid project work instead of a traditional interview loop. Expect to be compensated for your time." }
+    ],
+    "prepare": [
+      { "label": "Ship something small and perfect", "detail": "One tool, finished to a standard you would defend publicly. Scope down until you can make it excellent." },
+      { "label": "Learn the keyboard-first idiom", "detail": "Use the product. Understand why it is built the way it is before you critique it." },
+      { "label": "Prepare to defend a decision", "detail": "For every portfolio piece, know the alternative you rejected and why." },
+      { "label": "Measure your own work", "detail": "Bring a number — load time, frame budget, bundle size. It signals you take performance seriously." }
+    ]
+  },
+  {
+    "companyId": "figma",
+    "bar": 84,
+    "loopWeeks": "4–6",
+    "route": "Figma runs one of the more rigorous design loops in the industry and an engineering loop that leans heavily on real-world debugging. Designers should expect a portfolio review with hard questions; engineers should expect graphics, performance or systems depth.",
+    "stages": [
+      { "name": "Application review", "detail": "Portfolio for design, repositories and experience for engineering.", "typical": "1–2 weeks" },
+      { "name": "Recruiter screen", "detail": "Role, level and logistics.", "typical": "30 min" },
+      { "name": "Portfolio or technical screen", "detail": "Designers present two projects in depth. Engineers do a practical coding round.", "typical": "60 min" },
+      { "name": "Onsite loop", "detail": "Craft round, collaboration round, systems or architecture round, and a values interview.", "typical": "4–5 hours" },
+      { "name": "Debrief and offer", "detail": "Panel debrief, then offer.", "typical": "1–2 weeks" }
+    ],
+    "focus": [
+      { "topic": "Portfolio depth (design)", "weight": 93, "note": "Two projects, told properly: problem, constraint, iteration, outcome." },
+      { "topic": "Rendering and performance (engineering)", "weight": 86, "note": "Canvas, WebGL, WebAssembly. Multiplayer is a rendering problem." },
+      { "topic": "Design systems thinking", "weight": 82, "note": "Components are APIs. Talk about them that way." },
+      { "topic": "Cross-functional collaboration", "weight": 76, "note": "Explicitly assessed in its own round." }
+    ],
+    "signals": [
+      "Work that shows iteration, including the versions that failed",
+      "Experience with real-time or collaborative interfaces",
+      "Ability to critique your own work before someone else does"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Figma Design and Engineering Internship", "window": "Applications typically open in the autumn for the following summer", "status": "open", "eligibility": "Students in their penultimate year", "detail": "Twelve weeks on a product team with a mentor and a real shipping project." },
+      { "kind": "Programme", "name": "Config student and early-career track", "window": "Around the annual conference", "status": "upcoming", "eligibility": "Students and career changers", "detail": "Portfolio reviews and recruiting sessions run alongside the company's annual conference." },
+      { "kind": "Assessment", "name": "Take-home design exercise", "window": "Selected design candidates", "status": "rolling", "eligibility": "Product design candidates", "detail": "A scoped product problem with a written rationale, reviewed in a later round." }
+    ],
+    "prepare": [
+      { "label": "Cut your portfolio to two projects", "detail": "Depth beats breadth every time in this loop. Twenty minutes each, rehearsed." },
+      { "label": "Prepare the failure story", "detail": "Every craft round asks what went wrong. Have a real answer with what you changed." },
+      { "label": "Engineers: build something on canvas", "detail": "Even a small collaborative drawing tool teaches the exact problems they ask about." },
+      { "label": "Use the product seriously", "detail": "Enough to have informed opinions about its edges." }
+    ]
+  },
+  {
+    "companyId": "github",
+    "bar": 74,
+    "loopWeeks": "4–7",
+    "route": "Remote-first since long before it was common, so the process is asynchronous and writing-heavy. Your public GitHub profile is genuinely read. Expect a take-home rather than a live algorithm round for most engineering positions.",
+    "stages": [
+      { "name": "Application review", "detail": "Your profile and contribution history are part of the application whether you link them or not.", "typical": "1–2 weeks" },
+      { "name": "Recruiter screen", "detail": "Role, remote logistics and level.", "typical": "30 min" },
+      { "name": "Take-home exercise", "detail": "A scoped project done on your own time, with a written explanation of your choices.", "typical": "4–6 hours" },
+      { "name": "Panel interviews", "detail": "Technical review of your take-home, a systems round and a collaboration round, all remote.", "typical": "3–4 hours" },
+      { "name": "Offer", "detail": "Offer with location-adjusted band.", "typical": "1–2 weeks" }
+    ],
+    "focus": [
+      { "topic": "Written communication", "weight": 90, "note": "A distributed company decides in writing. Your take-home write-up is assessed." },
+      { "topic": "Git internals", "weight": 78, "note": "Know more than the porcelain commands." },
+      { "topic": "Scale and reliability", "weight": 75, "note": "Everything here has a very large number in front of it." },
+      { "topic": "Open source practice", "weight": 72, "note": "Code review etiquette and issue triage are real skills here." }
+    ],
+    "signals": [
+      "A public contribution history with thoughtful pull request descriptions",
+      "Documentation you have written",
+      "Evidence of working well asynchronously across time zones"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "GitHub Internship Programme", "window": "Applications typically open in the autumn", "status": "open", "eligibility": "Students worldwide, remote", "detail": "Fully remote internship with a mentor, running twelve weeks over the summer." },
+      { "kind": "Programme", "name": "GitHub Campus Expert", "window": "Cohorts run through the year", "status": "rolling", "eligibility": "Students running technical communities at their institution", "detail": "Training and support for student community leaders. A well-trodden route into the internship programme." },
+      { "kind": "Assessment", "name": "Take-home engineering exercise", "window": "After the recruiter screen", "status": "rolling", "eligibility": "Engineering candidates", "detail": "A scoped repository task with a required written rationale." }
+    ],
+    "prepare": [
+      { "label": "Tidy your public profile", "detail": "It is read. Pin the repositories that show your best judgement, not your most stars." },
+      { "label": "Practise writing about code", "detail": "Write a README for something you built that explains the decisions, not just the setup." },
+      { "label": "Learn Git below the surface", "detail": "Objects, refs, packfiles, rebase mechanics. It comes up." },
+      { "label": "Contribute to one project properly", "detail": "One well-reviewed contribution beats twenty drive-by commits." }
+    ]
+  },
+  {
+    "companyId": "vercel",
+    "bar": 72,
+    "loopWeeks": "3–5",
+    "route": "A fast, relatively short loop with a strong bias toward people who are already visible in the frontend community. Building in public is close to a shortcut here — a widely used open source project or a well-known talk will get your application read.",
+    "stages": [
+      { "name": "Application review", "detail": "Public work counts heavily. A popular package or a good technical blog is a real advantage.", "typical": "1 week" },
+      { "name": "Recruiter screen", "detail": "Fit and level.", "typical": "30 min" },
+      { "name": "Technical screen", "detail": "Practical frontend or infrastructure problem, live.", "typical": "60 min" },
+      { "name": "Team loop", "detail": "System design, a product sense round and a manager conversation.", "typical": "3 hours" },
+      { "name": "Offer", "detail": "Decisions move quickly once the loop is done.", "typical": "1 week" }
+    ],
+    "focus": [
+      { "topic": "Deep frontend fundamentals", "weight": 88, "note": "Rendering, hydration, caching, bundling. Framework-level understanding." },
+      { "topic": "Developer experience instinct", "weight": 84, "note": "Why an API feels good is a real interview topic here." },
+      { "topic": "Edge and caching models", "weight": 76, "note": "Know what is cached where, and what invalidates it." },
+      { "topic": "Public communication", "weight": 68, "note": "Writing and speaking are part of many roles." }
+    ],
+    "signals": [
+      "An open source package other people depend on",
+      "A conference talk or a technical blog with real depth",
+      "Strong opinions about framework trade-offs, held loosely"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Vercel Summer Internship", "window": "Applications typically open early in the year", "status": "open", "eligibility": "Students, fully remote", "detail": "A remote internship with one scoped project shipped to production." },
+      { "kind": "Programme", "name": "Open source contributor path", "window": "Continuous", "status": "rolling", "eligibility": "Anyone", "detail": "Sustained contributions to the framework repositories are a recognised and well-used route into a role." }
+    ],
+    "prepare": [
+      { "label": "Publish something people use", "detail": "A small, genuinely useful package with good docs is the highest-leverage thing you can do here." },
+      { "label": "Learn the rendering model properly", "detail": "Streaming, hydration, caching layers. Be able to draw the request path on a whiteboard." },
+      { "label": "Write one good technical post", "detail": "Explain something hard clearly. It doubles as your communication assessment." },
+      { "label": "Contribute upstream", "detail": "A merged PR to the core repositories puts your name in front of the team before you apply." }
+    ]
+  },
+  {
+    "companyId": "cloudflare",
+    "bar": 76,
+    "loopWeeks": "4–6",
+    "route": "A traditional, well-structured loop with unusually deep networking and systems questions. Cloudflare hires globally and runs consistent processes across offices, so preparation transfers well between locations.",
+    "stages": [
+      { "name": "Application review", "detail": "Systems experience and language depth matter more than brand names.", "typical": "1–2 weeks" },
+      { "name": "Recruiter screen", "detail": "Role, location and visa logistics.", "typical": "30 min" },
+      { "name": "Technical screen", "detail": "Coding plus fundamentals — networking, concurrency, memory.", "typical": "60 min" },
+      { "name": "Onsite loop", "detail": "Two coding rounds, a systems design round and a behavioural round.", "typical": "4 hours" },
+      { "name": "Offer", "detail": "Panel review, then offer.", "typical": "1–2 weeks" }
+    ],
+    "focus": [
+      { "topic": "Networking fundamentals", "weight": 92, "note": "TCP, TLS, DNS, HTTP. Genuinely deep questions, not trivia." },
+      { "topic": "Systems programming", "weight": 85, "note": "Rust, Go or C++ with real memory and concurrency understanding." },
+      { "topic": "Distributed systems design", "weight": 80, "note": "Global consistency, failure domains, progressive rollout." },
+      { "topic": "Algorithms", "weight": 60, "note": "Standard rounds, moderate difficulty." }
+    ],
+    "signals": [
+      "Something you have written that speaks a protocol directly",
+      "Experience operating a service under real traffic",
+      "Understanding of blast radius and safe deployment"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Cloudflare Internship Programme", "window": "Applications typically open September–November", "status": "open", "eligibility": "Students in penultimate or final year, multiple global offices", "detail": "Twelve-week internships across engineering, security and product, in several offices worldwide." },
+      { "kind": "Assessment", "name": "Online coding assessment", "window": "After application review", "status": "rolling", "eligibility": "Most engineering candidates", "detail": "A timed online assessment, typically two problems in 90 minutes, before the human screen." },
+      { "kind": "Programme", "name": "Project Alexandria and community programmes", "window": "Continuous", "status": "rolling", "eligibility": "Open source and non-profit maintainers", "detail": "Community programmes that put you in contact with the teams; not a hiring route in themselves, but useful exposure." }
+    ],
+    "prepare": [
+      { "label": "Build a protocol from scratch", "detail": "A minimal HTTP server or DNS resolver, written by hand. It answers half the interview." },
+      { "label": "Read the RFCs you claim to know", "detail": "Interviewers here go deeper on networking than most companies do." },
+      { "label": "Practise timed online assessments", "detail": "The first gate is automated and time-boxed. Speed matters at that stage only." },
+      { "label": "Learn one systems language properly", "detail": "Rust or Go, to the point where you understand its memory model." }
+    ]
+  },
+  {
+    "companyId": "datadog",
+    "bar": 78,
+    "loopWeeks": "3–5",
+    "route": "A structured, quantitative loop. Datadog is unusually explicit about wanting people who can reason about very large data volumes, and the design rounds are correspondingly numeric — expect to estimate cardinality, storage and query cost out loud.",
+    "stages": [
+      { "name": "Application review", "detail": "Backend and data infrastructure experience weighted heavily.", "typical": "1 week" },
+      { "name": "Recruiter screen", "detail": "Level, location and compensation.", "typical": "30 min" },
+      { "name": "Technical screen", "detail": "Live coding, usually data-structure heavy with a practical framing.", "typical": "60 min" },
+      { "name": "Onsite loop", "detail": "Coding, a systems design round on data at scale, and a manager round.", "typical": "4 hours" },
+      { "name": "Offer", "detail": "Offer with equity and stock purchase details.", "typical": "1 week" }
+    ],
+    "focus": [
+      { "topic": "Data structures under memory pressure", "weight": 88, "note": "Sketches, sampling, probabilistic counting. Know the trade-offs." },
+      { "topic": "Time series and storage design", "weight": 85, "note": "Compression, retention, downsampling, cardinality explosions." },
+      { "topic": "Query planning", "weight": 76, "note": "Predicate pushdown and aggregation strategies." },
+      { "topic": "Go or C++ fluency", "weight": 74, "note": "Profiling ability is explicitly valued." }
+    ],
+    "signals": [
+      "Experience with a storage or query engine, even a small one",
+      "Comfort estimating with real numbers under questioning",
+      "Operational experience — you have been paged"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Datadog Engineering Internship", "window": "Applications typically open September–December", "status": "open", "eligibility": "Students, multiple offices including New York and Paris", "detail": "Twelve to sixteen weeks on a product or infrastructure team, with a high conversion rate to full-time." },
+      { "kind": "Assessment", "name": "Online technical assessment", "window": "Early in the process for university hiring", "status": "rolling", "eligibility": "Early-career and intern candidates", "detail": "A timed algorithmic assessment used as the first filter for campus hiring." }
+    ],
+    "prepare": [
+      { "label": "Learn probabilistic data structures", "detail": "HyperLogLog, count-min sketch, bloom filters. They appear in both coding and design rounds." },
+      { "label": "Practise numeric design out loud", "detail": "Estimate ingest volume, storage cost and query latency. Say the numbers." },
+      { "label": "Profile something real", "detail": "Take a slow program, profile it, make it fast, and be able to narrate what you found." },
+      { "label": "Understand cardinality", "detail": "Why high-cardinality tags break observability systems is close to a required answer here." }
+    ]
+  },
+  {
+    "companyId": "notion",
+    "bar": 79,
+    "loopWeeks": "4–6",
+    "route": "Notion weights product sense unusually highly, including for engineering roles. Nearly every loop includes a round about the product itself, and candidates who have not used it seriously tend not to get through.",
+    "stages": [
+      { "name": "Application review", "detail": "Product-minded experience stands out more than pure technical depth.", "typical": "1–2 weeks" },
+      { "name": "Recruiter screen", "detail": "Motivation and level.", "typical": "30 min" },
+      { "name": "Technical or craft screen", "detail": "Coding for engineers, portfolio for designers, a product exercise for product roles.", "typical": "60 min" },
+      { "name": "Onsite loop", "detail": "Two technical rounds, a product sense round and a collaboration round.", "typical": "4 hours" },
+      { "name": "Offer", "detail": "Debrief, then offer.", "typical": "1–2 weeks" }
+    ],
+    "focus": [
+      { "topic": "Product sense", "weight": 90, "note": "Assessed for engineers too. Have opinions about the product's real weaknesses." },
+      { "topic": "Frontend and editor performance", "weight": 82, "note": "Rich text editing at scale is genuinely hard. Know why." },
+      { "topic": "Offline sync and conflict resolution", "weight": 78, "note": "CRDTs, operational transforms and the trade-offs between them." },
+      { "topic": "System design", "weight": 72, "note": "Standard, with a bias toward document and permission models." }
+    ],
+    "signals": [
+      "Deep, specific criticism of the product delivered constructively",
+      "Something you built with a rich text or collaborative surface",
+      "Evidence of caring about the flexibility-versus-simplicity trade-off"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Notion Internship", "window": "Applications typically open in the autumn", "status": "open", "eligibility": "Students in penultimate year", "detail": "Twelve weeks in San Francisco or New York on a product team." },
+      { "kind": "Programme", "name": "Notion Campus Leaders", "window": "Cohorts each academic year", "status": "rolling", "eligibility": "Students at participating institutions", "detail": "A student ambassador programme that builds a relationship with the recruiting team early." }
+    ],
+    "prepare": [
+      { "label": "Use the product for something real", "detail": "Run an actual project in it for a month. Superficial familiarity shows immediately." },
+      { "label": "Write a product critique", "detail": "Three things you would change and why, with the trade-off each would cost. Bring it." },
+      { "label": "Build a small collaborative editor", "detail": "Even a rough one teaches you the sync problems they ask about." },
+      { "label": "Prepare for the product round", "detail": "Engineers get this round too. Practise reasoning about users out loud." }
+    ]
+  },
+  {
+    "companyId": "ramp",
+    "bar": 80,
+    "loopWeeks": "2–4",
+    "route": "The fastest loop of any company on this list — Ramp is explicit about speed as a competitive advantage in hiring. Expect a compressed process, often finishing within two weeks, with a strong emphasis on ownership and past velocity.",
+    "stages": [
+      { "name": "Application review", "detail": "Reviewed quickly. Evidence of shipping fast is the strongest signal.", "typical": "2–5 days" },
+      { "name": "Recruiter screen", "detail": "Level and speed of your availability.", "typical": "30 min" },
+      { "name": "Technical screen", "detail": "Practical coding, often on a realistic financial data problem.", "typical": "60 min" },
+      { "name": "Onsite loop", "detail": "System design, a practical build round, and a round on ownership and past impact.", "typical": "3–4 hours" },
+      { "name": "Offer", "detail": "Often same-week decisions.", "typical": "Days" }
+    ],
+    "focus": [
+      { "topic": "Velocity and ownership", "weight": 90, "note": "Be ready to quantify what you shipped and how fast." },
+      { "topic": "Transactional correctness", "weight": 86, "note": "Idempotency, isolation levels, reconciliation. The domain demands it." },
+      { "topic": "Backend design in Python", "weight": 80, "note": "Practical, service-level design rather than abstract puzzles." },
+      { "topic": "Financial domain intuition", "weight": 65, "note": "Not required, but double-entry basics help a lot." }
+    ],
+    "signals": [
+      "A track record of owning something end to end, alone",
+      "Numbers attached to your past work",
+      "Comfort with a fast, high-expectation environment"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Ramp Engineering Internship", "window": "Applications typically open in the autumn", "status": "open", "eligibility": "Students in penultimate year, New York and remote", "detail": "A summer internship on a product team with real production ownership." },
+      { "kind": "Assessment", "name": "Practical take-home", "window": "Occasionally used in place of a live screen", "status": "rolling", "eligibility": "Engineering candidates", "detail": "A short, realistic build task rather than an algorithmic puzzle." }
+    ],
+    "prepare": [
+      { "label": "Learn double-entry bookkeeping", "detail": "An afternoon of reading. It makes the entire domain conversation easier." },
+      { "label": "Quantify your past work", "detail": "Every ownership question here wants a number. Prepare three stories with metrics." },
+      { "label": "Practise building fast", "detail": "Time-boxed builds — four hours, working product. That is the actual skill being tested." },
+      { "label": "Be available", "detail": "The loop moves in days, not weeks. Clear your calendar before you apply." }
+    ]
+  },
+  {
+    "companyId": "retool",
+    "bar": 75,
+    "loopWeeks": "3–4",
+    "route": "Retool interviews are unusually literal: you will build something close to what the job involves. Less algorithmic theory, more can-you-actually-build-this. Good for strong practical engineers who interview badly on puzzles.",
+    "stages": [
+      { "name": "Application review", "detail": "Practical building experience over credentials.", "typical": "1 week" },
+      { "name": "Recruiter screen", "detail": "Fit, level and location expectations.", "typical": "30 min" },
+      { "name": "Practical screen", "detail": "Build a small working feature, live, with internet access allowed.", "typical": "60–90 min" },
+      { "name": "Onsite loop", "detail": "An extended build round, a design round and a customer-empathy round.", "typical": "4 hours" },
+      { "name": "Offer", "detail": "Straightforward offer process.", "typical": "1 week" }
+    ],
+    "focus": [
+      { "topic": "Building working software quickly", "weight": 92, "note": "The main assessment. Bring your real workflow." },
+      { "topic": "Debugging unfamiliar systems", "weight": 82, "note": "Customers are engineers; you debug their apps, not yours." },
+      { "topic": "SQL and data modelling", "weight": 76, "note": "Everything in the product touches a database." },
+      { "topic": "Customer empathy", "weight": 70, "note": "A dedicated round. Technical customers, technical answers." }
+    ],
+    "signals": [
+      "Internal tools you have built for a real team",
+      "Evidence you can debug someone else's code calmly",
+      "A pragmatic streak — shipped beats elegant here"
+    ],
+    "openings": [
+      { "kind": "Internship", "name": "Retool Internship", "window": "Applications typically open in the autumn", "status": "open", "eligibility": "Students, San Francisco and New York", "detail": "A summer internship shipping real features, with in-office expectations." },
+      { "kind": "Programme", "name": "Support-to-engineering path", "window": "Continuous", "status": "rolling", "eligibility": "Internal", "detail": "A recognised internal route from support engineering into product engineering." }
+    ],
+    "prepare": [
+      { "label": "Build an internal tool for someone real", "detail": "A dashboard or admin panel a person actually uses. That is the job." },
+      { "label": "Get fast in your own environment", "detail": "The build rounds allow your tools. Know your shortcuts and your debugger." },
+      { "label": "Sharpen your SQL", "detail": "Joins, window functions, query plans. It comes up in nearly every round." },
+      { "label": "Practise explaining a fix", "detail": "The support-adjacent round wants clarity, not jargon." }
+    ]
+  },
+  {
+    "companyId": "supabase",
+    "bar": 70,
+    "loopWeeks": "2–4",
+    "route": "The most open route on this list. Supabase hires visibly from its own contributor community, and a strong history of merged pull requests can substitute for a conventional CV entirely. Everything is remote and asynchronous.",
+    "stages": [
+      { "name": "Application review", "detail": "Contribution history is read first. A good PR record is the application.", "typical": "1 week" },
+      { "name": "Intro call", "detail": "Async-friendly conversation about what you have built and want to build.", "typical": "45 min" },
+      { "name": "Paid trial project", "detail": "A scoped piece of real work, done in the open, paid.", "typical": "3–5 days" },
+      { "name": "Team conversations", "detail": "A couple of calls across time zones with the people you would work with.", "typical": "2 hours" },
+      { "name": "Offer", "detail": "Remote offer with equity.", "typical": "1 week" }
+    ],
+    "focus": [
+      { "topic": "Postgres depth", "weight": 90, "note": "Row level security, replication, extensions, query planning." },
+      { "topic": "Working in the open", "weight": 85, "note": "Public PRs, public discussion, public mistakes." },
+      { "topic": "Async communication", "weight": 80, "note": "A fully distributed team across many time zones." },
+      { "topic": "Self-direction", "weight": 78, "note": "Small team, very little management overhead." }
+    ],
+    "signals": [
+      "Merged pull requests to the repositories, ideally non-trivial ones",
+      "A project you built on the platform and wrote about",
+      "Evidence you can work without daily supervision"
+    ],
+    "openings": [
+      { "kind": "Programme", "name": "Contributor to hire", "window": "Continuous", "status": "rolling", "eligibility": "Anyone with merged contributions", "detail": "The most reliable route in. Sustained open source contribution is treated as a direct hiring signal." },
+      { "kind": "Programme", "name": "Launch Week community events", "window": "Several times a year", "status": "upcoming", "eligibility": "Open to all", "detail": "Public build events with hackathons; strong entries get noticed by the team directly." },
+      { "kind": "Assessment", "name": "Paid trial project", "window": "After the intro call", "status": "rolling", "eligibility": "All candidates", "detail": "A real, scoped, paid piece of work instead of a whiteboard loop." }
+    ],
+    "prepare": [
+      { "label": "Contribute before you apply", "detail": "Two or three merged pull requests change the conversation completely." },
+      { "label": "Learn Postgres beyond queries", "detail": "Row level security and replication are the areas that come up most." },
+      { "label": "Build and publish on the platform", "detail": "Ship something using it, then write up what was hard." },
+      { "label": "Practise writing well async", "detail": "Most of the assessment is how you communicate in issues and pull requests." }
+    ]
+  }
+]
