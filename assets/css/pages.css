@@ -4,6 +4,176 @@
 
 @layer pages {
 
+  /* ===================================================== Signal board skin
+     A shared visual pass for every route. The data remains crisp and ruled,
+     while the surrounding surface gets more warmth, contrast, and depth. */
+
+  body {
+    background-color: var(--paper);
+    background-image: linear-gradient(rgba(18, 59, 218, .035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(18, 59, 218, .035) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .mast {
+    border-bottom: 1px solid color-mix(in srgb, var(--blue) 14%, var(--rule));
+    box-shadow: 0 4px 18px rgba(20, 21, 26, .05);
+  }
+
+  .mast::after { opacity: .65; }
+
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    box-shadow: 3px 3px 0 var(--flag);
+  }
+
+  .brand-name { font-size: 1.18rem; }
+
+  .hero {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(52px, 8vw, 104px) clamp(44px, 7vw, 88px);
+  }
+
+  .hero::before {
+    content: 'N / 01';
+    position: absolute;
+    top: 28px;
+    right: max(var(--pad), calc((100vw - var(--wide)) / 2 + var(--pad)));
+    color: var(--flag-ink);
+    font-family: var(--f-data);
+    font-size: var(--t-tick);
+    letter-spacing: .12em;
+  }
+
+  .hero-copy { position: relative; }
+
+  .hero-copy::before {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 0;
+    width: 4px;
+    height: 112px;
+    background: var(--flag);
+    border-radius: var(--rp);
+  }
+
+  .display--hero { max-width: 8ch; text-wrap: pretty; }
+
+  .hero-lede { max-width: 43ch; font-size: 1.08rem; }
+
+  .hero-search {
+    padding: 7px;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    box-shadow: var(--e2);
+  }
+
+  .hero-search .input { border-color: transparent; background: transparent; }
+  .hero-search .input:hover, .hero-search .input:focus { border-color: var(--blue-line); background: var(--panel); }
+  .hero-search .btn { border-radius: 8px; }
+
+  .chip { border-radius: var(--rp); background: var(--panel); }
+  .chip:hover { background: var(--blue-soft); border-color: var(--blue-line); }
+
+  .spectrum {
+    border: 0;
+    border-radius: 16px;
+    padding: clamp(20px, 4vw, 32px);
+    box-shadow: var(--e3);
+    background: var(--panel);
+    transform: rotate(1deg);
+  }
+
+  .spectrum::after {
+    content: '';
+    position: absolute;
+    inset: 10px -10px -10px 10px;
+    z-index: -1;
+    border: 1px solid var(--flag-line);
+    border-radius: 16px;
+    background: var(--flag-soft);
+  }
+
+  .spectrum { position: relative; }
+  .spectrum-row::before { height: 6px; border-radius: var(--rp); }
+  .spectrum-row:hover::before, .spectrum-row:focus-visible::before { height: 8px; top: -1px; }
+
+  .strip { position: relative; }
+  .strip--panel { background: color-mix(in srgb, var(--blue-soft) 42%, var(--paper)); }
+  .strip--sunk { background: var(--sunk); }
+
+  .stat {
+    padding: var(--s4);
+    border-left: 2px solid var(--blue);
+    background: color-mix(in srgb, var(--panel) 72%, transparent);
+  }
+
+  .stat-figure { font-size: clamp(1.5rem, 3vw, 2.15rem); }
+
+  .card, .filters, .spectrum, .cta {
+    box-shadow: var(--e1);
+    transition: box-shadow var(--base) var(--ease), transform var(--base) var(--ease), border-color var(--base) var(--ease);
+  }
+
+  .card:hover, .co-card:hover, .job:hover { box-shadow: var(--e2); }
+
+  .job {
+    border-radius: var(--r3);
+    border-color: color-mix(in srgb, var(--blue) 16%, var(--rule));
+    background: color-mix(in srgb, var(--panel) 94%, var(--blue-soft));
+  }
+
+  .job.is-featured { border-top: 3px solid var(--flag); }
+  .job-title a:hover { color: var(--blue); }
+  .job-tags .tag { border-radius: var(--rp); background: var(--blue-soft); border-color: transparent; }
+  .mark { border-radius: 10px; }
+
+  .btn { border-radius: 8px; }
+  .btn--primary { box-shadow: 3px 3px 0 color-mix(in srgb, var(--blue) 28%, transparent); }
+  .btn--primary:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 color-mix(in srgb, var(--blue) 28%, transparent); }
+  .btn--flag { box-shadow: 3px 3px 0 var(--flag-line); }
+
+  .pill, .tag { border-radius: var(--rp); }
+  .pill--flag { background: var(--flag-soft); color: var(--flag-ink); }
+  .pill--blue { background: var(--blue-soft); color: var(--blue-deep); }
+
+  .section-title, .sec-head h2 { text-wrap: balance; }
+  .sec-head { border-top: 2px solid var(--ink); padding-top: var(--s4); }
+
+  .foot { background: #111A42; color: #F5F3EE; border-top: 0; }
+  .foot .brand, .foot h2, .foot h3 { color: #F5F3EE; }
+  .foot .brand-mark { background: var(--flag); color: var(--on-flag); }
+  .foot .foot-col a, .foot p, .foot .tick { color: #BBC6F4; }
+  .foot .foot-col a:hover { color: #fff; }
+  .foot-base { border-color: rgba(255,255,255,.16); }
+
+  @media (max-width: 619px) {
+    .hero-copy::before { left: -10px; height: 82px; }
+    .hero-search { margin-inline: -4px; }
+    .spectrum { margin-inline: 4px; transform: rotate(.5deg); }
+  }
+
+  @media (min-width: 980px) {
+    .hero-grid { grid-template-columns: .92fr 1.08fr; }
+    .hero-copy { padding-left: 14px; }
+    .hero::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 30px;
+      width: 22vw;
+      height: 12px;
+      background: var(--flag);
+      clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+      z-index: -1;
+    }
+  }
+
   /* ================================================================ Hero */
 
   .hero { padding-block: var(--s7) var(--s8); }
