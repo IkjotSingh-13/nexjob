@@ -36,9 +36,57 @@
       } catch (e) { /* private mode — the stylesheet default applies */ }
     })();
   </script>
+
+  <!-- Marks a visit that has already been through boot once, before first
+       paint, so the cover below is never even drawn on the way back here
+       from another tab. Deferred modules run too late to prevent that
+       flash, which is why the decision is made up here. -->
+  <script>
+    (function () {
+      try {
+        if (sessionStorage.getItem('nexjob:v2:booted') !== null) {
+          document.documentElement.setAttribute('data-booted', '');
+        }
+      } catch (e) { /* private mode — the cover runs, as it always has */ }
+    })();
+  </script>
 </head>
 
 <body data-page="home">
+
+  <!-- Boot cover, shown on the first load of a visit and no other. Lifted by
+       assets/js/core/loader.js once the board has been drawn. If that script
+       never runs, the failsafe in components.css lifts it anyway, so a failed
+       boot can never leave a blank screen. -->
+  <div class="loader" id="loader">
+    <div class="card loader-card">
+      <div class="loader-head">
+        <span class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round">
+              <path d="M3 18h18" />
+              <path d="M7 18v-3M12 18v-6M17 18v-9" />
+            </svg>
+          </span>
+          <span class="brand-name">Nexjob</span>
+        </span>
+        <p class="loader-note">Drawing every open salary band on one scale.</p>
+      </div>
+
+      <div class="loader-bar">
+        <div class="meter meter--load" id="loader-track" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+          aria-valuenow="0" aria-label="Loading the board">
+          <div class="meter-fill" id="loader-fill" style="--v:0%"></div>
+        </div>
+        <p class="loader-read">
+          <span class="tick" id="loader-status">Reading listings</span>
+          <span class="figure" id="loader-pct">0%</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="mast">

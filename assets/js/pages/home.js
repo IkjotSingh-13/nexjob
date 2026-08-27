@@ -11,6 +11,7 @@ import { money, median, plural } from '../core/format.js';
 import { initShell, refreshCounts } from '../core/shell.js';
 import { toggleSaved } from '../core/store.js';
 import { toast } from '../core/toast.js';
+import { runCover, dropCover } from '../core/loader.js';
 import { jobCard, skeletons } from '../components/job-card.js';
 import { payScaleRow, payAxis } from '../components/pay-scale.js';
 import { bookmarkIcon, icon } from '../components/icons.js';
@@ -20,7 +21,9 @@ initShell();
 const boot = async () => {
   $('#featured').innerHTML = skeletons(3);
 
-  const { jobs, companies, prep, domain } = await load();
+  /* The cover comes off once the data is in and the bar has run its course,
+     so whichever of the two is slower sets the pace. */
+  const [{ jobs, companies, prep, domain }] = await Promise.all([load(), runCover()]);
 
   /* ------------------------------------------------- Hero eyebrow */
 
@@ -125,6 +128,8 @@ const boot = async () => {
           : '<span class="pill">No open intake</span>'}
       </a>`;
   }).join('');
+
+  dropCover();
 };
 
 /* -------------------------------------------------------------- Events */
@@ -157,6 +162,7 @@ delegate(document, 'click', '[data-save]', (event, button) => {
 
 boot().catch((error) => {
   console.error(error);
+  dropCover();
   $('#featured').innerHTML = `
     <div class="empty">
       <h3>The listings did not load</h3>
