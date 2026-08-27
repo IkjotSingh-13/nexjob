@@ -36,13 +36,28 @@
       } catch (e) { /* private mode — the stylesheet default applies */ }
     })();
   </script>
+
+  <!-- Marks a visit that has already been through boot once, before first
+       paint, so the cover below is never even drawn on the way back here
+       from another tab. Deferred modules run too late to prevent that
+       flash, which is why the decision is made up here. -->
+  <script>
+    (function () {
+      try {
+        if (sessionStorage.getItem('nexjob:v2:booted') !== null) {
+          document.documentElement.setAttribute('data-booted', '');
+        }
+      } catch (e) { /* private mode — the cover runs, as it always has */ }
+    })();
+  </script>
 </head>
 
 <body data-page="home">
 
-  <!-- Boot cover. Lifted by assets/js/core/loader.js once the board has been
-       drawn. If that script never runs, the failsafe in components.css lifts
-       it anyway, so a failed boot can never leave a blank screen. -->
+  <!-- Boot cover, shown on the first load of a visit and no other. Lifted by
+       assets/js/core/loader.js once the board has been drawn. If that script
+       never runs, the failsafe in components.css lifts it anyway, so a failed
+       boot can never leave a blank screen. -->
   <div class="loader" id="loader">
     <div class="card loader-card">
       <div class="loader-head">

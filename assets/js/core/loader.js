@@ -10,12 +10,34 @@
  * every other meter here and left to be what it is: a sense of progress that
  * always lands on 100 before the cover lifts.
  *
+ * It covers one wait, and only one: the first. After a visit has been
+ * through boot once the data sits in the browser cache, so every later
+ * arrival here — the back button off a tab, the brand mark, a reload — has
+ * nothing to wait for and gets no cover at all.
+ *
  * Nothing on the page depends on this module. If it never runs — modules are
  * blocked over file://, for one — the failsafe animation in components.css
  * lifts the cover without it.
  */
 
 import { $ } from './dom.js';
+
+/* Per visit, not per device: a genuinely new session still has a cold cache
+   and a real wait to cover. Shares the namespace with everything else stored
+   here, and read by the same name in the home page's <head>, where it has
+   to be known before anything is painted. */
+const BOOTED = 'nexjob:v2:booted';
+
+/** Has this visit already been all the way through boot once? */
+const booted = () => {
+  try { return sessionStorage.getItem(BOOTED) !== null; } catch { return false; }
+};
+
+/* Private mode refuses the write, and the cover simply runs again — the
+   same bargain the theme script makes in the page head. */
+const markBooted = () => {
+  try { sessionStorage.setItem(BOOTED, '1'); } catch { /* nothing to remember with */ }
+};
 
 /** Roughly one line per quarter of the bar. */
 const STEPS = [
@@ -40,9 +62,10 @@ export const runCover = () => new Promise((resolve) => {
   const pct = $('#loader-pct');
   const status = $('#loader-status');
 
-  // No cover on the page, or the viewer asked for no motion: let the load
-  // set the timing by itself.
-  if (!fill || !pct || stillness()) return resolve();
+  // No cover on the page, the viewer asked for no motion, or this visit has
+  // already booted once and the panel is hidden: let the load set the timing
+  // by itself rather than pace it against a bar nobody can see.
+  if (!fill || !pct || stillness() || booted()) return resolve();
 
   let progress = 0;
 
@@ -70,9 +93,17 @@ export const runCover = () => new Promise((resolve) => {
  * Lift the cover and take it out of the document.
  *
  * Every path out of boot has to reach this, the failed one included — a
- * cover that never lifts is a blank site.
+ * cover that never lifts is a blank site. Which makes it the one place to
+ * record that the visit has booted: reaching here at all, error card or
+ * finished board, means the wait is behind us and the next arrival at this
+ * page should go straight to the content.
+ *
+ * A boot that never finishes never marks, so a load that genuinely hung
+ * still gets its cover next time.
  */
 export const dropCover = () => {
+  markBooted();
+
   const cover = $('#loader');
   if (!cover) return;
 

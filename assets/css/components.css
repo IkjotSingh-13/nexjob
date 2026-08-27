@@ -1100,6 +1100,13 @@
 
   .loader.is-gone { opacity: 0; visibility: hidden; }
 
+  /* One cover per visit. Once the board has been drawn once the data is in
+     the browser cache, so coming back here off a tab has nothing to wait
+     for — the page head sets this before first paint, and the panel is gone
+     rather than transparent, which keeps its progressbar out of the
+     accessibility tree too. */
+  [data-booted] .loader { display: none; }
+
   @keyframes loader-lift { to { opacity: 0; visibility: hidden; } }
 
   .loader-card {
