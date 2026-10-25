@@ -9,9 +9,11 @@ postings — lives in the browser's `localStorage`. There is no server.
 
 ## Running it
 
+Use Node.js 22 LTS (recommended). Node 20.19+ also supports the locked build tools.
+
 ```bash
-npm install
-npm run dev        # http://localhost:5173
+npm ci
+npm run dev        # http://localhost:5173/nexjob/
 ```
 
 | Script | What it does |
@@ -20,10 +22,31 @@ npm run dev        # http://localhost:5173
 | `npm run build` | Production build into `dist/` |
 | `npm run preview` | Serve `dist/` locally |
 | `npm run lint` | ESLint, including the React hooks rules |
+| `npm run test:deployment` | Six production-build checks; run after `npm run build` |
 
-It is a single-page app, so a static host needs to fall back to `index.html` for
-unknown paths. To deploy under a sub-path, set `base` in `vite.config.js`; the router
-and the data requests both follow it.
+## GitHub Pages deployment
+
+The site is published at <https://ikjotsingh-13.github.io/nexjob/>. GitHub Pages must
+publish the **compiled `dist/` directory**, not the React source files in the
+repository root.
+
+**One-time repository setting:** in **Settings → Pages → Build and deployment**,
+set **Source** to **GitHub Actions**. Then push to `main`, or run **Deploy Nexjob to
+GitHub Pages** from the Actions tab. The included workflow installs with `npm ci`,
+builds with Node 22, verifies the output and deploys only `dist/`.
+
+The Vite base defaults to `/nexjob/`, so scripts, CSS, React Router and JSON requests
+all use the project path. The workflow obtains the base from GitHub Pages metadata,
+which also supports forks or a configured custom domain.
+
+`npm run build` also generates `dist/404.html` from the compiled entry point, so
+refreshed links such as `/nexjob/jobs/1` and old `.html` bookmarks can boot the router.
+GitHub Pages can still return HTTP 404 for the initial deep-link document; the app
+then renders the requested route. For root-domain hosting instead, build with
+`VITE_BASE_PATH=/ npm run build`.
+
+See [the deployment repair guide](docs/GITHUB_PAGES_FIX.md) for the diagnosed cause,
+exact activation steps and verification commands.
 
 Demo accounts, both with the password `password123`:
 
