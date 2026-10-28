@@ -11,6 +11,7 @@ import {
   addCustomCompany, newId
 } from './store.js';
 import { initials, colourFor } from './format.js';
+import { fakeServer } from './promise.js';
 
 const AVATAR_COLOURS = ['#2B36C4', '#17694A', '#8A5A00', '#7A2E6B', '#1F5C7A'];
 
@@ -30,28 +31,30 @@ export const currentUser = () => getSession();
 
 export const isEmployer = () => currentUser()?.role === 'employer';
 
-export const signIn = (email, password) => {
+/** @returns {Promise<Object>} signed-in user, ya error ke saath reject */
+export const signIn = (email, password) => fakeServer(() => {
   const target = String(email).trim().toLowerCase();
   const account = getAccounts().find((a) => a.email.toLowerCase() === target);
 
-  if (!account) return { ok: false, message: 'No account uses that email address.' };
-  if (account.password !== password) return { ok: false, message: 'That password does not match.' };
+  if (!account) throw new Error('No account uses that email address.');
+  if (account.password !== password) throw new Error('That password does not match.');
 
   const user = toSession(account);
   setSession(user);
-  return { ok: true, user };
-};
+  return user;
+});
 
 /**
  * @param {{name:string, email:string, password:string, role:'seeker'|'employer',
  *          companyId?:string, companyName?:string}} details
+ * @returns {Promise<Object>} naya user, ya error ke saath reject
  */
-export const register = (details) => {
+export const register = (details) => fakeServer(() => {
   const accounts = getAccounts();
   const email = String(details.email).trim().toLowerCase();
 
   if (accounts.some((a) => a.email.toLowerCase() === email)) {
-    return { ok: false, message: 'That email already has an account. Sign in instead.' };
+    throw new Error('That email already has an account. Sign in instead.');
   }
 
   let companyId = details.companyId || null;
@@ -93,8 +96,8 @@ export const register = (details) => {
 
   const user = toSession(account);
   setSession(user);
-  return { ok: true, user };
-};
+  return user;
+});
 
 export const signOut = () => clearSession();
 

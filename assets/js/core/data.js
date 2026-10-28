@@ -15,11 +15,12 @@ const BASE = './assets/data/';
 
 let cache = null;
 
-const fetchJson = async (file) => {
-  const response = await fetch(`${BASE}${file}`);
-  if (!response.ok) throw new Error(`${file} — HTTP ${response.status}`);
-  return response.json();
-};
+/* fetch() khud ek Promise return karta hai; `.then` mein jawab milta hai. */
+const fetchJson = (file) =>
+  fetch(`${BASE}${file}`).then((response) => {
+    if (!response.ok) throw new Error(`${file} — HTTP ${response.status}`);
+    return response.json();
+  });
 
 /** Attach the company record and the derived fields every view wants. */
 const hydrate = (job, companyIndex) => {
@@ -44,24 +45,26 @@ const hydrate = (job, companyIndex) => {
 /**
  * @returns {Promise<{jobs: Array, companies: Array, prep: Array, domain: {min:number,max:number}}>}
  */
-export const load = async () => {
-  if (cache) return cache;
+export const load = () => {
+  if (cache) return Promise.resolve(cache);
 
-  const [seedJobs, seedCompanies, prep] = await Promise.all([
+  /* Teeno JSON files ek saath maango. Promise.all tabhi aage badhta hai jab teeno aa jaayein;
+     agar koi ek bhi fail ho toh poora Promise reject ho jaata hai. */
+  return Promise.all([
     fetchJson('jobs.json'),
     fetchJson('companies.json'),
     fetchJson('prep.json')
-  ]);
+  ]).then(([seedJobs, seedCompanies, prep]) => {
+    const companies = [...seedCompanies, ...getCustomCompanies()];
+    const companyIndex = new Map(companies.map((c) => [c.id, c]));
 
-  const companies = [...seedCompanies, ...getCustomCompanies()];
-  const companyIndex = new Map(companies.map((c) => [c.id, c]));
+    /* Employer postings from this browser sit at the top of the board. */
+    const postings = getPostings().filter((p) => p.status !== 'deleted');
+    const jobs = [...postings, ...seedJobs].map((job) => hydrate(job, companyIndex));
 
-  /* Employer postings from this browser sit at the top of the board. */
-  const postings = getPostings().filter((p) => p.status !== 'deleted');
-  const jobs = [...postings, ...seedJobs].map((job) => hydrate(job, companyIndex));
-
-  cache = { jobs, companies, prep, domain: domainFor(jobs) };
-  return cache;
+    cache = { jobs, companies, prep, domain: domainFor(jobs) };
+    return cache;
+  });
 };
 
 /** Drop the cache so a page re-reads after a posting is created or edited. */

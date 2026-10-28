@@ -16,6 +16,7 @@ import {
 } from '../core/store.js';
 import { currentUser } from '../core/auth.js';
 import { toast } from '../core/toast.js';
+import { fakeServer } from '../core/promise.js';
 import { payScaleFull } from '../components/pay-scale.js';
 import { jobCardMini } from '../components/job-card.js';
 import { bookmarkIcon, icon } from '../components/icons.js';
@@ -312,7 +313,7 @@ delegate(document, 'submit', '#apply-form', async (event) => {
     return;
   }
 
-  addApplication({
+  const application = {
     jobId: job.id,
     userId: user.id,
     jobTitle: job.title,
@@ -322,12 +323,24 @@ delegate(document, 'submit', '#apply-form', async (event) => {
     email: $('#apply-email').value.trim(),
     link: $('#apply-link').value.trim(),
     note: $('#apply-note').value.trim()
-  });
+  };
 
-  toast('Application sent', 'ok');
-  refreshCounts();
+  const button = $('#apply-form [type="submit"]');
+  button.disabled = true;                 // jawab aane tak button band
+  button.textContent = 'Sending…';
 
-  $('#apply-card').outerHTML = applyPanel(job);
+  fakeServer(() => addApplication(application))
+    .then(() => {                         // Promise resolve hua: application save ho gayi
+      toast('Application sent', 'ok');
+      refreshCounts();
+
+      $('#apply-card').outerHTML = applyPanel(job);
+    })
+    .catch((error) => toast(error.message, 'stop'))   // Promise reject hua: error dikhao
+    .finally(() => {                                  // dono case mein: button wapas theek
+      button.disabled = false;
+      button.textContent = 'Send application';
+    });
 });
 
 boot().catch((error) => {
