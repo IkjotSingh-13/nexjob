@@ -1,29 +1,23 @@
 # Nexjob
 
-A two-sided job platform built with React, plain CSS and a Promise-based service
-layer. Thirteen routes, mobile-first, light and dark.
+A two-sided job platform built with plain HTML, CSS and JavaScript. No framework,
+no build step, no dependencies. Thirteen pages, mobile-first, light and dark.
 
-Listings, companies and hiring routes are sample data in `public/data/`. Everything
+Listings, companies and hiring routes are sample data in `assets/data/`. Everything
 the app remembers — accounts, saved roles, applications, alerts, profiles, employer
-postings — lives in the browser's `localStorage`. There is no server.
+postings — lives in the browser's `localStorage`.
 
 ## Running it
 
+The pages load their data with `fetch` and use ES modules, so the folder has to be
+served over HTTP. Opening `index.html` straight from the file system leaves the
+listings empty.
+
 ```bash
-npm install
-npm run dev        # http://localhost:5173
+python -m http.server 8000
 ```
 
-| Script | What it does |
-|---|---|
-| `npm run dev` | Vite dev server with hot reload |
-| `npm run build` | Production build into `dist/` |
-| `npm run preview` | Serve `dist/` locally |
-| `npm run lint` | ESLint, including the React hooks rules |
-
-It is a single-page app, so a static host needs to fall back to `index.html` for
-unknown paths. To deploy under a sub-path, set `base` in `vite.config.js`; the router
-and the data requests both follow it.
+Then open <http://localhost:8000>. In VS Code, the Live Server extension works too.
 
 Demo accounts, both with the password `password123`:
 
@@ -58,31 +52,26 @@ The same grammar carries two more domains. An application is a position on a hir
 pipeline. A profile is a position on a completeness scale. Because they share the
 vocabulary, the product reads as one thing rather than a pile of features.
 
-## Routes
+## Pages
 
-| Route | What it does |
+| Page | What it does |
 |---|---|
-| `/` | The thesis, live search, figures, featured roles, pay by discipline |
-| `/jobs` | Search, eight filters, four sorts, pagination — all in the query string |
-| `/jobs/:id` | Full detail, the pay band in context, inline application, similar roles |
-| `/companies` | Directory with each company's band and open count |
-| `/companies/:id` | Profile, what they pay against the board, every open role |
-| `/salaries` | Pay explorer, five groupings, and a percentile check for your own number |
-| `/prep?company=` | The hiring loop stage by stage, what it weights, current intakes |
-| `/dashboard` | Pipeline, matched roles, saved roles, alerts, recently viewed |
-| `/profile` | Profile and CV builder, completeness meter, printable CV |
-| `/post-job` | Three-step posting form with a live preview and a required band |
-| `/employer` | Postings, applicants, and moving people through the stages |
-| `/auth` | Sign in and registration for both account types |
-| `*` | Everything, in one place, when a link goes wrong |
+| `index.html` | The thesis, live search, figures, featured roles, pay by discipline |
+| `jobs.html` | Search, eight filters, four sorts, pagination — all in the query string |
+| `job.html?id=` | Full detail, the pay band in context, inline application, similar roles |
+| `companies.html` | Directory with each company's band and open count |
+| `company.html?id=` | Profile, what they pay against the board, every open role |
+| `salaries.html` | Pay explorer, five groupings, and a percentile check for your own number |
+| `prep.html?company=` | The hiring loop stage by stage, what it weights, current intakes |
+| `dashboard.html` | Pipeline, matched roles, saved roles, alerts, recently viewed |
+| `profile.html` | Profile and CV builder, completeness meter, printable CV |
+| `post-job.html` | Three-step posting form with a live preview and a required band |
+| `employer.html` | Postings, applicants, and moving people through the stages |
+| `auth.html` | Sign in and registration for both account types |
+| `404.html` | Everything, in one place, when a link goes wrong |
 
 Filter state lives in the address bar, so a filtered board is shareable and the back
-button behaves. Links from the earlier multi-page build (`jobs.html?q=react`,
-`job.html?id=3`) redirect to their new routes.
-
-`/dashboard` and `/profile` are for job seekers, `/post-job` and `/employer` for
-employers. Visiting one while signed out goes to `/auth` and comes back afterwards;
-an employer who lands on a seeker page is sent to their own dashboard.
+button behaves.
 
 ## Features
 
@@ -97,51 +86,6 @@ see what it takes to get into each company.
 with a live preview, manage and close postings, read every applicant, and move them
 through the pipeline. Moving someone from screening to interview changes what shows
 on that person's dashboard, because both sides read one store.
-
-## How it is built
-
-```
-Components ──read──▶ hooks ──subscribe──▶ store (localStorage)
-     │                                         ▲
-     └──────────write──▶ services/api.js ──────┘      every write returns a Promise
-```
-
-**Reading is reactive.** `services/storage.js` wraps `localStorage` as a subscribable
-store, and `useDb` reads it through `useSyncExternalStore`. A write from anywhere —
-another component, another tab — re-renders everything that reads that key, so no
-page has to remember to refresh itself. The store hands back the same object while
-the stored text is unchanged, which is what keeps that from looping. If the browser
-refuses storage (private mode, quota) the app carries on from memory for the session.
-
-**Writing is Promise-based.** Every operation the interface performs lives in
-`services/api.js` and returns a Promise: `signIn`, `register`, `applyToJob`,
-`moveApplication`, `publishPosting`, `saveProfile`, `toggleSaved` and the rest. With
-no server, each call waits out a simulated round trip (`LATENCY` in
-`services/promises.js`) and then touches the store — the shape a real backend would
-have, so swapping in `fetch` means changing that one file. Domain failures reject
-with an `ApiError` whose message is safe to show: a wrong password, a taken email, a
-second application to the same role.
-
-The UI treats them as real requests. The `useAction` hook tracks `pending`, so a
-button reads "Signing in…" or "Sending…" and is released in `finally` whatever
-happens; callers chain `.then` for the success toast and `.catch` for the error.
-
-Where Promises are composed, rather than just returned:
-
-| Where | How |
-|---|---|
-| `loadSeed` | `Promise.all` fetches the three data files together; the promise is shared, so every page waits on one request |
-| `loadSeed` | `withTimeout` races it against a clock (`Promise.race`) and `retry` re-attempts with exponential backoff before giving up |
-| `loadSeed` | A failure is not cached, so a "Try again" button really does try again |
-| `BootCover` | `Promise.allSettled` waits for both the progress bar and the data, and lifts the cover even if the load failed — a cover that never lifts is a blank site |
-| Job page share | `Promise.resolve().then(...)` turns a synchronous failure (no clipboard API) into a rejection the same `.catch` handles |
-
-Set `VITE_API_LATENCY_SCALE=0` to switch the simulated waiting off, or `2` to see
-the pending states for longer.
-
-The board itself (`context/BoardContext.jsx`) is the loaded sample data with
-whatever an employer has posted in this browser merged on top, so publishing a role
-changes the board immediately.
 
 ## Design system
 
@@ -183,48 +127,39 @@ Radii are 2px. Machined, not doctrinaire.
 - Visible focus ring on everything, in the position colour
 - Text meets 4.5:1 in both themes; the focus ring uses a darkened orange to clear 3:1
 - `prefers-reduced-motion` honoured throughout
-- Moving between routes scrolls to the top (or the `#anchor`) and moves focus to the
-  page, as the browser did on a full page load
-- The drawer traps Tab, closes on Escape and hands focus back; the mobile filter
-  sheet takes focus and closes on Escape
 
 ## Files
 
 ```
-index.html                     Vite entry: head, pre-paint theme script, #root
-vite.config.js, eslint.config.js
-public/data/
-  jobs.json                    28 listings
-  companies.json               12 companies
-  prep.json                    12 hiring routes
-src/
-  main.jsx                     Mounts the app; imports the stylesheets in order
-  App.jsx                      Providers and the route table
-  styles/
+index.html … 404.html          One file per page
+assets/
+  css/
     tokens.css                 Palette, type, space, radii, motion; both themes
     base.css                   Reset, typography, the rule motif, focus
     layout.css                 Shell, containers, splits, visibility utilities
     components.css             Buttons, fields, cards, the pay scale, pipeline, dialogs
     pages.css                  Page-level composition
-  pages/                       One component per route
-  components/
-    PayScale.jsx               The signature
-    JobCard.jsx                The listing, its mini form and its skeletons
-    Filters.jsx                The rail, including the ruler slider
-    Pipeline.jsx               Application stages
-    Layout, Header, Drawer, Footer, RequireAuth, BootCover, LoadError, Icon
-  context/                     Theme, toasts, auth session, the board
-  hooks/
-    useDb.js                   Subscribe a component to one stored key
-    useStore.js                Saved ids, applications, alerts, profile
-    useAction.js               A Promise-returning operation plus its pending flag
-    useSaved.js, usePageMeta.js
-  services/
-    storage.js                 localStorage as a subscribable store; v1 migration
-    promises.js                delay, simulate, withTimeout, retry, LATENCY
-    api.js                     Every operation the UI performs, as a Promise
-  lib/                         Pure functions: formatting, scale maths, filtering,
-                               sorting, scoring, profile completeness, URLs
+  js/
+    core/
+      dom.js                   Selectors, escaping, delegation, query-string helpers
+      format.js                Money, dates, and the scale arithmetic
+      store.js                 localStorage schema, with a migration from v1
+      data.js                  Loading, hydration, filtering, sorting, scoring
+      auth.js                  Accounts, sessions, route guards
+      theme.js                 Light, dark, and following the system
+      toast.js                 Status messages
+      shell.js                 Header, drawer and footer wiring for every page
+    components/
+      pay-scale.js             The signature
+      job-card.js              The listing
+      filters.js               The rail, including the ruler slider
+      pipeline.js              Application stages
+      icons.js                 One line weight, one grid
+    pages/                     One module per page
+  data/
+    jobs.json                  28 listings
+    companies.json             12 companies
+    prep.json                  12 hiring routes
 ```
 
 Layer order is declared once in `tokens.css` as
@@ -239,9 +174,6 @@ from now still reads as a live board.
 This is a coursework project. There is no server, so:
 
 - Passwords sit in plain text in `localStorage`. Do not reuse a real one.
-- The "network" is simulated: requests wait a fixed time and never fail at random.
-  The failure handling (retry, timeout, "Try again") is real and is exercised when
-  the sample-data request itself fails.
 - Job alerts show their current matches instead of sending email.
 - The hiring routes in `prep.json` are written from how these processes are generally
   known to work, and the intake windows are illustrative rather than a calendar. The
@@ -249,8 +181,8 @@ This is a coursework project. There is no server, so:
 - Company names and brand colours belong to those companies and are used here as
   sample data.
 
-The multi-page vanilla JavaScript build this was converted from is in this
-repository's history; `e57185b` is the last commit before the conversion.
+The previous single-page version of this project is preserved in `../nexjob-legacy/`
+and in this repository's history.
 
 ## Licence
 
