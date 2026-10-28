@@ -147,6 +147,7 @@
     color: var(--stop);
     border-radius: var(--r2);
     padding: var(--s3) var(--s4);
+    margin-bottom: var(--s4);   /* keeps the message clear of the first field below it */
     font-size: var(--t-sm);
   }
 
@@ -155,6 +156,7 @@
     color: var(--ok);
     border-radius: var(--r2);
     padding: var(--s3) var(--s4);
+    margin-bottom: var(--s4);
     font-size: var(--t-sm);
   }
 

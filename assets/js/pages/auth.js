@@ -89,12 +89,20 @@ on($('#panel-signin'), 'submit', (event) => {
   event.preventDefault();
   clearError();
 
-  const result = signIn($('#signin-email').value, $('#signin-password').value);
+  const button = $('#panel-signin [type="submit"]');
+  button.disabled = true;                 // jawab aane tak button band
+  button.textContent = 'Signing in…';
 
-  if (!result.ok) return fail(result.message);
-
-  toast(`Signed in as ${result.user.name}`, 'ok');
-  location.href = landing(result.user);
+  signIn($('#signin-email').value, $('#signin-password').value)
+    .then((user) => {                     // Promise resolve hua: sign in ho gaya
+      toast(`Signed in as ${user.name}`, 'ok');
+      location.href = landing(user);
+    })
+    .catch((error) => fail(error.message))   // Promise reject hua: error dikhao
+    .finally(() => {                         // dono case mein: button wapas theek
+      button.disabled = false;
+      button.textContent = 'Sign in';
+    });
 });
 
 on($('#panel-register'), 'submit', (event) => {
@@ -123,11 +131,20 @@ on($('#panel-register'), 'submit', (event) => {
     }
   }
 
-  const result = register(details);
-  if (!result.ok) return fail(result.message);
+  const button = $('#panel-register [type="submit"]');
+  button.disabled = true;
+  button.textContent = 'Creating account…';
 
-  toast('Account created', 'ok');
-  location.href = landing(result.user);
+  register(details)
+    .then((user) => {
+      toast('Account created', 'ok');
+      location.href = landing(user);
+    })
+    .catch((error) => fail(error.message))
+    .finally(() => {
+      button.disabled = false;
+      button.textContent = 'Create account';
+    });
 });
 
 /* ---------------------------------------------------------- Demo fills */
