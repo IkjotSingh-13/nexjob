@@ -145,7 +145,8 @@ assets/
       format.js                Money, dates, and the scale arithmetic
       store.js                 localStorage schema, with a migration from v1
       data.js                  Loading, hydration, filtering, sorting, scoring
-      auth.js                  Accounts, sessions, route guards
+      auth.js                  Accounts, sessions, route guards (sign in and register return Promises)
+      promise.js               fakeServer: a Promise that resolves or rejects after 500 ms
       theme.js                 Light, dark, and following the system
       toast.js                 Status messages
       shell.js                 Header, drawer and footer wiring for every page
@@ -168,6 +169,23 @@ to fight specificity to win, and a visibility utility can always hide a componen
 
 Listings carry `postedHoursAgo` rather than a fixed date, so a copy checked out a year
 from now still reads as a live board.
+
+## Promises
+
+There is no server, so `core/promise.js` provides `fakeServer(work)`: a Promise that
+waits half a second and then resolves with whatever `work` returns, or rejects with
+whatever it throws. It is used in three places, each handled with `.then`, `.catch`
+and `.finally` so the button shows a pending state and is always released:
+
+- Sign in and register (`core/auth.js`, `pages/auth.js`)
+- Send application (`pages/job.js`)
+
+The three JSON files load with `fetch().then` and `Promise.all` in `core/data.js`.
+
+## Deployment
+
+`.github/workflows/deploy-pages.yml` publishes the `*.html` files and `assets/` to
+GitHub Pages on every push to `main`. There is nothing to build or install.
 
 ## Caveats
 
