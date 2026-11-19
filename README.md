@@ -1,23 +1,29 @@
 # Nexjob
 
-A two-sided job platform built with plain HTML, CSS and JavaScript. No framework,
-no build step, no dependencies. Thirteen pages, mobile-first, light and dark.
+A two-sided job platform built with React (JSX) and plain CSS, bundled with Vite.
+Thirteen pages, mobile-first, light and dark.
 
-Listings, companies and hiring routes are sample data in `assets/data/`. Everything
+Listings, companies and hiring routes are sample data in `public/data/`. Everything
 the app remembers — accounts, saved roles, applications, alerts, profiles, employer
 postings — lives in the browser's `localStorage`.
 
 ## Running it
 
-The pages load their data with `fetch` and use ES modules, so the folder has to be
-served over HTTP. Opening `index.html` straight from the file system leaves the
-listings empty.
+You need Node.js 20.19+ or 22.12+.
 
 ```bash
-python -m http.server 8000
+npm install
+npm run dev
 ```
 
-Then open <http://localhost:8000>. In VS Code, the Live Server extension works too.
+Then open the address Vite prints (usually <http://localhost:5173>). The data is
+loaded with `fetch`, so the site has to be served — opening an `.html` file straight
+from the file system leaves the listings empty.
+
+```bash
+npm run build      # production build into dist/
+npm run preview    # serve the built site locally
+```
 
 Demo accounts, both with the password `password123`:
 
@@ -131,36 +137,38 @@ Radii are 2px. Machined, not doctrinaire.
 ## Files
 
 ```
-index.html … 404.html          One file per page
-assets/
-  css/
+index.html … 404.html          One small file per page: <body data-page="jobs"> and a #root
+vite.config.js                 Lists the 13 pages so Vite builds each one
+public/data/
+  jobs.json                    28 listings
+  companies.json               12 companies
+  prep.json                    12 hiring routes
+src/
+  main.jsx                     Picks the page component from data-page and draws it
+  styles/
     tokens.css                 Palette, type, space, radii, motion; both themes
     base.css                   Reset, typography, the rule motif, focus
     layout.css                 Shell, containers, splits, visibility utilities
     components.css             Buttons, fields, cards, the pay scale, pipeline, dialogs
     pages.css                  Page-level composition
-  js/
-    core/
-      dom.js                   Selectors, escaping, delegation, query-string helpers
-      format.js                Money, dates, and the scale arithmetic
-      store.js                 localStorage schema, with a migration from v1
-      data.js                  Loading, hydration, filtering, sorting, scoring
-      auth.js                  Accounts, sessions, route guards (sign in and register return Promises)
-      promise.js               fakeServer: a Promise that resolves or rejects after 500 ms
-      theme.js                 Light, dark, and following the system
-      toast.js                 Status messages
-      shell.js                 Header, drawer and footer wiring for every page
-    components/
-      pay-scale.js             The signature
-      job-card.js              The listing
-      filters.js               The rail, including the ruler slider
-      pipeline.js              Application stages
-      icons.js                 One line weight, one grid
-    pages/                     One module per page
-  data/
-    jobs.json                  28 listings
-    companies.json             12 companies
-    prep.json                  12 hiring routes
+  lib/                         Plain JavaScript, no React
+    format.js                  Money, dates, and the scale arithmetic
+    store.js                   localStorage schema, with a migration from v1
+    data.js                    Loading, filtering, sorting, scoring
+    auth.js                    Accounts, sessions, route guard (sign in and register return Promises)
+    promise.js                 fakeServer: a Promise that resolves or rejects after 500 ms
+    hooks.js                   useBoardData (load the data) and useSaved (bookmarks)
+    toast.js                   Sends a status message to <Toasts />
+    url.js                     Read ?params, build links
+  components/
+    Layout.jsx                 Header, footer, menu, toasts and the theme
+    PayScale.jsx               The signature
+    JobCard.jsx                The listing
+    Filters.jsx                The rail, including the ruler slider
+    Pipeline.jsx               Application stages
+    Icon.jsx                   One line weight, one grid
+    …                          Header, Drawer, Footer, Toasts, BootCover, Mark, Stats
+  pages/                       One component per page
 ```
 
 Layer order is declared once in `tokens.css` as
@@ -172,20 +180,21 @@ from now still reads as a live board.
 
 ## Promises
 
-There is no server, so `core/promise.js` provides `fakeServer(work)`: a Promise that
+There is no server, so `src/lib/promise.js` provides `fakeServer(work)`: a Promise that
 waits half a second and then resolves with whatever `work` returns, or rejects with
 whatever it throws. It is used in three places, each handled with `.then`, `.catch`
 and `.finally` so the button shows a pending state and is always released:
 
-- Sign in and register (`core/auth.js`, `pages/auth.js`)
-- Send application (`pages/job.js`)
+- Sign in and register (`src/lib/auth.js`, `src/pages/Auth.jsx`)
+- Send application (`src/pages/Job.jsx`)
 
-The three JSON files load with `fetch().then` and `Promise.all` in `core/data.js`.
+The three JSON files load with `fetch().then` and `Promise.all` in `src/lib/data.js`.
 
 ## Deployment
 
-`.github/workflows/deploy-pages.yml` publishes the `*.html` files and `assets/` to
-GitHub Pages on every push to `main`. There is nothing to build or install.
+`.github/workflows/deploy-pages.yml` installs the dependencies, runs `npm run build`
+and publishes `dist/` to GitHub Pages on every push to `main`. The build uses relative
+paths, so it works under any project path.
 
 ## Caveats
 
