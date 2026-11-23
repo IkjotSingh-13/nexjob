@@ -66,8 +66,10 @@ export default function Job() {
 
 function JobDetails({ job, data, saved, onSave }) {
   const company = job.company;
-  const boardMid = median(data.jobs.map((j) => j.salaryMid));
+  const boardMid = median(data.jobs.map((j) => j.salaryMid));   // the middle pay of the whole board
+  const hasPerks = Boolean(company.perks) && company.perks.length > 0;
 
+  /* Copy this page's address. writeText returns a Promise; await waits for it. */
   const share = async () => {
     try {
       await navigator.clipboard.writeText(location.href);
@@ -142,7 +144,7 @@ function JobDetails({ job, data, saved, onSave }) {
           <Bullets items={job.requirements} />
         </div>
 
-        {company.perks?.length > 0 && (
+        {hasPerks && (
           <div className="detail-block">
             <h2>What {company.name} offers</h2>
             <Bullets items={company.perks} />
@@ -171,8 +173,14 @@ function Bullets({ items = [] }) {
 /** Sign-in prompt, the application form, or where your application has got to. */
 function ApplyPanel({ job }) {
   const { user } = useContext(UserContext);
-  const [application, setApplication] = useState(() =>
-    user && applicationsFor(user.id).find((a) => Number(a.jobId) === Number(job.id)));
+
+  /* The application this user already sent for this role, if there is one. */
+  let sentBefore = null;
+  if (user) {
+    sentBefore = applicationsFor(user.id).find((a) => Number(a.jobId) === Number(job.id));
+  }
+
+  const [application, setApplication] = useState(sentBefore);
   const [sending, setSending] = useState(false);
 
   if (!user) {
@@ -298,11 +306,18 @@ function JobRail({ job, data }) {
   const route = prepFor(data.prep, job.companyId);
   const openHere = jobsAtCompany(data.jobs, company.id).length;
 
-  /* Same discipline or same company, closest in pay first. */
-  const similar = data.jobs
-    .filter((j) => j.id !== job.id && (j.discipline === job.discipline || j.companyId === job.companyId))
-    .sort((a, b) => Math.abs(a.salaryMid - job.salaryMid) - Math.abs(b.salaryMid - job.salaryMid))
-    .slice(0, 4);
+  /* Similar roles: same discipline or same company (but not this role itself). */
+  const isSimilar = (other) => {
+    if (other.id === job.id) return false;
+    return other.discipline === job.discipline || other.companyId === job.companyId;
+  };
+
+  /* How far apart two roles' pay is. Smaller = more similar. */
+  const payGap = (other) => Math.abs(other.salaryMid - job.salaryMid);
+
+  const others = data.jobs.filter(isSimilar);
+  others.sort((a, b) => payGap(a) - payGap(b));   // closest pay first
+  const similar = others.slice(0, 4);             // the 4 closest
 
   return (
     <div className="rail-sticky stack">

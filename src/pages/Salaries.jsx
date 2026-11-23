@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useBoardData } from '../lib/hooks.js';
 import { LEVELS, payRange } from '../lib/data.js';
-import { money, moneyFull, median, percentileOf, posOn, plural } from '../lib/format.js';
+import { money, moneyFull, median, percentileOf, posOn, plural, unique } from '../lib/format.js';
 import { PayScaleRow, PayAxis } from '../components/PayScale.jsx';
 import Stats from '../components/Stats.jsx';
 import LoadError from '../components/LoadError.jsx';
@@ -21,17 +21,28 @@ const GROUPS = [
 
 /** One row per group. Levels keep their natural order; the rest go by pay. */
 const groupRows = (jobs, groupId) => {
-  const group = GROUPS.find((g) => g.id === groupId);
-  const names = [...new Set(jobs.map(group.of))];
+  const group = GROUPS.find((g) => g.id === groupId);   // e.g. the "Discipline" grouping
+  const names = unique(jobs.map(group.of));              // e.g. Engineering, Design ...
 
-  const rows = names.map((name) => {
-    const set = jobs.filter((job) => group.of(job) === name);
-    return { label: name, count: set.length, ...payRange(set), mid: median(set.map((j) => j.salaryMid)) };
-  });
+  const rows = [];
+  for (const name of names) {
+    const set = jobs.filter((job) => group.of(job) === name);   // the jobs in this group
+    const range = payRange(set);
+    rows.push({
+      label: name,
+      count: set.length,
+      min: range.min,
+      max: range.max,
+      mid: median(set.map((job) => job.salaryMid))
+    });
+  }
 
-  return groupId === 'level'
-    ? rows.sort((a, b) => LEVELS.indexOf(a.label) - LEVELS.indexOf(b.label))
-    : rows.sort((a, b) => b.mid - a.mid);
+  if (groupId === 'level') {
+    rows.sort((a, b) => LEVELS.indexOf(a.label) - LEVELS.indexOf(b.label));   // Junior, Mid, Senior ...
+  } else {
+    rows.sort((a, b) => b.mid - a.mid);                                      // highest middle pay first
+  }
+  return rows;
 };
 
 export default function Salaries() {
@@ -136,14 +147,20 @@ export default function Salaries() {
   );
 }
 
+/** The four figures at the top: [label, figure, note] each. */
 const payStats = (jobs) => {
-  const mids = jobs.map((j) => j.salaryMid);
-  const sorted = [...mids].sort((a, b) => a - b);
+  const mids = jobs.map((job) => job.salaryMid);
+  const sorted = [...mids].sort((a, b) => a - b);   // a copy, small to big
+
+  /* The 25th percentile is the value a quarter of the way up the sorted list. */
+  const quarterUp = sorted[Math.floor(sorted.length * 0.25)];
+  const threeQuartersUp = sorted[Math.floor(sorted.length * 0.75)];
+
   return [
     ['Lowest floor', money(payRange(jobs).min), 'advertised'],
-    ['25th percentile', money(sorted[Math.floor(sorted.length * 0.25)]), 'of midpoints'],
+    ['25th percentile', money(quarterUp), 'of midpoints'],
     ['Median midpoint', money(median(mids)), 'across the board'],
-    ['75th percentile', money(sorted[Math.floor(sorted.length * 0.75)]), 'of midpoints']
+    ['75th percentile', money(threeQuartersUp), 'of midpoints']
   ];
 };
 

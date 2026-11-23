@@ -52,11 +52,21 @@ export default function Company() {
 }
 
 function CompanyDetails({ company, data, saved, onSave }) {
-  const open = sortJobs(jobsAtCompany(data.jobs, company.id), 'newest');
-  const route = prepFor(data.prep, company.id);
-  const { min, max } = payRange(open);
-  const mid = open.length ? median(open.map((j) => j.salaryMid)) : 0;
-  const boardMid = median(data.jobs.map((j) => j.salaryMid));
+  const open = sortJobs(jobsAtCompany(data.jobs, company.id), 'newest');   // this company's roles, newest first
+  const route = prepFor(data.prep, company.id);                             // its hiring route, if we have one
+
+  const range = payRange(open);
+  const min = range.min;
+  const max = range.max;
+
+  /* The middle pay of this company's roles, and of the whole board. */
+  let mid = 0;
+  if (open.length > 0) {
+    mid = median(open.map((job) => job.salaryMid));
+  }
+  const boardMid = median(data.jobs.map((job) => job.salaryMid));
+
+  const hasPerks = Boolean(company.perks) && company.perks.length > 0;
 
   return (
     <>
@@ -113,7 +123,7 @@ function CompanyDetails({ company, data, saved, onSave }) {
           <p style={{ color: 'var(--ink-2)', fontSize: 'var(--t-sm)', lineHeight: 1.6 }}>{company.about}</p>
         </div>
 
-        {company.perks?.length > 0 && (
+        {hasPerks && (
           <div className="detail-block">
             <h2>What they offer</h2>
             <ul className="bullets">{company.perks.map((perk, i) => <li key={i}>{perk}</li>)}</ul>

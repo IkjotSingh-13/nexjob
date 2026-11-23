@@ -230,7 +230,7 @@ function AuthForms() {
                 ) : (
                   <>
                     <option value="">Choose a company…</option>
-                    {data?.companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {data && data.companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     <option value="__new">Somewhere else — I will name it</option>
                   </>
                 )}

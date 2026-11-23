@@ -40,9 +40,14 @@ export function useSaved() {
   const [saved, setSaved] = useState(getSaved);
 
   const toggleSave = (jobId) => {
-    const nowSaved = toggleSaved(jobId);
-    setSaved(getSaved());
-    toast(nowSaved ? 'Role saved' : 'Role removed from saved', nowSaved ? 'ok' : 'info');
+    const nowSaved = toggleSaved(jobId);   // saves it in localStorage
+    setSaved(getSaved());                  // and updates the screen
+
+    if (nowSaved) {
+      toast('Role saved', 'ok');
+    } else {
+      toast('Role removed from saved', 'info');
+    }
   };
 
   return [saved, toggleSave];

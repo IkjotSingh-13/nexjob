@@ -31,7 +31,19 @@ const TITLES = {
   auth: 'Sign in — Nexjob'
 };
 
-const systemTheme = () => (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+/** The computer's own setting: 'dark' or 'light'. */
+const systemTheme = () => {
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (prefersDark) return 'dark';
+  return 'light';
+};
+
+/** The theme the visitor picked, or else the computer's own setting. */
+const startingTheme = () => {
+  const picked = getTheme();   // 'light', 'dark' or null
+  if (picked) return picked;
+  return systemTheme();
+};
 
 export default function Layout({ children }) {
   const { user, setUser } = useContext(UserContext);
@@ -39,7 +51,7 @@ export default function Layout({ children }) {
   const navigate = useNavigate();
   const page = location.pathname.slice(1) || 'home';   // "/jobs" -> "jobs"
 
-  const [theme, setThemeState] = useState(() => getTheme() ?? systemTheme());
+  const [theme, setThemeState] = useState(startingTheme);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   /* The CSS reads the theme from <html data-theme="...">. */
@@ -60,14 +72,24 @@ export default function Layout({ children }) {
   /* A new page: name the browser tab, then jump to a #section link or to the top. */
   useEffect(() => {
     document.title = TITLES[page] || 'Page not found — Nexjob';
-    if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
-    else window.scrollTo(0, 0);
+
+    if (location.hash) {
+      const section = document.getElementById(location.hash.slice(1));   // "#alerts" -> the element with id "alerts"
+      if (section) {
+        section.scrollIntoView();
+      }
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, []);
 
   const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    setThemeState(next);
+    let next = 'dark';
+    if (theme === 'dark') {
+      next = 'light';
+    }
+    setTheme(next);        // remember it in localStorage
+    setThemeState(next);   // and redraw with it
   };
 
   const signOutAndLeave = () => {

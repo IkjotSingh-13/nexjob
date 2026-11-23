@@ -3,11 +3,11 @@
  * stretches over it), with the save button sitting above it.
  */
 
+import { Link } from 'react-router';
 import { money, relTime } from '../lib/format.js';
 import { PayScale } from './PayScale.jsx';
 import Mark from './Mark.jsx';
 import Icon from './Icon.jsx';
-import { Link } from 'react-router';
 
 /**
  * @param {Object}   job
@@ -17,12 +17,32 @@ import { Link } from 'react-router';
  * @param {Function} onSave   called with the job id when the bookmark is clicked
  */
 export default function JobCard({ job, domain, index, saved = false, onSave }) {
-  const isNew = !job.featured && (job.postedHoursAgo ?? 999) <= 24;
+  /* A "New" pill for roles posted in the last 24 hours. Featured roles have their own pill. */
+  let hoursOld = 999;   // unknown age: treat it as old
+  if (job.postedHoursAgo !== undefined && job.postedHoursAgo !== null) {
+    hoursOld = job.postedHoursAgo;
+  }
+  const isNew = !job.featured && hoursOld <= 24;
+
+  /* The number in the left gutter: 3 -> "03". Nothing when no index is given. */
+  let indexText = '';
+  if (index !== undefined) {
+    indexText = String(index).padStart(2, '0');
+  }
+
+  /* Only the first three skills fit on a card. */
+  const firstTags = (job.tags || []).slice(0, 3);
+
+  const clickSave = () => {
+    if (onSave) {
+      onSave(job.id);
+    }
+  };
 
   return (
     <article className={job.featured ? 'job is-featured' : 'job'}>
       <div className="job-index" aria-hidden="true">
-        {index === undefined ? '' : String(index).padStart(2, '0')}
+        {indexText}
       </div>
 
       <div className="job-body">
@@ -36,7 +56,7 @@ export default function JobCard({ job, domain, index, saved = false, onSave }) {
 
           <button type="button" className="ibtn job-save" aria-pressed={saved}
                   aria-label={`${saved ? 'Remove' : 'Save'} ${job.title} at ${job.companyName}`}
-                  onClick={() => onSave?.(job.id)}>
+                  onClick={clickSave}>
             <Icon name="bookmark" filled={saved} />
           </button>
         </div>
@@ -52,7 +72,7 @@ export default function JobCard({ job, domain, index, saved = false, onSave }) {
         </div>
 
         <div className="job-tags">
-          {(job.tags || []).slice(0, 3).map((tag, i) => <span className="tag" key={i}>{tag}</span>)}
+          {firstTags.map((tag, i) => <span className="tag" key={i}>{tag}</span>)}
         </div>
 
         <div className="job-foot">
@@ -89,5 +109,9 @@ export function JobCardMini({ job }) {
 
 /** Grey placeholder blocks while the data loads. */
 export function Skeletons({ count }) {
-  return Array.from({ length: count }, (_, i) => <div className="skeleton" key={i} />);
+  const blocks = [];
+  for (let i = 0; i < count; i += 1) {
+    blocks.push(<div className="skeleton" key={i} />);
+  }
+  return blocks;
 }

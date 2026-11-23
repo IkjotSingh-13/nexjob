@@ -3,33 +3,57 @@
  */
 
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { useBoardData } from '../lib/hooks.js';
 import { jobsAtCompany, payRange } from '../lib/data.js';
-import { money, plural } from '../lib/format.js';
+import { money, plural, uniqueSorted } from '../lib/format.js';
 import { PayScale } from '../components/PayScale.jsx';
 import Mark from '../components/Mark.jsx';
 import LoadError from '../components/LoadError.jsx';
 import Icon from '../components/Icon.jsx';
-import { Link } from 'react-router';
 
 export default function Companies() {
   const { data, failed } = useBoardData();
   const [q, setQ] = useState('');
   const [industry, setIndustry] = useState('');
 
-  const industries = data ? [...new Set(data.companies.map((c) => c.industry))].sort() : [];
+  /* The industries for the dropdown, A–Z, each once. */
+  let industries = [];
+  if (data) {
+    industries = uniqueSorted(data.companies.map((c) => c.industry));
+  }
 
-  /* Each company with its open roles, filtered by the search, most roles first. */
+  /* Does a company match the search box and the industry dropdown? */
   const text = q.trim().toLowerCase();
-  const rows = !data ? [] : data.companies
-    .map((company) => {
+  const matchesSearch = (company) => {
+    if (text) {
+      const words = `${company.name} ${company.industry} ${company.tagline}`.toLowerCase();
+      if (!words.includes(text)) return false;
+    }
+    if (industry && company.industry !== industry) return false;
+    return true;
+  };
+
+  /* Most open roles first. With the same number, A–Z by name. */
+  const byOpenRoles = (a, b) => {
+    if (b.open.length !== a.open.length) {
+      return b.open.length - a.open.length;
+    }
+    return a.company.name.localeCompare(b.company.name);
+  };
+
+  /* One row per matching company: the company, its open roles, and their pay range. */
+  const rows = [];
+  if (data) {
+    for (const company of data.companies) {
+      if (!matchesSearch(company)) continue;   // skip it
+
       const open = jobsAtCompany(data.jobs, company.id);
-      return { company, open, ...payRange(open) };
-    })
-    .filter(({ company }) =>
-      (!text || `${company.name} ${company.industry} ${company.tagline}`.toLowerCase().includes(text))
-      && (!industry || company.industry === industry))
-    .sort((a, b) => b.open.length - a.open.length || a.company.name.localeCompare(b.company.name));
+      const range = payRange(open);
+      rows.push({ company, open, min: range.min, max: range.max });
+    }
+    rows.sort(byOpenRoles);
+  }
 
   const clear = () => {
     setQ('');
@@ -76,9 +100,10 @@ export default function Companies() {
       <section className="strip" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <p className="board-count" aria-live="polite" style={{ marginBottom: 'var(--s4)' }}>
-            {data && (rows.length
-              ? <><strong>{rows.length}</strong> {rows.length === 1 ? 'company' : 'companies'}</>
-              : 'No companies match that search')}
+            {data && rows.length > 0 && (
+              <><strong>{rows.length}</strong> {rows.length === 1 ? 'company' : 'companies'}</>
+            )}
+            {data && rows.length === 0 && 'No companies match that search'}
           </p>
 
           <div className="grid-cards">

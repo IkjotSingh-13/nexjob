@@ -35,13 +35,19 @@ function SeekerDashboard({ user }) {
   const { data, failed } = useBoardData();
   const profile = getProfile(user.id);
 
-  const [applications, setApplications] = useState(() => applicationsFor(user.id));
-  const [saved, setSaved] = useState(getSaved);
-  const [alerts, setAlerts] = useState(getAlerts);
+  /* Each list starts with what is in localStorage. */
+  const [applications, setApplications] = useState(applicationsFor(user.id));
+  const [saved, setSaved] = useState(getSaved());
+  const [alerts, setAlerts] = useState(getAlerts());
 
   /* #/dashboard#saved: scroll there once the lists have filled in. */
   useEffect(() => {
-    if (data && hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' });
+    if (!data || !hash) return;
+
+    const section = document.getElementById(hash.slice(1));   // "#saved" -> the element with id "saved"
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [data]);
 
   const withdraw = (id) => {
@@ -84,20 +90,44 @@ function SeekerDashboard({ user }) {
     toast('Alert deleted');
   };
 
-  const jobs = data ? data.jobs : [];
-  const live = applications.filter((a) => a.stage !== CLOSED_STAGE.id).length;
-  const savedJobs = saved.map((id) => jobById(jobs, id)).filter(Boolean);
-  const recent = getRecent().map((id) => jobById(jobs, id)).filter(Boolean).slice(0, 6);
+  let jobs = [];
+  if (data) {
+    jobs = data.jobs;
+  }
 
-  /* Score every role not applied for yet. */
+  /* Applications that are still going (not "Not moving forward"). */
+  const live = applications.filter((a) => a.stage !== CLOSED_STAGE.id).length;
+
+  /* Turn a list of job ids into jobs, skipping any that are no longer on the board. */
+  const jobsFromIds = (ids) => {
+    const found = [];
+    for (const id of ids) {
+      const job = jobById(jobs, id);
+      if (job) {
+        found.push(job);
+      }
+    }
+    return found;
+  };
+
+  const savedJobs = jobsFromIds(saved);
+  const recent = jobsFromIds(getRecent()).slice(0, 6);   // the 6 most recently viewed
+
+  /* Score every role not applied for yet, and keep the best 5. */
   const appliedIds = applications.map((a) => Number(a.jobId));
-  const matches = recommend(jobs.filter((j) => !appliedIds.includes(Number(j.id))), profile, 5);
+  const notAppliedYet = jobs.filter((job) => !appliedIds.includes(Number(job.id)));
+  const matches = recommend(notAppliedYet, profile, 5);
 
   /* How many roles on the board match an alert right now. */
-  const alertMatches = (alert) => filterJobs(jobs, {
-    disciplines: alert.discipline === 'Any' ? [] : [alert.discipline],
-    where: alert.location || ''
-  }).length;
+  const alertMatches = (alert) => {
+    let disciplines = [alert.discipline];
+    if (alert.discipline === 'Any') {
+      disciplines = [];   // an empty list means any discipline
+    }
+
+    const found = filterJobs(jobs, { disciplines: disciplines, where: alert.location || '' });
+    return found.length;
+  };
 
   return (
     <>

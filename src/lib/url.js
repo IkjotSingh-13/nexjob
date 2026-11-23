@@ -18,11 +18,18 @@ export const getParam = (name) => getParams().get(name) || '';
  */
 export const pageUrl = (page, params = {}) => {
   const search = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value) search.set(key, value);
-  });
-  const text = search.toString();
-  return text ? `${page}?${text}` : page;
+  for (const key in params) {
+    const value = params[key];
+    if (value) {
+      search.set(key, value);   // skip empty ones
+    }
+  }
+
+  const text = search.toString();   // "q=React&remote=1"
+  if (text === '') {
+    return page;
+  }
+  return `${page}?${text}`;
 };
 
 /*

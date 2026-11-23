@@ -11,12 +11,29 @@ import Icon from './Icon.jsx';
 
 const BOOTED = 'nexjob:v2:booted';   // sessionStorage: cleared when the tab closes
 
+/* sessionStorage is like localStorage, but it is emptied when the tab closes. */
 const alreadyBooted = () => {
-  try { return sessionStorage.getItem(BOOTED) !== null; } catch { return false; }
+  try {
+    return sessionStorage.getItem(BOOTED) !== null;
+  } catch {
+    return false;
+  }
 };
 
 const markBooted = () => {
-  try { sessionStorage.setItem(BOOTED, '1'); } catch { /* ignore */ }
+  try {
+    sessionStorage.setItem(BOOTED, '1');
+  } catch {
+    /* ignore */
+  }
+};
+
+/** The words under the bar: one step for each third of the bar, then "Ready". */
+const statusFor = (progress) => {
+  if (progress === 100) return 'Ready';
+  if (progress < 34) return STEPS[0];
+  if (progress < 68) return STEPS[1];
+  return STEPS[2];
 };
 
 const STEPS = ['Reading listings', 'Placing salaries on the scale', 'Sorting by band'];
@@ -34,7 +51,10 @@ export default function BootCover({ loaded, failed }) {
     if (!firstVisit || still) return;
 
     if (progress < 100) {
-      const tick = setTimeout(() => setProgress(Math.min(100, progress + 5 + Math.floor(Math.random() * 15))), 100);
+      const tick = setTimeout(() => {
+        const step = 5 + Math.floor(Math.random() * 15);   // a random step from 5 to 19
+        setProgress(Math.min(100, progress + step));       // never past 100
+      }, 100);
       return () => clearTimeout(tick);
     }
 
@@ -54,7 +74,7 @@ export default function BootCover({ loaded, failed }) {
 
   if (!firstVisit || removed) return null;
 
-  const status = progress === 100 ? 'Ready' : STEPS[Math.min(STEPS.length - 1, Math.floor(progress / 34))];
+  const status = statusFor(progress);
 
   return (
     <div className={lift ? 'loader is-gone' : 'loader'}>

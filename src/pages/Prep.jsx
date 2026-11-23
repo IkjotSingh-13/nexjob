@@ -23,25 +23,38 @@ const STATUS = {
 
 export default function Prep() {
   const { data, failed } = useBoardData();
-  const [companyId, setCompanyId] = useState(() => getParam('company'));
+  const [companyId, setCompanyId] = useState(getParam('company'));   // from ?company= in the address
   const main = useRef(null);
 
   /* Back and forward buttons switch company too. An address with no ?company= leaves the page as it is. */
   useEffect(() => {
     const onPopState = () => {
-      if (getParam('company')) setCompanyId(getParam('company'));
+      const fromAddress = getParam('company');
+      if (fromAddress) {
+        setCompanyId(fromAddress);
+      }
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
-  /* Highest hiring bar first. An unknown company falls back to the first one. */
-  const ordered = data ? [...data.prep].sort((a, b) => b.bar - a.bar) : [];
-  const entry = data ? prepFor(data.prep, companyId) || ordered[0] : null;
-  const company = entry && data.companies.find((c) => c.id === entry.companyId);
+  let ordered = [];     // every route, highest hiring bar first
+  let entry = null;     // the route on screen
+  let company = null;   // and its company
+  if (data) {
+    ordered = [...data.prep].sort((a, b) => b.bar - a.bar);
+
+    /* An unknown company falls back to the first one. */
+    entry = prepFor(data.prep, companyId) || ordered[0];
+    if (entry) {
+      company = data.companies.find((c) => c.id === entry.companyId);
+    }
+  }
 
   useEffect(() => {
-    if (company) document.title = `How to get into ${company.name} — Nexjob`;
+    if (company) {
+      document.title = `How to get into ${company.name} — Nexjob`;
+    }
   }, [company]);
 
   const pick = (id) => {
@@ -198,6 +211,7 @@ function Route({ entry, company, jobs }) {
 }
 
 function Opening({ opening }) {
+  /* The pill's colour and words, e.g. ['ok', 'Open now']. Unknown status: "Rolling". */
   const [tone, label] = STATUS[opening.status] || STATUS.rolling;
 
   return (
@@ -226,11 +240,18 @@ function Opening({ opening }) {
 }
 
 /** The sidebar: hiring bar, your readiness, and links to the company. */
+/** "The highest bar here", "1 company is harder", "3 companies are harder". */
+const harderText = (harder) => {
+  if (harder === 0) return 'The highest bar here';
+  if (harder === 1) return '1 company is harder';
+  return `${harder} companies are harder`;
+};
+
 function Summary({ entry, company, data }) {
   const open = jobsAtCompany(data.jobs, company.id);
   const { min, max } = payRange(open);
-  const openIntakes = entry.openings.filter((o) => o.status === 'open').length;
-  const harder = data.prep.filter((p) => p.bar > entry.bar).length;
+  const openIntakes = entry.openings.filter((opening) => opening.status === 'open').length;
+  const harder = data.prep.filter((other) => other.bar > entry.bar).length;   // companies with a higher bar
 
   return (
     <div className="rail-sticky stack">
@@ -238,7 +259,7 @@ function Summary({ entry, company, data }) {
         <p className="tick">Hiring bar</p>
         <div className="row row--split" style={{ margin: 'var(--s3) 0 5px', alignItems: 'baseline' }}>
           <span style={{ fontSize: 'var(--t-sm)', color: 'var(--ink-2)' }}>
-            {harder === 0 ? 'The highest bar here' : `${harder} ${harder === 1 ? 'company is' : 'companies are'} harder`}
+            {harderText(harder)}
           </span>
           <span className="figure">{entry.bar}/100</span>
         </div>
@@ -294,7 +315,7 @@ function Readiness({ entry }) {
 
   const profile = getProfile(user.id);
 
-  if (!profile.skills.length) {
+  if (profile.skills.length === 0) {
     return (
       <div className="card">
         <p className="tick">Your readiness</p>
@@ -308,7 +329,14 @@ function Readiness({ entry }) {
   }
 
   const { score, covered, gaps } = readinessFor(entry, profile);
-  const biggestGap = [...gaps].sort((a, b) => b.weight - a.weight)[0];
+
+  /* The focus area you do not cover that weighs the most (null when you cover them all). */
+  let biggestGap = null;
+  for (const area of gaps) {
+    if (biggestGap === null || area.weight > biggestGap.weight) {
+      biggestGap = area;
+    }
+  }
 
   return (
     <div className="card">

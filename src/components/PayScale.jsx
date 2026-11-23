@@ -14,12 +14,21 @@ import { posOn, money, moneyFull, axisTicks } from '../lib/format.js';
  * @param {string} label      what a screen reader hears
  */
 export function PayScale({ min, max, domain, size = 'sm', mark, label }) {
-  const lo = posOn(min, domain);
-  const hi = posOn(max, domain);
-  const markAt = mark === undefined ? (lo + hi) / 2 : posOn(mark, domain);
+  const lo = posOn(min, domain);   // left end of the band, in %
+  const hi = posOn(max, domain);   // right end of the band, in %
 
-  const description = label ?? `Pay band ${moneyFull(min)} to ${moneyFull(max)}, `
+  /* The tick: where `mark` is, or the middle of the band. */
+  let markAt = (lo + hi) / 2;
+  if (mark !== undefined) {
+    markAt = posOn(mark, domain);
+  }
+
+  /* What a screen reader says. A label passed in wins. */
+  let description = `Pay band ${moneyFull(min)} to ${moneyFull(max)}, `
     + `on a scale from ${moneyFull(domain.min)} to ${moneyFull(domain.max)}`;
+  if (label !== undefined && label !== null) {
+    description = label;
+  }
 
   return (
     <div className={size === 'sm' ? 'scale' : `scale scale--${size}`} role="img" aria-label={description}

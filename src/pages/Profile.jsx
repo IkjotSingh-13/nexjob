@@ -7,6 +7,7 @@ import { useContext, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useBoardData } from '../lib/hooks.js';
 import { facets, LEVELS } from '../lib/data.js';
+import { uniqueSorted } from '../lib/format.js';
 import { getProfile, setProfile, profileChecks, profileCompleteness } from '../lib/store.js';
 import { UserContext } from '../lib/UserContext.jsx';
 import { toast } from '../lib/toast.js';
@@ -16,9 +17,34 @@ const OPEN_TO = ['Remote', 'On-site', 'Contract', 'Internship', 'Relocation'];
 const NEW_ROLE = { role: '', org: '', from: '', to: '', detail: '' };
 const NEW_QUALIFICATION = { what: '', where: '', year: '' };
 
+/** A copy of an entry with every field trimmed: { role: ' Dev ' } -> { role: 'Dev' }. Missing -> ''. */
+const trimAll = (item) => {
+  const result = {};
+  for (const key in item) {
+    result[key] = (item[key] || '').trim();
+  }
+  return result;
+};
+
+/** True when at least one field of an entry has some text. */
+const hasText = (item) => {
+  for (const key in item) {
+    if (item[key]) return true;
+  }
+  return false;
+};
+
 /* Trim every field, and drop entries that were left completely empty. */
-const trimAll = (item) => Object.fromEntries(Object.entries(item).map(([key, value]) => [key, (value || '').trim()]));
-const filled = (items) => items.map(trimAll).filter((item) => Object.values(item).some(Boolean));
+const filled = (items) => {
+  const result = [];
+  for (const item of items) {
+    const trimmed = trimAll(item);
+    if (hasText(trimmed)) {
+      result.push(trimmed);
+    }
+  }
+  return result;
+};
 
 /** The profile as it gets saved. */
 const clean = (form) => ({
@@ -39,22 +65,48 @@ export default function Profile() {
 
 function ProfileForm({ user }) {
   const { data } = useBoardData();
-  const [form, setForm] = useState(() => getProfile(user.id));
+  const [form, setForm] = useState(getProfile(user.id));   // starts with the saved profile
   const [skillText, setSkillText] = useState('');
   const skillInput = useRef(null);
 
   const profile = clean(form);   // what the meter, the CV and Save all use
 
   /* Small helpers to change one part of the form. */
-  const change = (field, value) => setForm({ ...form, [field]: value });
-  const changeLink = (name, value) => change('links', { ...form.links, [name]: value });
-  const changeItem = (list, index, field, value) =>
-    change(list, form[list].map((item, i) => (i === index ? { ...item, [field]: value } : item)));
+
+  /* change('headline', 'Dev') -> a copy of the form with the new headline. */
+  const change = (field, value) => {
+    setForm({ ...form, [field]: value });
+  };
+
+  const changeLink = (name, value) => {
+    change('links', { ...form.links, [name]: value });
+  };
+
+  /* Change one field of one entry in a list (experience or education). */
+  const changeItem = (list, index, field, value) => {
+    const items = [...form[list]];                        // a copy of the list
+    items[index] = { ...items[index], [field]: value };   // a copy of that entry, with the new value
+    change(list, items);
+  };
+
   /* Blocks that were added but never filled in are dropped whenever one is added or removed. */
-  const addItem = (list, blank) => change(list, [...filled(form[list]), { ...blank }]);
-  const removeItem = (list, index) => change(list, filled(form[list].filter((_, i) => i !== index)));
+  const addItem = (list, blank) => {
+    const kept = filled(form[list]);
+    change(list, [...kept, { ...blank }]);
+  };
+
+  const removeItem = (list, index) => {
+    const others = form[list].filter((item, i) => i !== index);   // every entry except this one
+    change(list, filled(others));
+  };
+
   const toggleOpenTo = (value) => {
-    const chosen = form.openTo.includes(value) ? form.openTo.filter((v) => v !== value) : [...form.openTo, value];
+    let chosen;
+    if (form.openTo.includes(value)) {
+      chosen = form.openTo.filter((v) => v !== value);   // was ticked: take it out
+    } else {
+      chosen = [...form.openTo, value];                  // was not: add it
+    }
     change('openTo', OPEN_TO.filter((v) => chosen.includes(v)));   // keep on-screen order
   };
 
@@ -82,8 +134,20 @@ function ProfileForm({ user }) {
     window.print();
   };
 
-  const disciplines = data ? facets(data.jobs).disciplines : [];
-  const allTags = data ? [...new Set(data.jobs.flatMap((j) => j.tags || []))].sort() : [];
+  /* Choices for the discipline dropdown, and every skill any posting names (A–Z, for suggestions). */
+  let disciplines = [];
+  let allTags = [];
+  if (data) {
+    disciplines = facets(data.jobs).disciplines;
+
+    const tags = [];
+    for (const job of data.jobs) {
+      if (job.tags) {
+        tags.push(...job.tags);
+      }
+    }
+    allTags = uniqueSorted(tags);
+  }
 
   return (
     <>
@@ -365,7 +429,12 @@ function Completeness({ profile }) {
 }
 
 function Cv({ user, profile }) {
-  const contact = [user.email, profile.location, ...Object.values(profile.links)].filter(Boolean).join(' · ');
+  /* The contact line on the CV: email, place and links, leaving out empty ones. */
+  const contactParts = [user.email, profile.location];
+  for (const name in profile.links) {
+    contactParts.push(profile.links[name]);
+  }
+  const contact = contactParts.filter((part) => part).join(' · ');
   const section = { marginTop: 'var(--s6)' };
   const heading = { fontSize: 'var(--t-lg)' };
 

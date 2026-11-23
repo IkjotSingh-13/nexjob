@@ -20,27 +20,58 @@ const WITHIN = [
 ];
 
 export default function Filters({ facets, domain, criteria, onChange, onClear, open, onClose }) {
-  const lo = criteria.payMin ?? domain.min;
-  const hi = criteria.payMax ?? domain.max;
+  /* The two slider handles. No pay filter = the ends of the scale. */
+  let lo = domain.min;
+  if (criteria.payMin !== null && criteria.payMin !== undefined) {
+    lo = criteria.payMin;
+  }
+  let hi = domain.max;
+  if (criteria.payMax !== null && criteria.payMax !== undefined) {
+    hi = criteria.payMax;
+  }
 
   /* On phones the rail slides up as a sheet; move focus into it when it opens. */
   const closeButton = useRef(null);
   useEffect(() => {
-    if (open) closeButton.current.focus();
+    if (open) {
+      closeButton.current.focus();
+    }
   }, [open]);
 
-  /* At either end of the scale means "no limit". */
-  const setPay = (min, max) => onChange({
-    payMin: min > domain.min ? min : null,
-    payMax: max < domain.max ? max : null
-  });
+  /* Save the pay range. A handle at either end of the scale means "no limit" (null). */
+  const setPay = (min, max) => {
+    let payMin = null;
+    if (min > domain.min) payMin = min;
+
+    let payMax = null;
+    if (max < domain.max) payMax = max;
+
+    onChange({ payMin, payMax });
+  };
+
+  /* Dragging one handle past the other pushes it along, so they never cross. */
+  const moveLowHandle = (event) => {
+    const value = Number(event.target.value);
+    setPay(value, Math.max(value, hi));
+  };
+
+  const moveHighHandle = (event) => {
+    const value = Number(event.target.value);
+    setPay(Math.min(value, lo), value);
+  };
 
   /* Tick or untick one value in a list (disciplines, levels, types). */
   const toggle = (name, value) => {
-    const chosen = criteria[name].includes(value)
-      ? criteria[name].filter((v) => v !== value)
-      : [...criteria[name], value];
-    onChange({ [name]: facets[name].filter((v) => chosen.includes(v)) });   // keep on-screen order
+    let chosen;
+    if (criteria[name].includes(value)) {
+      chosen = criteria[name].filter((v) => v !== value);   // was ticked: take it out
+    } else {
+      chosen = [...criteria[name], value];                  // was not: add it
+    }
+
+    /* Keep the same order as on screen. */
+    const inScreenOrder = facets[name].filter((v) => chosen.includes(v));
+    onChange({ [name]: inScreenOrder });
   };
 
   const checkGroup = (title, name) => (
@@ -79,10 +110,10 @@ export default function Filters({ facets, domain, criteria, onChange, onClear, o
           {/* The handle being dragged pushes the other one rather than crossing it. */}
           <input type="range" min={domain.min} max={domain.max} step="5000" value={lo}
                  aria-label="Minimum pay" aria-describedby="pay-filter-label"
-                 onChange={(e) => setPay(Number(e.target.value), Math.max(Number(e.target.value), hi))} />
+                 onChange={moveLowHandle} />
           <input type="range" min={domain.min} max={domain.max} step="5000" value={hi}
                  aria-label="Maximum pay" aria-describedby="pay-filter-label"
-                 onChange={(e) => setPay(Math.min(Number(e.target.value), lo), Number(e.target.value))} />
+                 onChange={moveHighHandle} />
         </div>
 
         <p className="field-note">A role matches when its band overlaps yours.</p>

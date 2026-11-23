@@ -32,13 +32,37 @@ const startSession = (account) => {
   return user;
 };
 
+/** The account that uses this email address (any capitals), or undefined. */
+const findAccount = (accounts, email) => {
+  const wanted = email.trim().toLowerCase();
+  return accounts.find((account) => account.email.toLowerCase() === wanted);
+};
+
+/**
+ * An id made from a company name: "Acme Labs!" -> "acme-labs".
+ * Every run of characters that is not a letter or digit becomes one "-",
+ * then any "-" left at the start or end is removed.
+ */
+const makeCompanyId = (name) => {
+  let id = name.toLowerCase();
+  id = id.replace(/[^a-z0-9]+/g, '-');   // "acme labs!" -> "acme-labs-"
+  id = id.replace(/^-|-$/g, '');         // "acme-labs-" -> "acme-labs"
+  if (id === '') {
+    id = newId();   // a name with no letters or digits at all
+  }
+  return id;
+};
+
 /** @returns {Promise<Object>} signed-in user, ya error ke saath reject */
 export const signIn = (email, password) => fakeServer(() => {
-  const target = email.trim().toLowerCase();
-  const account = getAccounts().find((a) => a.email.toLowerCase() === target);
+  const account = findAccount(getAccounts(), email);
 
-  if (!account) throw new Error('No account uses that email address.');
-  if (account.password !== password) throw new Error('That password does not match.');
+  if (!account) {
+    throw new Error('No account uses that email address.');
+  }
+  if (account.password !== password) {
+    throw new Error('That password does not match.');
+  }
 
   return startSession(account);
 });
@@ -51,7 +75,7 @@ export const register = (details) => fakeServer(() => {
   const accounts = getAccounts();
   const email = details.email.trim().toLowerCase();
 
-  if (accounts.some((a) => a.email.toLowerCase() === email)) {
+  if (findAccount(accounts, email)) {
     throw new Error('That email already has an account. Sign in instead.');
   }
 
@@ -60,7 +84,7 @@ export const register = (details) => fakeServer(() => {
   /* An employer at a company we do not list gets a company made for them. */
   if (details.role === 'employer' && !companyId && details.companyName) {
     const name = details.companyName.trim();
-    companyId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || newId();
+    companyId = makeCompanyId(name);
 
     addCustomCompany({
       id: companyId,
@@ -79,14 +103,22 @@ export const register = (details) => fakeServer(() => {
     });
   }
 
+  let role = 'seeker';
+  if (details.role === 'employer') {
+    role = 'employer';
+  }
+
+  /* Each new account takes the next colour, going round the list again after the last one. */
+  const avatarBg = AVATAR_COLOURS[accounts.length % AVATAR_COLOURS.length];
+
   const account = {
     id: newId(),
     name: details.name.trim(),
     email,
     password: details.password,
-    role: details.role === 'employer' ? 'employer' : 'seeker',
+    role,
     companyId,
-    avatarBg: AVATAR_COLOURS[accounts.length % AVATAR_COLOURS.length]
+    avatarBg
   };
 
   saveAccounts([...accounts, account]);

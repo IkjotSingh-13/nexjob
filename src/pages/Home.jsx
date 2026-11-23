@@ -5,7 +5,7 @@
 import { Link, useNavigate } from 'react-router';
 import { useBoardData, useSaved } from '../lib/hooks.js';
 import { sortJobs, payRange } from '../lib/data.js';
-import { money, median, plural, posOn } from '../lib/format.js';
+import { money, median, plural, posOn, unique } from '../lib/format.js';
 import { pageUrl } from '../lib/url.js';
 import BootCover from '../components/BootCover.jsx';
 import JobCard, { Skeletons } from '../components/JobCard.jsx';
@@ -228,8 +228,9 @@ export default function Home() {
   );
 }
 
+/** Every open role as one thin line, lowest paid first. */
 function Spectrum({ jobs, domain }) {
-  const bySalary = [...jobs].sort((a, b) => a.salaryMid - b.salaryMid);
+  const bySalary = [...jobs].sort((a, b) => a.salaryMid - b.salaryMid);   // a sorted copy
 
   return bySalary.map((job, i) => {
     const pay = `${money(job.salaryMin)} to ${money(job.salaryMax)}`;
@@ -247,20 +248,29 @@ function Spectrum({ jobs, domain }) {
   });
 }
 
+/** The four big figures: [label, figure, note] each. */
 const boardStats = ({ jobs, companies }) => {
-  const remote = jobs.filter((j) => j.remote).length;
+  const remote = jobs.filter((job) => job.remote).length;
+  const remotePercent = Math.round((remote / jobs.length) * 100);
+  const middlePay = median(jobs.map((job) => job.salaryMid));
+
   return [
     ['Open roles', jobs.length, 'across the board'],
     ['Companies', companies.length, 'currently hiring'],
-    ['Remote', `${Math.round((remote / jobs.length) * 100)}%`, `${remote} of ${jobs.length} roles`],
-    ['Median midpoint', money(median(jobs.map((j) => j.salaryMid))), 'base salary, USD']
+    ['Remote', `${remotePercent}%`, `${remote} of ${jobs.length} roles`],
+    ['Median midpoint', money(middlePay), 'base salary, USD']
   ];
 };
 
+/** The three newest featured roles. */
 function Featured({ data, saved, onSave }) {
-  const featured = sortJobs(data.jobs.filter((j) => j.featured), 'newest').slice(0, 3);
+  const allFeatured = data.jobs.filter((job) => job.featured);
+  const newestFirst = sortJobs(allFeatured, 'newest');
+  const featured = newestFirst.slice(0, 3);
 
-  if (!featured.length) return <p className="tick">No featured roles right now.</p>;
+  if (featured.length === 0) {
+    return <p className="tick">No featured roles right now.</p>;
+  }
 
   return featured.map((job, i) => (
     <JobCard key={job.id} job={job} index={i + 1} domain={data.domain}
@@ -269,20 +279,34 @@ function Featured({ data, saved, onSave }) {
 }
 
 /** One row per discipline, highest paying first. */
-const disciplineRows = (jobs) => [...new Set(jobs.map((j) => j.discipline))]
-  .map((name) => {
-    const group = jobs.filter((j) => j.discipline === name);
-    return { label: name, count: group.length, ...payRange(group), mid: median(group.map((j) => j.salaryMid)) };
-  })
-  .sort((a, b) => b.mid - a.mid);
+const disciplineRows = (jobs) => {
+  const names = unique(jobs.map((job) => job.discipline));   // Engineering, Design ...
+  const rows = [];
+
+  for (const name of names) {
+    const group = jobs.filter((job) => job.discipline === name);   // the jobs in this discipline
+    const range = payRange(group);
+    rows.push({
+      label: name,
+      count: group.length,
+      min: range.min,
+      max: range.max,
+      mid: median(group.map((job) => job.salaryMid))
+    });
+  }
+
+  rows.sort((a, b) => b.mid - a.mid);   // highest middle pay first
+  return rows;
+};
 
 /** The three companies with the highest hiring bar. */
 function PrepTeasers({ prep, companies }) {
-  const hardest = [...prep].sort((a, b) => b.bar - a.bar).slice(0, 3);
+  const hardestFirst = [...prep].sort((a, b) => b.bar - a.bar);   // a sorted copy
+  const hardest = hardestFirst.slice(0, 3);
 
   return hardest.map((entry) => {
     const company = companies.find((c) => c.id === entry.companyId);
-    const openNow = entry.openings.filter((o) => o.status === 'open').length;
+    const openNow = entry.openings.filter((opening) => opening.status === 'open').length;
 
     return (
       <Link className="card prep-teaser" to={`/prep?company=${entry.companyId}`} key={entry.companyId}>

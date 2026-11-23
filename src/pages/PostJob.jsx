@@ -22,8 +22,23 @@ const EMPTY_FORM = {
   min: '', max: '', summary: '', tags: '', responsibilities: '', requirements: ''
 };
 
-/** "one\n two \n\n" -> ["one", "two"] */
-const lines = (text) => text.split('\n').map((line) => line.trim()).filter(Boolean);
+/**
+ * Split text into a list, trim each part, and leave out the empty ones.
+ * splitAndTrim("React, , Go ", ",") -> ["React", "Go"]
+ */
+const splitAndTrim = (text, separator) => {
+  const result = [];
+  for (const part of text.split(separator)) {
+    const trimmed = part.trim();
+    if (trimmed !== '') {
+      result.push(trimmed);
+    }
+  }
+  return result;
+};
+
+/** "one\n two \n\n" -> ["one", "two"]: one item per line. */
+const lines = (text) => splitAndTrim(text, '\n');
 
 /* Only employers get here: main.jsx wraps this page in <RequireRole role="employer">. */
 export default function PostJob() {
@@ -39,19 +54,28 @@ function PostJobForm({ user }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);   // waiting for the backend to save the role
 
-  const change = (field, value) => setForm({ ...form, [field]: value });
-
-  const disciplines = data ? facets(data.jobs).disciplines : [];
-  const company = (data && companyById(data.companies, user.companyId)) || {
-    id: user.companyId || 'unknown', name: 'Your company', initial: '?', brandBg: '#2B36C4', brandFg: '#FFFFFF'
+  /* change('title', 'Designer') -> a copy of the form with the new title. */
+  const change = (field, value) => {
+    setForm({ ...form, [field]: value });
   };
 
-  /* The role as it will be saved. */
+  const disciplines = data ? facets(data.jobs).disciplines : [];
+
+  /* The employer's company. If it is not found, a stand-in so the preview can still be drawn. */
+  let company = null;
+  if (data) {
+    company = companyById(data.companies, user.companyId);
+  }
+  if (!company) {
+    company = { id: user.companyId || 'unknown', name: 'Your company', initial: '?', brandBg: '#2B36C4', brandFg: '#FFFFFF' };
+  }
+
+  /* The role as it will be saved. Empty fields get a placeholder ("a || b" uses b when a is empty). */
   const posting = {
     title: form.title.trim() || 'Untitled role',
     companyId: company.id,
     companyName: company.name,
-    discipline: form.discipline || disciplines[0] || '',
+    discipline: form.discipline || disciplines[0] || '',   // what was picked, or the first one in the list
     level: form.level,
     type: form.type,
     location: form.location.trim() || 'Location not set',
@@ -59,7 +83,7 @@ function PostJobForm({ user }) {
     salaryMin: Number(form.min) || 0,
     salaryMax: Number(form.max) || 0,
     summary: form.summary.trim() || 'No summary yet.',
-    tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
+    tags: splitAndTrim(form.tags, ','),
     responsibilities: lines(form.responsibilities),
     requirements: lines(form.requirements),
     featured: false,
@@ -83,14 +107,20 @@ function PostJobForm({ user }) {
   /* Show the problem (if any) and put the cursor in that field. */
   const validate = (n) => {
     const problem = problemIn(n);
-    setError(problem ? problem[0] : '');
-    if (problem) document.getElementById(problem[1]).focus();
-    return !problem;
+
+    if (problem) {
+      setError(problem[0]);                            // the message
+      document.getElementById(problem[1]).focus();     // the field to fix
+      return false;
+    }
+
+    setError('');
+    return true;
   };
 
   const next = () => {
     if (!validate(step)) return;
-    setStep(Math.min(STEPS.length, step + 1));
+    setStep(Math.min(STEPS.length, step + 1));   // one step on, but not past the last step
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

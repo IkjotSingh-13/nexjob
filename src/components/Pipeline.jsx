@@ -11,7 +11,10 @@ export function Pipeline({ stage }) {
 
   /* Steps before the current one are done; a closed application only got as far as "Applied". */
   const stateOf = (i) => {
-    if (closed) return i === 0 ? 'is-done' : '';
+    if (closed) {
+      if (i === 0) return 'is-done';
+      return '';
+    }
     if (i < current) return 'is-done';
     if (i === current) return 'is-now';
     return '';
@@ -38,11 +41,13 @@ export function Pipeline({ stage }) {
 
 /** A dropdown for the employer to move someone to another stage. */
 export function StagePicker({ stage, onChange }) {
+  const options = [...STAGES, CLOSED_STAGE];   // the four stages, then "Not moving forward"
+
   return (
     <span className="select-wrap">
       <select className="select" aria-label="Application stage" style={{ paddingBlock: 7 }}
               value={stage} onChange={(event) => onChange(event.target.value)}>
-        {[...STAGES, CLOSED_STAGE].map((option) => (
+        {options.map((option) => (
           <option key={option.id} value={option.id}>{option.label}</option>
         ))}
       </select>

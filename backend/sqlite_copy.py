@@ -25,9 +25,16 @@ def save_copy():
             copy.execute(f"DROP TABLE IF EXISTS {table}")
             copy.execute(f"CREATE TABLE {table} ({', '.join(columns)})")
 
-            marks = ", ".join(["?"] * len(columns))  # one ? per column
-            copy.executemany(f"INSERT INTO {table} VALUES ({marks})",
-                             [[row[column] for column in columns] for row in rows])
+            # Each row as a list of values, in the same order as the columns.
+            values = []
+            for row in rows:
+                one_row = []
+                for column in columns:
+                    one_row.append(row[column])
+                values.append(one_row)
+
+            marks = ", ".join(["?"] * len(columns))  # one ? per column, e.g. "?, ?, ?"
+            copy.executemany(f"INSERT INTO {table} VALUES ({marks})", values)
         copy.commit()
         copy.close()
     except sqlite3.Error as error:

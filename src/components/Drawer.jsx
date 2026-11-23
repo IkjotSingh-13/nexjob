@@ -48,14 +48,16 @@ export default function Drawer({ page, user, theme, onToggleTheme, onSignOut, op
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
-      lastFocused?.focus();
+      if (lastFocused) {
+        lastFocused.focus();
+      }
     };
   }, [open]);
 
   /* Read fresh every time the menu draws, so the counts are never stale. */
   const savedCount = getSaved().length;
   const applicationCount = user ? applicationsFor(user.id).length : 0;
-  const employer = user?.role === 'employer';
+  const employer = Boolean(user) && user.role === 'employer';
   const next = theme === 'dark' ? 'light' : 'dark';
 
   return (

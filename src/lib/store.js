@@ -4,6 +4,9 @@
  * Jobs and companies live in MySQL (see lib/api.js and backend/). Everything
  * else the app remembers is kept here in localStorage. The keys are the same
  * ones the plain HTML version used, so saved data carries over.
+ *
+ * localStorage can only hold text, so every value is turned into JSON text
+ * when it is saved (JSON.stringify) and back into a value when it is read (JSON.parse).
  */
 
 const KEY = {
@@ -23,38 +26,62 @@ const KEY = {
    app keeps working without storage. */
 const read = (key, fallback) => {
   try {
-    const raw = localStorage.getItem(key);
-    return raw === null ? fallback : JSON.parse(raw);
+    const text = localStorage.getItem(key);
+    if (text === null) {
+      return fallback;   // nothing saved under this key yet
+    }
+    return JSON.parse(text);
   } catch {
     return fallback;
   }
 };
 
 const write = (key, value) => {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore */ }
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* storage is full or switched off: carry on without saving */
+  }
 };
 
 const remove = (key) => {
-  try { localStorage.removeItem(key); } catch { /* ignore */ }
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    /* ignore */
+  }
 };
 
-export const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+/** A random id such as "lq2x9k3ab1c". The time in base 36, plus 5 random characters. */
+export const newId = () => {
+  const timePart = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).slice(2, 7);
+  return timePart + randomPart;
+};
 
+/** The time now, as text: "2026-11-23T10:15:00.000Z". */
 const now = () => new Date().toISOString();
 
 /* The very first version stored saves and theme under older key names.
    Copy them across once. */
 export const migrate = () => {
-  if (read(KEY.migrated, false)) return;
+  const alreadyDone = read(KEY.migrated, false);
+  if (alreadyDone) return;
 
   const oldSaved = read('nexjob:saved', null);
-  if (Array.isArray(oldSaved) && oldSaved.length && !read(KEY.saved, []).length) {
+  const newSaved = read(KEY.saved, []);
+  if (Array.isArray(oldSaved) && oldSaved.length > 0 && newSaved.length === 0) {
     write(KEY.saved, oldSaved.map(Number));
   }
 
   let oldTheme = null;
-  try { oldTheme = localStorage.getItem('nexjob:theme'); } catch { /* ignore */ }
-  if ((oldTheme === 'light' || oldTheme === 'dark') && read(KEY.theme, null) === null) {
+  try {
+    oldTheme = localStorage.getItem('nexjob:theme');
+  } catch {
+    /* ignore */
+  }
+  const isRealTheme = oldTheme === 'light' || oldTheme === 'dark';
+  if (isRealTheme && read(KEY.theme, null) === null) {
     write(KEY.theme, oldTheme);
   }
 
@@ -72,11 +99,20 @@ export const STAGES = [
 
 export const CLOSED_STAGE = { id: 'closed', label: 'Not moving forward' };
 
-export const stageIndex = (id) => STAGES.findIndex((s) => s.id === id);
+/** Where a stage is in the list: 'applied' -> 0, 'offer' -> 3, unknown -> -1. */
+export const stageIndex = (id) => {
+  return STAGES.findIndex((stage) => stage.id === id);
+};
 
+/** 'interview' -> "Interview". */
 export const stageLabel = (id) => {
-  if (id === CLOSED_STAGE.id) return CLOSED_STAGE.label;
-  return STAGES.find((s) => s.id === id)?.label ?? 'Applied';
+  if (id === CLOSED_STAGE.id) {
+    return CLOSED_STAGE.label;
+  }
+  for (const stage of STAGES) {
+    if (stage.id === id) return stage.label;
+  }
+  return 'Applied';
 };
 
 /* ------------------------------------------------------------------- Theme */
@@ -84,13 +120,17 @@ export const stageLabel = (id) => {
 /** 'light', 'dark', or null when the visitor has not picked one. */
 export const getTheme = () => {
   const theme = read(KEY.theme, null);
-  return theme === 'light' || theme === 'dark' ? theme : null;
+  if (theme === 'light' || theme === 'dark') {
+    return theme;
+  }
+  return null;
 };
 
 export const setTheme = (theme) => write(KEY.theme, theme);
 
 /* ------------------------------------------------------------- Saved roles */
 
+/** The ids of the saved roles, as numbers. */
 export const getSaved = () => read(KEY.saved, []).map(Number);
 
 export const isSaved = (jobId) => getSaved().includes(Number(jobId));
@@ -99,31 +139,43 @@ export const isSaved = (jobId) => getSaved().includes(Number(jobId));
 export const toggleSaved = (jobId) => {
   const id = Number(jobId);
   const saved = getSaved();
-  const wasSaved = saved.includes(id);
-  write(KEY.saved, wasSaved ? saved.filter((n) => n !== id) : [id, ...saved]);
-  return !wasSaved;
+
+  if (saved.includes(id)) {
+    write(KEY.saved, saved.filter((n) => n !== id));   // take it out
+    return false;
+  }
+
+  write(KEY.saved, [id, ...saved]);   // put it at the front
+  return true;
 };
 
 /* ---------------------------------------------------------- Recently viewed */
 
 export const getRecent = () => read(KEY.recent, []).map(Number);
 
+/** Remember that a role was viewed. The newest is first, and only 8 are kept. */
 export const pushRecent = (jobId) => {
   const id = Number(jobId);
-  write(KEY.recent, [id, ...getRecent().filter((n) => n !== id)].slice(0, 8));
+  const others = getRecent().filter((n) => n !== id);   // every other viewed role
+  const recent = [id, ...others];                        // this one goes first
+  write(KEY.recent, recent.slice(0, 8));
 };
 
 /* ------------------------------------------------------------- Applications */
 
 export const getApplications = () => read(KEY.applications, []);
 
-export const applicationsFor = (userId) => getApplications().filter((a) => a.userId === userId);
+export const applicationsFor = (userId) => {
+  return getApplications().filter((application) => application.userId === userId);
+};
 
-export const applicationsForJob = (jobId) =>
-  getApplications().filter((a) => Number(a.jobId) === Number(jobId));
+export const applicationsForJob = (jobId) => {
+  return getApplications().filter((application) => Number(application.jobId) === Number(jobId));
+};
 
-export const hasApplied = (jobId, userId) =>
-  applicationsFor(userId).some((a) => Number(a.jobId) === Number(jobId));
+export const hasApplied = (jobId, userId) => {
+  return applicationsFor(userId).some((application) => Number(application.jobId) === Number(jobId));
+};
 
 export const addApplication = (details) => {
   const record = {
@@ -131,42 +183,70 @@ export const addApplication = (details) => {
     stage: 'applied',
     appliedAt: now(),
     history: [{ stage: 'applied', at: now() }],
-    ...details
+    ...details             // name, email, jobId ... from the form
   };
-  write(KEY.applications, [record, ...getApplications()]);
+  write(KEY.applications, [record, ...getApplications()]);   // newest first
   return record;
 };
 
+/** Move an application to another stage, and note the move in its history. */
 export const setApplicationStage = (applicationId, stage) => {
-  const all = getApplications().map((a) => (
-    a.id === applicationId ? { ...a, stage, history: [...(a.history || []), { stage, at: now() }] } : a
-  ));
+  const all = getApplications();
+
+  for (const application of all) {
+    if (application.id === applicationId) {
+      const history = application.history || [];
+      history.push({ stage: stage, at: now() });
+
+      application.stage = stage;
+      application.history = history;
+    }
+  }
+
   write(KEY.applications, all);
 };
 
-export const withdrawApplication = (applicationId) =>
-  write(KEY.applications, getApplications().filter((a) => a.id !== applicationId));
+export const withdrawApplication = (applicationId) => {
+  const others = getApplications().filter((application) => application.id !== applicationId);
+  write(KEY.applications, others);
+};
 
 /* ------------------------------------------------------------------- Alerts */
 
 export const getAlerts = () => read(KEY.alerts, []);
 
-export const addAlert = (details) =>
-  write(KEY.alerts, [{ id: newId(), active: true, createdAt: now(), ...details }, ...getAlerts()]);
+export const addAlert = (details) => {
+  const alert = { id: newId(), active: true, createdAt: now(), ...details };
+  write(KEY.alerts, [alert, ...getAlerts()]);   // newest first
+};
 
-export const toggleAlert = (alertId) =>
-  write(KEY.alerts, getAlerts().map((a) => (a.id === alertId ? { ...a, active: !a.active } : a)));
+/** Switch an alert on or off. */
+export const toggleAlert = (alertId) => {
+  const all = getAlerts();
+  for (const alert of all) {
+    if (alert.id === alertId) {
+      alert.active = !alert.active;
+    }
+  }
+  write(KEY.alerts, all);
+};
 
-export const removeAlert = (alertId) =>
-  write(KEY.alerts, getAlerts().filter((a) => a.id !== alertId));
+export const removeAlert = (alertId) => {
+  const others = getAlerts().filter((alert) => alert.id !== alertId);
+  write(KEY.alerts, others);
+};
 
 /* ----------------------------------------- Companies created by employers */
 
 export const getCustomCompanies = () => read(KEY.companies, []);
 
+/** Add a company, unless one with the same id is already there. */
 export const addCustomCompany = (company) => {
   const companies = getCustomCompanies();
-  if (!companies.some((c) => c.id === company.id)) write(KEY.companies, [...companies, company]);
+  const alreadyThere = companies.some((c) => c.id === company.id);
+  if (!alreadyThere) {
+    write(KEY.companies, [...companies, company]);
+  }
 };
 
 /* ----------------------------------------------------------------- Profiles */
@@ -184,31 +264,51 @@ const emptyProfile = {
   openTo: []
 };
 
-export const getProfile = (userId) => ({ ...emptyProfile, ...(read(KEY.profiles, {})[userId] || {}) });
+/** A user's profile. Anything they have not filled in comes from emptyProfile. */
+export const getProfile = (userId) => {
+  const allProfiles = read(KEY.profiles, {});   // { userId: profile, ... }
+  const saved = allProfiles[userId] || {};
+  return { ...emptyProfile, ...saved };
+};
 
 export const setProfile = (userId, profile) => {
-  const all = read(KEY.profiles, {});
-  all[userId] = { ...getProfile(userId), ...profile };
-  write(KEY.profiles, all);
-  return all[userId];
+  const allProfiles = read(KEY.profiles, {});
+  allProfiles[userId] = { ...getProfile(userId), ...profile };
+  write(KEY.profiles, allProfiles);
+  return allProfiles[userId];
+};
+
+/** True when at least one of the profile's links is filled in. */
+const hasAnyLink = (links) => {
+  for (const name in links) {
+    if (links[name]) return true;
+  }
+  return false;
 };
 
 /** How much of a profile is filled in, 0–100. Some parts count more than others. */
 export const profileChecks = (profile) => [
-  { label: 'Headline',               done: !!profile.headline,                               weight: 2 },
-  { label: 'About',                  done: profile.about.length > 40,                        weight: 2 },
-  { label: 'Location',               done: !!profile.location,                               weight: 1 },
-  { label: 'Three or more skills',   done: profile.skills.length >= 3,                       weight: 2 },
-  { label: 'One role of experience', done: profile.experience.length >= 1,                   weight: 3 },
-  { label: 'Education',              done: profile.education.length >= 1,                    weight: 1 },
-  { label: 'A link',                 done: Object.values(profile.links).some(Boolean),       weight: 1 },
-  { label: 'What you are open to',   done: profile.openTo.length > 0,                        weight: 1 }
+  { label: 'Headline',               done: Boolean(profile.headline),                            weight: 2 },
+  { label: 'About',                  done: profile.about.length > 40,                            weight: 2 },
+  { label: 'Location',               done: Boolean(profile.location),                            weight: 1 },
+  { label: 'Three or more skills',   done: profile.skills.length >= 3,                           weight: 2 },
+  { label: 'One role of experience', done: profile.experience.length >= 1,                       weight: 3 },
+  { label: 'Education',              done: profile.education.length >= 1,                        weight: 1 },
+  { label: 'A link',                 done: hasAnyLink(profile.links),                            weight: 1 },
+  { label: 'What you are open to',   done: profile.openTo.length > 0,                            weight: 1 }
 ];
 
 export const profileCompleteness = (profile) => {
-  const checks = profileChecks(profile);
-  const earned = checks.filter((c) => c.done).reduce((sum, c) => sum + c.weight, 0);
-  const total = checks.reduce((sum, c) => sum + c.weight, 0);
+  let earned = 0;   // weight of the parts that are done
+  let total = 0;    // weight of every part
+
+  for (const check of profileChecks(profile)) {
+    total += check.weight;
+    if (check.done) {
+      earned += check.weight;
+    }
+  }
+
   return Math.round((earned / total) * 100);
 };
 
@@ -221,9 +321,12 @@ const DEMO_ACCOUNTS = [
     role: 'employer', companyId: 'linear', avatarBg: '#17694A' }
 ];
 
+/** Every account. The first time, the two demo accounts are saved and returned. */
 export const getAccounts = () => {
   const accounts = read(KEY.accounts, null);
-  if (accounts) return accounts;
+  if (accounts) {
+    return accounts;
+  }
   write(KEY.accounts, DEMO_ACCOUNTS);
   return DEMO_ACCOUNTS;
 };

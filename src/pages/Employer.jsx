@@ -31,25 +31,49 @@ export default function Employer() {
 function EmployerDashboard({ user }) {
   const { data, failed, reload } = useBoardData();
   const [filter, setFilter] = useState('all');   // 'all', 'open' or 'closed'
-  const [applications, setApplications] = useState(getApplications);
+  const [applications, setApplications] = useState(getApplications());
 
   const company = data ? companyById(data.companies, user.companyId) : null;
 
   useEffect(() => {
-    if (company) document.title = `${company.name} — Employer dashboard — Nexjob`;
+    if (company) {
+      document.title = `${company.name} — Employer dashboard — Nexjob`;
+    }
   }, [company]);
+
+  /* How many hours ago a job was posted. 0 when it does not say. */
+  const hoursAgo = (job) => {
+    if (job.postedHoursAgo === undefined || job.postedHoursAgo === null) return 0;
+    return job.postedHoursAgo;
+  };
+
+  /* Roles posted through the site first, then the newest. */
+  const mineFirstThenNewest = (a, b) => {
+    if (a.mine && !b.mine) return -1;
+    if (b.mine && !a.mine) return 1;
+    return hoursAgo(a) - hoursAgo(b);
+  };
 
   /* Every role this company has on the board. Ones posted through the site (they have a
      postedBy) come first and can be edited; the sample listings cannot. */
-  const ourJobs = !company ? [] : jobsAtCompany(data.jobs, company.id)
-    .map((job) => ({ ...job, mine: !!job.postedBy, status: job.status ?? 'open' }))
-    .sort((a, b) => b.mine - a.mine || (a.postedHoursAgo ?? 0) - (b.postedHoursAgo ?? 0));
+  const ourJobs = [];
+  if (company) {
+    for (const job of jobsAtCompany(data.jobs, company.id)) {
+      let status = 'open';   // the sample jobs from the JSON files have no status
+      if (job.status !== undefined && job.status !== null) {
+        status = job.status;
+      }
+      ourJobs.push({ ...job, mine: Boolean(job.postedBy), status: status });
+    }
+    ourJobs.sort(mineFirstThenNewest);
+  }
 
-  const ourIds = ourJobs.map((j) => Number(j.id));
-  const ourApplications = applications
-    .filter((a) => ourIds.includes(Number(a.jobId)))
-    .sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt));
+  /* Everyone who applied to one of our roles, newest application first. */
+  const ourIds = ourJobs.map((job) => Number(job.id));
+  const ourApplications = applications.filter((a) => ourIds.includes(Number(a.jobId)));
+  ourApplications.sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt));
 
+  /* The postings for the All / Open / Closed buttons. */
   const shownJobs = ourJobs.filter((job) => filter === 'all' || job.status === filter);
 
   const moveApplicant = (id, stage) => {
