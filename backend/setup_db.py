@@ -16,6 +16,7 @@ import json
 from pathlib import Path
 
 from database import DB_NAME, get_connection
+from sqlite_copy import save_copy
 
 DATA_FOLDER = Path(__file__).parent.parent / "public" / "data"
 
@@ -94,4 +95,8 @@ with get_connection() as conn:
 
     conn.commit()
 
+# 3. Write the SQLite copy, backend/nexjob.db, for DB Browser.
+save_copy()
+
 print(f"Done. {len(companies)} companies and {len(jobs)} jobs are in the '{DB_NAME}' database.")
+print("A copy for DB Browser for SQLite is in backend/nexjob.db")

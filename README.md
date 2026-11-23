@@ -61,6 +61,14 @@ uvicorn main:app --reload
 
 Open <http://127.0.0.1:8000/docs> to try every endpoint in the browser.
 
+**Opening the data in DB Browser for SQLite.** MySQL keeps its tables in its own
+format (`jobs.ibd`, `companies.ibd` under `C:\ProgramData\MySQL\MySQL Server 8.4\Data\nexjob\`),
+which DB Browser cannot open. So the backend also keeps a SQLite copy in
+`backend/nexjob.db`: `setup_db.py` creates it, and the API rewrites it after every
+job that is added, changed or deleted. Open that file in DB Browser, and use its
+refresh button (or reopen the file) to see new changes. MySQL is still the real
+database: edits made in DB Browser are not sent back. The file is not committed.
+
 To test it, leave the API running and run `python test_api.py` in a second terminal
 (inside `backend`, with `.venv` activated). It adds a test job, changes it and
 deletes it, so the database ends up as it started.
@@ -80,7 +88,8 @@ backend/
   database.py       Connects to MySQL; fetch_all() for SELECT, execute() for changes
   setup_db.py       Creates the nexjob database and two tables, fills them from public/data
   main.py           The FastAPI app and its endpoints
-  test_api.py       15 checks against the running API, using only Python's standard library
+  sqlite_copy.py    save_copy(): writes the MySQL tables into nexjob.db for DB Browser
+  test_api.py       17 checks against the running API, using only Python's standard library
   requirements.txt  fastapi, uvicorn, mysql-connector-python, python-dotenv
   .env.example      Copy to .env and add your MySQL password (.env is not committed)
 ```

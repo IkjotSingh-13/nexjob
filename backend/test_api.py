@@ -8,12 +8,14 @@ It adds a test job, changes it and deletes it again,
 so the database ends up the same as before.
 """
 import json
+import sqlite3
 import urllib.error
 import urllib.request
 from pathlib import Path
 
 URL = "http://127.0.0.1:8000"
 DATA_FOLDER = Path(__file__).parent.parent / "public" / "data"
+DB_FILE = Path(__file__).parent / "nexjob.db"
 results = []
 
 
@@ -33,6 +35,14 @@ def check(name, ok):
     """Print PASS or FAIL for one test."""
     print(("PASS  " if ok else "FAIL  ") + name)
     results.append(ok)
+
+
+def in_db_file(job_id):
+    """True when backend/nexjob.db (the copy for DB Browser) has this job."""
+    copy = sqlite3.connect(DB_FILE)
+    found = copy.execute("SELECT COUNT(*) FROM jobs WHERE id = ?", (job_id,)).fetchone()[0] == 1
+    copy.close()
+    return found
 
 
 def same_as_file(from_api, from_file):
@@ -79,6 +89,7 @@ check("GET /jobs/999999 gives 404", status == 404)
 status, new_job = call("POST", "/jobs", test_job)
 check("POST /jobs adds a job", status == 201 and same_as_file(new_job, test_job))
 new_id = new_job["id"]
+check("nexjob.db has the new job too", in_db_file(new_id))
 
 status, body = call("POST", "/jobs", {"title": "No other fields"})
 check("POST /jobs with missing fields gives 422", status == 422)
@@ -100,6 +111,7 @@ check(f"DELETE /jobs/{new_id} deletes the job", status == 200)
 
 status, body = call("GET", f"/jobs/{new_id}")
 check(f"GET /jobs/{new_id} gives 404 after delete", status == 404)
+check("nexjob.db no longer has it", not in_db_file(new_id))
 
 status, body = call("DELETE", f"/jobs/{new_id}")
 check(f"DELETE /jobs/{new_id} again gives 404", status == 404)

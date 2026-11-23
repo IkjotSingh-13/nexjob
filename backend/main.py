@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from database import execute, fetch_all
+from sqlite_copy import save_copy
 
 app = FastAPI(title="NexJob API")
 
@@ -104,6 +105,7 @@ def create_job(job: Job):
          job.featured, job.summary, json.dumps(job.tags), json.dumps(job.responsibilities),
          json.dumps(job.requirements), job.status, job.postedBy),
     )
+    save_copy()  # refresh nexjob.db for DB Browser
     return get_job(new_id)
 
 
@@ -122,6 +124,7 @@ def update_job(job_id: int, job: Job):
          job.featured, job.summary, json.dumps(job.tags), json.dumps(job.responsibilities),
          json.dumps(job.requirements), job.status, job.postedBy, job_id),
     )
+    save_copy()  # refresh nexjob.db for DB Browser
     return get_job(job_id)
 
 
@@ -129,4 +132,5 @@ def update_job(job_id: int, job: Job):
 def delete_job(job_id: int):
     get_job(job_id)  # sends 404 if the job does not exist
     execute("DELETE FROM jobs WHERE id = %s", (job_id,))
+    save_copy()  # refresh nexjob.db for DB Browser
     return {"message": f"Job {job_id} deleted"}
