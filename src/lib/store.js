@@ -1,7 +1,8 @@
 /**
  * Browser storage.
  *
- * There is no server, so localStorage is the database. The keys are the same
+ * Jobs and companies live in MySQL (see lib/api.js and backend/). Everything
+ * else the app remembers is kept here in localStorage. The keys are the same
  * ones the plain HTML version used, so saved data carries over.
  */
 
@@ -11,7 +12,6 @@ const KEY = {
   saved:        'nexjob:v2:saved',
   applications: 'nexjob:v2:applications',
   alerts:       'nexjob:v2:alerts',
-  postings:     'nexjob:v2:postings',
   companies:    'nexjob:v2:companies',
   profiles:     'nexjob:v2:profiles',
   recent:       'nexjob:v2:recent',
@@ -159,30 +159,6 @@ export const toggleAlert = (alertId) =>
 
 export const removeAlert = (alertId) =>
   write(KEY.alerts, getAlerts().filter((a) => a.id !== alertId));
-
-/* ------------------------------------------------- Roles posted by employers */
-
-export const getPostings = () => read(KEY.postings, []);
-
-export const addPosting = (details) => {
-  const postings = getPostings();
-  const record = {
-    ...details,
-    id: Math.max(10000, ...postings.map((p) => p.id || 0)) + 1,
-    postedHoursAgo: 0,
-    createdAt: now(),
-    status: 'open',
-    views: 0
-  };
-  write(KEY.postings, [record, ...postings]);
-  return record;
-};
-
-export const updatePosting = (id, changes) =>
-  write(KEY.postings, getPostings().map((p) => (p.id === Number(id) ? { ...p, ...changes } : p)));
-
-export const removePosting = (id) =>
-  write(KEY.postings, getPostings().filter((p) => p.id !== Number(id)));
 
 /* ----------------------------------------- Companies created by employers */
 

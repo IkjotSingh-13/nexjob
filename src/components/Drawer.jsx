@@ -6,9 +6,10 @@
  */
 
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router';
 import { getSaved, applicationsFor } from '../lib/store.js';
 import Icon from './Icon.jsx';
-import { NAV, signOutAndLeave } from './Header.jsx';
+import { NAV } from './Header.jsx';
 
 /** Keep Tab inside the open menu: past the last item goes back to the first. */
 const trapFocus = (event, panel) => {
@@ -25,7 +26,7 @@ const trapFocus = (event, panel) => {
   }
 };
 
-export default function Drawer({ page, user, theme, onToggleTheme, open, onClose }) {
+export default function Drawer({ page, user, theme, onToggleTheme, onSignOut, open, onClose }) {
   const panel = useRef(null);
   const closeButton = useRef(null);
 
@@ -84,15 +85,15 @@ export default function Drawer({ page, user, theme, onToggleTheme, open, onClose
                 </div>
               </div>
             ) : (
-              <a className="btn btn--primary btn--block" href="./auth.html">Sign in</a>
+              <Link className="btn btn--primary btn--block" to="/auth">Sign in</Link>
             )}
           </div>
 
           <div className="drawer-group">
             <p className="tick">Browse</p>
             {NAV.map((item) => (
-              <a className="drawer-link" href={item.href} key={item.page}
-                 aria-current={item.page === page ? 'page' : undefined}>{item.label}</a>
+              <Link className="drawer-link" to={item.to} key={item.page}
+                 aria-current={item.page === page ? 'page' : undefined}>{item.label}</Link>
             ))}
           </div>
 
@@ -100,19 +101,19 @@ export default function Drawer({ page, user, theme, onToggleTheme, open, onClose
             <p className="tick">{employer ? 'Hiring' : 'For you'}</p>
             {employer ? (
               <>
-                <a className="drawer-link" href="./employer.html">Employer dashboard</a>
-                <a className="drawer-link" href="./post-job.html">Post a role</a>
+                <Link className="drawer-link" to="/employer">Employer dashboard</Link>
+                <Link className="drawer-link" to="/post-job">Post a role</Link>
               </>
             ) : (
               <>
-                <a className="drawer-link" href="./dashboard.html">Dashboard</a>
-                <a className="drawer-link" href="./dashboard.html#saved">
+                <Link className="drawer-link" to="/dashboard">Dashboard</Link>
+                <Link className="drawer-link" to="/dashboard#saved">
                   Saved roles <span className="pill" hidden={savedCount === 0}>{savedCount}</span>
-                </a>
-                <a className="drawer-link" href="./dashboard.html#applications">
+                </Link>
+                <Link className="drawer-link" to="/dashboard#applications">
                   Applications <span className="pill" hidden={applicationCount === 0}>{applicationCount}</span>
-                </a>
-                <a className="drawer-link" href="./profile.html">Profile and CV</a>
+                </Link>
+                <Link className="drawer-link" to="/profile">Profile and CV</Link>
               </>
             )}
           </div>
@@ -128,8 +129,8 @@ export default function Drawer({ page, user, theme, onToggleTheme, open, onClose
           </div>
 
           {user
-            ? <button type="button" className="btn btn--outline btn--block" onClick={signOutAndLeave}>Sign out</button>
-            : <a className="btn btn--primary btn--block" href="./auth.html">Sign in or create account</a>}
+            ? <button type="button" className="btn btn--outline btn--block" onClick={onSignOut}>Sign out</button>
+            : <Link className="btn btn--primary btn--block" to="/auth">Sign in or create account</Link>}
         </div>
       </aside>
     </>

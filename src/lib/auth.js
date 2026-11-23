@@ -1,20 +1,20 @@
 /**
  * Accounts and sign-in.
  *
- * Demo only: passwords sit in localStorage in plain text because there is no
- * server to keep them. Never reuse a real password here.
+ * Demo only: passwords sit in localStorage in plain text because the backend
+ * only stores jobs and companies. Never reuse a real password here.
+ *
+ * Components get the signed-in user from UserContext (lib/UserContext.jsx).
+ * After signIn or register, call setUser(user) so every component sees it.
  */
 
 import {
-  getAccounts, saveAccounts, getSession, setSession, clearSession, addCustomCompany, newId
+  getAccounts, saveAccounts, setSession, clearSession, addCustomCompany, newId
 } from './store.js';
 import { initials, colourFor } from './format.js';
 import { fakeServer } from './promise.js';
 
 const AVATAR_COLOURS = ['#2B36C4', '#17694A', '#8A5A00', '#7A2E6B', '#1F5C7A'];
-
-/** The signed-in user (no password), or null. */
-export const currentUser = () => getSession();
 
 /** Store the signed-in user, without the password. */
 const startSession = (account) => {
@@ -94,26 +94,3 @@ export const register = (details) => fakeServer(() => {
 });
 
 export const signOut = () => clearSession();
-
-/**
- * For pages that need a signed-in user. Sends everyone else to the sign-in
- * page, remembering where they were going.
- * @param {'seeker'|'employer'} role
- * @returns {Object|null} the user, or null when redirecting
- */
-export const requireAuth = (role) => {
-  const user = currentUser();
-  const next = encodeURIComponent(location.pathname.split('/').pop() + location.search);
-
-  if (!user) {
-    location.replace(`./auth.html?next=${next}`);
-    return null;
-  }
-
-  if (user.role !== role) {
-    location.replace(`./auth.html?next=${next}&need=${role}`);
-    return null;
-  }
-
-  return user;
-};

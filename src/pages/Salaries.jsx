@@ -9,6 +9,7 @@ import { money, moneyFull, median, percentileOf, posOn, plural } from '../lib/fo
 import { PayScaleRow, PayAxis } from '../components/PayScale.jsx';
 import Stats from '../components/Stats.jsx';
 import LoadError from '../components/LoadError.jsx';
+import { Link } from 'react-router';
 
 const GROUPS = [
   { id: 'discipline', label: 'Discipline', of: (job) => job.discipline },
@@ -66,7 +67,7 @@ export default function Salaries() {
                   : 'Loading…'}
               </p>
             </div>
-            <a className="btn btn--outline btn--sm" href="./jobs.html">Browse the roles behind these figures</a>
+            <Link className="btn btn--outline btn--sm" to="/jobs">Browse the roles behind these figures</Link>
           </div>
 
           <Stats items={data ? payStats(data.jobs) : []} />
@@ -205,7 +206,7 @@ function Verdict({ value, jobs, domain }) {
       {inBand > 0 && (
         <p style={{ marginTop: 'var(--s5)', fontSize: 'var(--t-sm)', color: 'var(--ink-2)' }}>
           {plural(inBand, 'open role')} advertise a band that includes your number.{' '}
-          <a href={`./jobs.html?payMin=${Math.max(domain.min, value - 10000)}`}>See them</a>.
+          <Link to={`/jobs?payMin=${Math.max(domain.min, value - 10000)}`}>See them</Link>.
         </p>
       )}
     </div>

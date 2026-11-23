@@ -1,19 +1,30 @@
 /**
  * The job board data.
  *
- * Loads the three JSON files, adds any roles an employer posted in this
- * browser, and gives each job its company and a few worked-out fields.
+ * Loads the jobs and companies from the backend (MySQL), the interview routes
+ * from prep.json, and gives each job its company and a few worked-out fields.
  * Also: filtering, sorting and scoring. Nothing here knows about React.
  */
 
 import { domainFor, postedDate } from './format.js';
-import { getPostings, getCustomCompanies } from './store.js';
+import { getCustomCompanies } from './store.js';
+import { getJobs, getCompanies, hasBackend } from './api.js';
 
 /* fetch() khud ek Promise return karta hai; `.then` mein jawab milta hai. */
 const fetchJson = (file) =>
   fetch(`./data/${file}`).then((response) => {
     if (!response.ok) throw new Error(`${file} — HTTP ${response.status}`);
     return response.json();
+  });
+
+/* Jobs and companies, as [jobs, companies]. From the backend when it runs on this
+   computer; otherwise (GitHub Pages, or the backend is switched off) from the JSON files. */
+const fromFiles = () => Promise.all([fetchJson('jobs.json'), fetchJson('companies.json')]);
+
+const fromBackend = () =>
+  Promise.all([getJobs(), getCompanies()]).catch((error) => {
+    console.warn('The backend is not running, so the JSON files are used instead.', error);
+    return fromFiles();
   });
 
 /** Used when a job points at a company we do not have. */
@@ -28,19 +39,19 @@ const unknownCompany = (job) => ({
 
 /** @returns {Promise<{jobs, companies, prep, domain}>} */
 export const loadData = () =>
-  /* Teeno JSON files ek saath maango. Promise.all tabhi aage badhta hai jab teeno aa jaayein;
-     agar koi ek bhi fail ho toh poora Promise reject ho jaata hai. */
+  /* Jobs + companies aur prep.json ek saath maango. Promise.all tabhi aage badhta hai jab
+     dono aa jaayein; agar koi ek bhi fail ho toh poora Promise reject ho jaata hai. */
   Promise.all([
-    fetchJson('jobs.json'),
-    fetchJson('companies.json'),
+    hasBackend ? fromBackend() : fromFiles(),
     fetchJson('prep.json')
-  ]).then(([seedJobs, seedCompanies, prep]) => {
-    const companies = [...seedCompanies, ...getCustomCompanies()];
+  ]).then(([[allJobs, savedCompanies], prep]) => {
+    const companies = [...savedCompanies, ...getCustomCompanies()];
 
-    /* Roles posted in this browser go at the top of the board. */
-    const postings = getPostings().filter((p) => p.status !== 'deleted');
+    /* Roles posted through the site go at the top of the board, newest first. */
+    const posted = allJobs.filter((job) => job.postedBy).reverse();
+    const samples = allJobs.filter((job) => !job.postedBy);
 
-    const jobs = [...postings, ...seedJobs].map((job) => {
+    const jobs = [...posted, ...samples].map((job) => {
       const company = companies.find((c) => c.id === job.companyId) || unknownCompany(job);
       return {
         ...job,

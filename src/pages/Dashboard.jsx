@@ -3,7 +3,8 @@
  * alerts and recently viewed roles.
  */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import { useBoardData } from '../lib/hooks.js';
 import { recommend, filterJobs, facets, jobById } from '../lib/data.js';
 import { money, relTime, plural } from '../lib/format.js';
@@ -12,7 +13,7 @@ import {
   applicationsFor, withdrawApplication, getSaved, toggleSaved, getRecent,
   getAlerts, addAlert, toggleAlert, removeAlert, getProfile, profileCompleteness, stageLabel, CLOSED_STAGE
 } from '../lib/store.js';
-import { requireAuth } from '../lib/auth.js';
+import { UserContext } from '../lib/UserContext.jsx';
 import { toast } from '../lib/toast.js';
 import JobCard, { JobCardMini } from '../components/JobCard.jsx';
 import { Pipeline, stageTone } from '../components/Pipeline.jsx';
@@ -21,13 +22,16 @@ import Stats from '../components/Stats.jsx';
 import Mark from '../components/Mark.jsx';
 import LoadError from '../components/LoadError.jsx';
 import Icon from '../components/Icon.jsx';
+import { Link } from 'react-router';
 
+/* Only job seekers get here: main.jsx wraps this page in <RequireRole role="seeker">. */
 export default function Dashboard() {
-  const user = requireAuth('seeker');   // not signed in, or not a job seeker: off to the sign-in page
-  return user ? <SeekerDashboard user={user} /> : null;
+  const { user } = useContext(UserContext);
+  return <SeekerDashboard user={user} />;
 }
 
 function SeekerDashboard({ user }) {
+  const { hash } = useLocation();   // "#saved" in #/dashboard#saved
   const { data, failed } = useBoardData();
   const profile = getProfile(user.id);
 
@@ -35,9 +39,9 @@ function SeekerDashboard({ user }) {
   const [saved, setSaved] = useState(getSaved);
   const [alerts, setAlerts] = useState(getAlerts);
 
-  /* dashboard.html#saved: scroll there once the lists have filled in. */
+  /* #/dashboard#saved: scroll there once the lists have filled in. */
   useEffect(() => {
-    if (data && location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'smooth' });
+    if (data && hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' });
   }, [data]);
 
   const withdraw = (id) => {
@@ -109,8 +113,8 @@ function SeekerDashboard({ user }) {
             </div>
 
             <div className="row row--tight">
-              <a className="btn btn--outline btn--sm" href="./profile.html">Profile and CV</a>
-              <a className="btn btn--primary btn--sm" href="./jobs.html">Browse roles</a>
+              <Link className="btn btn--outline btn--sm" to="/profile">Profile and CV</Link>
+              <Link className="btn btn--primary btn--sm" to="/jobs">Browse roles</Link>
             </div>
           </div>
 
@@ -144,7 +148,7 @@ function SeekerDashboard({ user }) {
                 <h3>Nothing in the pipeline yet</h3>
                 <p>Applications you send show up here on a track, so you can see which ones are
                    still moving and which have gone quiet.</p>
-                <a className="btn btn--primary" href="./jobs.html">Find something to apply for</a>
+                <Link className="btn btn--primary" to="/jobs">Find something to apply for</Link>
               </div>
             )}
           </div>
@@ -159,7 +163,7 @@ function SeekerDashboard({ user }) {
               <h2 id="rec-title">Matched to your profile</h2>
               <p>Scored against your skills, discipline and level. The reasons are shown, not hidden.</p>
             </div>
-            <a className="btn btn--outline btn--sm" href="./profile.html">Tune your profile</a>
+            <Link className="btn btn--outline btn--sm" to="/profile">Tune your profile</Link>
           </div>
 
           <div className="stack-2">
@@ -168,12 +172,12 @@ function SeekerDashboard({ user }) {
                 <h3>Tell us what you do</h3>
                 <p>Add your skills, discipline and level, and this section scores every open role
                    against them — showing why each one matched.</p>
-                <a className="btn btn--primary" href="./profile.html">Fill in your profile</a>
+                <Link className="btn btn--primary" to="/profile">Fill in your profile</Link>
               </div>
             )}
 
             {data && profile.skills.length > 0 && matches.map(({ job, score, reasons }) => (
-              <a className="rec-row" href={`./job.html?id=${job.id}`} key={job.id}>
+              <Link className="rec-row" to={`/job?id=${job.id}`} key={job.id}>
                 <span className="rec-score">
                   <span className="rec-score-figure">{score}</span>
                   <span className="tick" style={{ display: 'block', marginTop: 2 }}>match</span>
@@ -189,7 +193,7 @@ function SeekerDashboard({ user }) {
                 </span>
 
                 <span className="tick tick--blue not-narrow">View</span>
-              </a>
+              </Link>
             ))}
 
             {data && profile.skills.length > 0 && matches.length === 0 && (
@@ -197,7 +201,7 @@ function SeekerDashboard({ user }) {
                 <h3>Nothing scored above zero</h3>
                 <p>Your skills did not overlap with any open role. Try adding a few more, or widen
                    the discipline on your profile.</p>
-                <a className="btn btn--outline" href="./profile.html">Edit your profile</a>
+                <Link className="btn btn--outline" to="/profile">Edit your profile</Link>
               </div>
             )}
           </div>
@@ -215,7 +219,7 @@ function SeekerDashboard({ user }) {
                 {data && (savedJobs.length ? `${plural(savedJobs.length, 'role')} bookmarked.` : 'Nothing saved yet.')}
               </p>
             </div>
-            <a className="btn btn--outline btn--sm" href="./jobs.html?saved=1">Open in the board</a>
+            <Link className="btn btn--outline btn--sm" to="/jobs?saved=1">Open in the board</Link>
           </div>
 
           <div className="stack">
@@ -227,7 +231,7 @@ function SeekerDashboard({ user }) {
                 <h3>No saved roles</h3>
                 <p>The bookmark on any listing keeps it here, so you can come back to a
                    shortlist rather than re-running the same search.</p>
-                <a className="btn btn--outline" href="./jobs.html">Browse the board</a>
+                <Link className="btn btn--outline" to="/jobs">Browse the board</Link>
               </div>
             )}
           </div>
@@ -336,7 +340,7 @@ function ApplicationRow({ application, job, domain, onWithdraw }) {
 
         <h3 style={{ fontSize: 'var(--t-md)' }}>
           {job
-            ? <a href={`./job.html?id=${job.id}`} style={{ color: 'var(--ink)', textDecoration: 'none' }}>{application.jobTitle}</a>
+            ? <Link to={`/job?id=${job.id}`} style={{ color: 'var(--ink)', textDecoration: 'none' }}>{application.jobTitle}</Link>
             : application.jobTitle}
         </h3>
         <p className="tick" style={{ marginTop: 3 }}>{application.companyName}</p>
@@ -391,10 +395,10 @@ function AlertCard({ alert, matches, onToggle, onDelete }) {
         {matches ? (
           <>
             {plural(matches, 'role')} on the board match this right now.{' '}
-            <a href={pageUrl('jobs.html', {
+            <Link to={pageUrl('/jobs', {
               disciplines: alert.discipline === 'Any' ? '' : alert.discipline,
               where: alert.location
-            })}>See them</a>.
+            })}>See them</Link>.
           </>
         ) : 'Nothing matches this on the board right now.'}
       </p>

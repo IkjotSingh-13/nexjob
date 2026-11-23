@@ -3,12 +3,13 @@
  * required: a role without one cannot be drawn on the scale.
  */
 
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useBoardData } from '../lib/hooks.js';
 import { facets, companyById, LEVELS } from '../lib/data.js';
 import { money } from '../lib/format.js';
-import { addPosting } from '../lib/store.js';
-import { requireAuth } from '../lib/auth.js';
+import { createJob } from '../lib/api.js';
+import { UserContext } from '../lib/UserContext.jsx';
 import { toast } from '../lib/toast.js';
 import JobCard from '../components/JobCard.jsx';
 import { PayScale, PayAxis } from '../components/PayScale.jsx';
@@ -24,16 +25,19 @@ const EMPTY_FORM = {
 /** "one\n two \n\n" -> ["one", "two"] */
 const lines = (text) => text.split('\n').map((line) => line.trim()).filter(Boolean);
 
+/* Only employers get here: main.jsx wraps this page in <RequireRole role="employer">. */
 export default function PostJob() {
-  const user = requireAuth('employer');   // not an employer: off to the sign-in page
-  return user ? <PostJobForm user={user} /> : null;
+  const { user } = useContext(UserContext);
+  return <PostJobForm user={user} />;
 }
 
 function PostJobForm({ user }) {
+  const navigate = useNavigate();
   const { data, failed } = useBoardData();
   const [form, setForm] = useState(EMPTY_FORM);
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);   // waiting for the backend to save the role
 
   const change = (field, value) => setForm({ ...form, [field]: value });
 
@@ -95,9 +99,15 @@ function PostJobForm({ user }) {
     if (!validate(1)) return setStep(1);
     if (!validate(2)) return setStep(2);
 
-    const saved = addPosting({ ...posting, postedBy: user.id });
-    toast('Role published', 'ok');
-    location.href = `./job.html?id=${saved.id}`;
+    setBusy(true);
+
+    createJob({ ...posting, postedBy: user.id })   // saves it in MySQL, returns a Promise
+      .then((saved) => {
+        toast('Role published', 'ok');
+        navigate(`/job?id=${saved.id}`);
+      })
+      .catch(() => setError('The role could not be saved. Start the backend (uvicorn main:app) and try again.'))
+      .finally(() => setBusy(false));
   };
 
   const preview = { ...posting, id: 'preview', company, postedAt: new Date() };
@@ -271,7 +281,9 @@ function PostJobForm({ user }) {
                       onClick={() => setStep(Math.max(1, step - 1))}>Back</button>
               <div className="row row--tight" style={{ marginLeft: 'auto' }}>
                 <button type="button" className="btn btn--primary" hidden={step === STEPS.length} onClick={next}>Continue</button>
-                <button type="submit" className="btn btn--primary" hidden={step !== STEPS.length}>Publish role</button>
+                <button type="submit" className="btn btn--primary" hidden={step !== STEPS.length} disabled={busy}>
+                  {busy ? 'Publishing…' : 'Publish role'}
+                </button>
               </div>
             </div>
           </form>

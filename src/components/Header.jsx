@@ -1,38 +1,33 @@
 import { useEffect, useState } from 'react';
-import { signOut } from '../lib/auth.js';
+import { Link } from 'react-router';
 import Icon from './Icon.jsx';
 
 /** The four main sections, shared by the header and the mobile menu. */
 export const NAV = [
-  { page: 'jobs',      href: './jobs.html',      label: 'Jobs' },
-  { page: 'companies', href: './companies.html', label: 'Companies' },
-  { page: 'prep',      href: './prep.html',      label: 'Get in' },
-  { page: 'salaries',  href: './salaries.html',  label: 'Pay' }
+  { page: 'jobs',      to: '/jobs',      label: 'Jobs' },
+  { page: 'companies', to: '/companies', label: 'Companies' },
+  { page: 'prep',      to: '/prep',      label: 'Get in' },
+  { page: 'salaries',  to: '/salaries',  label: 'Pay' }
 ];
 
-export const signOutAndLeave = () => {
-  signOut();
-  location.href = './index.html';
-};
-
-export default function Header({ page, user, theme, onToggleTheme, drawerOpen, onOpenDrawer }) {
+export default function Header({ page, user, theme, onToggleTheme, onSignOut, drawerOpen, onOpenDrawer }) {
   const themeLabel = `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`;
 
   return (
     <header className="mast">
       <div className="wrap mast-in">
-        <a className="brand" href="./index.html">
+        <Link className="brand" to="/">
           <span className="brand-mark" aria-hidden="true"><Icon name="scale" size={15} /></span>
           <span className="brand-name">Nexjob</span>
-        </a>
+        </Link>
 
         <nav className="mast-nav" aria-label="Primary">
           <ul>
             {NAV.map((item) => (
               <li key={item.page}>
-                <a className="mast-link" href={item.href} aria-current={item.page === page ? 'page' : undefined}>
+                <Link className="mast-link" to={item.to} aria-current={item.page === page ? 'page' : undefined}>
                   {item.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -44,9 +39,9 @@ export default function Header({ page, user, theme, onToggleTheme, drawerOpen, o
             <span hidden={theme === 'dark'}><Icon name="moon" size={17} /></span>
           </button>
 
-          <div><AccountMenu user={user} /></div>
+          <div><AccountMenu user={user} onSignOut={onSignOut} /></div>
 
-          <a className="btn btn--primary btn--sm only-wide" href="./post-job.html">Post a role</a>
+          <Link className="btn btn--primary btn--sm only-wide" to="/post-job">Post a role</Link>
 
           <button type="button" className="ibtn mast-burger" aria-expanded={drawerOpen} aria-controls="drawer"
                   aria-label="Open menu" onClick={onOpenDrawer}>
@@ -59,7 +54,7 @@ export default function Header({ page, user, theme, onToggleTheme, drawerOpen, o
 }
 
 /** The avatar button and its dropdown, or a "Sign in" link. */
-function AccountMenu({ user }) {
+function AccountMenu({ user, onSignOut }) {
   const [open, setOpen] = useState(false);
 
   /* Close when clicking anywhere else, or pressing Escape. */
@@ -79,7 +74,7 @@ function AccountMenu({ user }) {
     };
   }, [open]);
 
-  if (!user) return <a className="btn btn--ghost btn--sm" href="./auth.html">Sign in</a>;
+  if (!user) return <Link className="btn btn--ghost btn--sm" to="/auth">Sign in</Link>;
 
   const employer = user.role === 'employer';
 
@@ -98,18 +93,18 @@ function AccountMenu({ user }) {
 
         {employer ? (
           <>
-            <a href="./employer.html">Employer dashboard</a>
-            <a href="./post-job.html">Post a role</a>
+            <Link to="/employer">Employer dashboard</Link>
+            <Link to="/post-job">Post a role</Link>
           </>
         ) : (
           <>
-            <a href="./dashboard.html">Your dashboard</a>
-            <a href="./profile.html">Profile and CV</a>
-            <a href="./dashboard.html#saved">Saved roles</a>
+            <Link to="/dashboard">Your dashboard</Link>
+            <Link to="/profile">Profile and CV</Link>
+            <Link to="/dashboard#saved">Saved roles</Link>
           </>
         )}
 
-        <button type="button" onClick={signOutAndLeave}>Sign out</button>
+        <button type="button" onClick={onSignOut}>Sign out</button>
       </div>
     </div>
   );

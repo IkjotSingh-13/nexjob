@@ -3,16 +3,16 @@
  *
  * Moving an applicant to a new stage here changes what that person sees on
  * their own dashboard, because both sides read the same localStorage.
+ * Closing, reopening and deleting a role is saved in MySQL through the backend.
  */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useBoardData } from '../lib/hooks.js';
 import { jobsAtCompany, companyById } from '../lib/data.js';
 import { money, relTime, dateShort, plural } from '../lib/format.js';
-import {
-  getPostings, updatePosting, removePosting, getApplications, setApplicationStage, CLOSED_STAGE, stageLabel
-} from '../lib/store.js';
-import { requireAuth } from '../lib/auth.js';
+import { getApplications, setApplicationStage, CLOSED_STAGE, stageLabel } from '../lib/store.js';
+import { updateJob, deleteJob } from '../lib/api.js';
+import { UserContext } from '../lib/UserContext.jsx';
 import { toast } from '../lib/toast.js';
 import { StagePicker } from '../components/Pipeline.jsx';
 import { PayScale } from '../components/PayScale.jsx';
@@ -20,10 +20,12 @@ import Stats from '../components/Stats.jsx';
 import Mark from '../components/Mark.jsx';
 import LoadError from '../components/LoadError.jsx';
 import Icon from '../components/Icon.jsx';
+import { Link } from 'react-router';
 
+/* Only employers get here: main.jsx wraps this page in <RequireRole role="employer">. */
 export default function Employer() {
-  const user = requireAuth('employer');   // not an employer: off to the sign-in page
-  return user ? <EmployerDashboard user={user} /> : null;
+  const { user } = useContext(UserContext);
+  return <EmployerDashboard user={user} />;
 }
 
 function EmployerDashboard({ user }) {
@@ -37,13 +39,10 @@ function EmployerDashboard({ user }) {
     if (company) document.title = `${company.name} — Employer dashboard — Nexjob`;
   }, [company]);
 
-  /* Every role this company has on the board. Ones posted here come first and can be edited. */
-  const postings = getPostings();
+  /* Every role this company has on the board. Ones posted through the site (they have a
+     postedBy) come first and can be edited; the sample listings cannot. */
   const ourJobs = !company ? [] : jobsAtCompany(data.jobs, company.id)
-    .map((job) => {
-      const posting = postings.find((p) => p.id === job.id);
-      return { ...job, mine: !!posting, status: posting?.status ?? 'open' };
-    })
+    .map((job) => ({ ...job, mine: !!job.postedBy, status: job.status ?? 'open' }))
     .sort((a, b) => b.mine - a.mine || (a.postedHoursAgo ?? 0) - (b.postedHoursAgo ?? 0));
 
   const ourIds = ourJobs.map((j) => Number(j.id));
@@ -60,9 +59,14 @@ function EmployerDashboard({ user }) {
   };
 
   const toggleOpen = (job) => {
-    updatePosting(job.id, { status: job.status === 'open' ? 'closed' : 'open' });
-    toast(job.status === 'open' ? 'Role closed' : 'Role reopened');
-    reload();
+    const status = job.status === 'open' ? 'closed' : 'open';
+
+    updateJob({ ...job, status })   // saves the new status in MySQL
+      .then(() => {
+        toast(status === 'closed' ? 'Role closed' : 'Role reopened');
+        reload();
+      })
+      .catch(() => toast('Could not reach the backend. Is it running?', 'stop'));
   };
 
   const deletePosting = (job, applicantCount) => {
@@ -72,9 +76,12 @@ function EmployerDashboard({ user }) {
 
     if (!window.confirm(message)) return;
 
-    removePosting(job.id);
-    toast('Posting deleted');
-    reload();
+    deleteJob(job.id)   // removes it from MySQL
+      .then(() => {
+        toast('Posting deleted');
+        reload();
+      })
+      .catch(() => toast('Could not reach the backend. Is it running?', 'stop'));
   };
 
   return (
@@ -98,10 +105,10 @@ function EmployerDashboard({ user }) {
             </div>
 
             <div className="row row--tight">
-              <a className="btn btn--outline btn--sm" href={company ? `./company.html?id=${company.id}` : './companies.html'}>
+              <Link className="btn btn--outline btn--sm" to={company ? `/company?id=${company.id}` : '/companies'}>
                 Company profile
-              </a>
-              <a className="btn btn--primary btn--sm" href="./post-job.html">Post a role</a>
+              </Link>
+              <Link className="btn btn--primary btn--sm" to="/post-job">Post a role</Link>
             </div>
           </div>
 
@@ -138,7 +145,7 @@ function EmployerDashboard({ user }) {
               <div className="empty">
                 <h3>This account is not linked to a company</h3>
                 <p>Create an employer account and pick a company, and your postings will appear here.</p>
-                <a className="btn btn--primary" href="./auth.html?tab=register&role=employer">Create an employer account</a>
+                <Link className="btn btn--primary" to="/auth?tab=register&role=employer">Create an employer account</Link>
               </div>
             )}
 
@@ -155,7 +162,7 @@ function EmployerDashboard({ user }) {
               <div className="empty">
                 <h3>{filter === 'all' ? 'Nothing posted yet' : `No ${filter} postings`}</h3>
                 <p>Post a role with a real salary band and it appears on the board straight away.</p>
-                <a className="btn btn--primary" href="./post-job.html">Post a role</a>
+                <Link className="btn btn--primary" to="/post-job">Post a role</Link>
               </div>
             )}
           </div>
@@ -226,7 +233,7 @@ function Posting({ job, applications, domain, onMove, onToggle, onDelete }) {
         <ApplicantTable applications={applications} onMove={onMove} compact />
 
         <div className="row" style={{ marginTop: 'var(--s5)', gap: 'var(--s2)' }}>
-          <a className="btn btn--outline btn--sm" href={`./job.html?id=${job.id}`}>View the listing</a>
+          <Link className="btn btn--outline btn--sm" to={`/job?id=${job.id}`}>View the listing</Link>
 
           {job.mine && (
             <>

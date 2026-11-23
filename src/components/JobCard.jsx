@@ -7,6 +7,7 @@ import { money, relTime } from '../lib/format.js';
 import { PayScale } from './PayScale.jsx';
 import Mark from './Mark.jsx';
 import Icon from './Icon.jsx';
+import { Link } from 'react-router';
 
 /**
  * @param {Object}   job
@@ -29,7 +30,7 @@ export default function JobCard({ job, domain, index, saved = false, onSave }) {
           <Mark company={job.company} />
 
           <div className="job-titles">
-            <h3 className="job-title"><a href={`./job.html?id=${job.id}`}>{job.title}</a></h3>
+            <h3 className="job-title"><Link to={`/job?id=${job.id}`}>{job.title}</Link></h3>
             <p className="job-org">{job.companyName} · {job.location} · {job.type}</p>
           </div>
 
@@ -71,7 +72,7 @@ export default function JobCard({ job, domain, index, saved = false, onSave }) {
 /** A small card for sidebars and "recently viewed". */
 export function JobCardMini({ job }) {
   return (
-    <a className="card" href={`./job.html?id=${job.id}`}
+    <Link className="card" to={`/job?id=${job.id}`}
        style={{ display: 'flex', gap: 'var(--s3)', textDecoration: 'none', padding: 'var(--s4)' }}>
       <Mark company={job.company} size="sm" />
       <span style={{ minWidth: 0 }}>
@@ -82,7 +83,7 @@ export function JobCardMini({ job }) {
           {job.companyName} · {money(job.salaryMin)}–{money(job.salaryMax)}
         </span>
       </span>
-    </a>
+    </Link>
   );
 }
 

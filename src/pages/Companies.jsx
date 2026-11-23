@@ -10,6 +10,7 @@ import { PayScale } from '../components/PayScale.jsx';
 import Mark from '../components/Mark.jsx';
 import LoadError from '../components/LoadError.jsx';
 import Icon from '../components/Icon.jsx';
+import { Link } from 'react-router';
 
 export default function Companies() {
   const { data, failed } = useBoardData();
@@ -84,7 +85,7 @@ export default function Companies() {
             {failed && <LoadError title="The company list did not load" style={{ gridColumn: '1/-1' }} />}
 
             {rows.map(({ company, open, min, max }) => (
-              <a className="card co-card" href={`./company.html?id=${company.id}`} key={company.id}>
+              <Link className="card co-card" to={`/company?id=${company.id}`} key={company.id}>
                 <div className="co-card-top">
                   <Mark company={company} />
                   <div style={{ minWidth: 0 }}>
@@ -107,7 +108,7 @@ export default function Companies() {
                 ) : (
                   <span className="pill">No open roles</span>
                 )}
-              </a>
+              </Link>
             ))}
 
             {data && rows.length === 0 && (

@@ -1,7 +1,7 @@
 /**
  * The job board: search, filters, sorting and pages.
  *
- * The filters are kept in the address bar (jobs.html?q=react&remote=1), so a
+ * The filters are kept in the address bar (#/jobs?q=react&remote=1), so a
  * filtered board can be shared and the back button works.
  */
 
@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useBoardData, useSaved } from '../lib/hooks.js';
 import { filterJobs, sortJobs, facets, SORTS, EMPTY_CRITERIA } from '../lib/data.js';
 import { money, plural } from '../lib/format.js';
-import { pageUrl } from '../lib/url.js';
+import { getParams, pageUrl, replaceAddress } from '../lib/url.js';
 import JobCard, { Skeletons } from '../components/JobCard.jsx';
 import Filters from '../components/Filters.jsx';
 import LoadError from '../components/LoadError.jsx';
@@ -19,7 +19,7 @@ const PER_PAGE = 8;
 
 /** Read the filters, sort and page number from the address bar. */
 const readUrl = () => {
-  const p = new URLSearchParams(location.search);
+  const p = getParams();
   const list = (name) => (p.get(name) || '').split(',').filter(Boolean);
   const number = (name) => (p.get(name) ? Number(p.get(name)) : null);
 
@@ -44,7 +44,7 @@ const readUrl = () => {
 };
 
 /** The address bar for the current filters. Defaults are left out. */
-const toUrl = (c, sort, page) => pageUrl('jobs.html', {
+const toUrl = (c, sort, page) => pageUrl('/jobs', {
   q: c.q,
   where: c.where,
   remote: c.remote ? '1' : '',
@@ -144,7 +144,7 @@ export default function Jobs() {
   /* Keep the address bar in step with the filters (a moment after the last change). */
   useEffect(() => {
     if (!data) return;
-    const timer = setTimeout(() => history.replaceState(null, '', toUrl(criteria, sort, current)), 120);
+    const timer = setTimeout(() => replaceAddress(toUrl(criteria, sort, current)), 120);
     return () => clearTimeout(timer);
   }, [data, criteria, sort, current]);
 

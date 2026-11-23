@@ -3,11 +3,12 @@
  * as a CV when printing.
  */
 
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
+import { Link } from 'react-router';
 import { useBoardData } from '../lib/hooks.js';
 import { facets, LEVELS } from '../lib/data.js';
 import { getProfile, setProfile, profileChecks, profileCompleteness } from '../lib/store.js';
-import { requireAuth } from '../lib/auth.js';
+import { UserContext } from '../lib/UserContext.jsx';
 import { toast } from '../lib/toast.js';
 import Icon from '../components/Icon.jsx';
 
@@ -30,9 +31,10 @@ const clean = (form) => ({
   links: trimAll(form.links)
 });
 
+/* Only job seekers get here: main.jsx wraps this page in <RequireRole role="seeker">. */
 export default function Profile() {
-  const user = requireAuth('seeker');   // not signed in, or not a job seeker: off to the sign-in page
-  return user ? <ProfileForm user={user} /> : null;
+  const { user } = useContext(UserContext);
+  return <ProfileForm user={user} />;
 }
 
 function ProfileForm({ user }) {
@@ -354,9 +356,9 @@ function Completeness({ profile }) {
           Your skills are what the dashboard scores open roles against, and what the
           readiness meter on each company's route page compares to their focus areas.
         </p>
-        <a className="btn btn--outline btn--block btn--sm" href="./dashboard.html#recommended" style={{ marginTop: 'var(--s4)' }}>
+        <Link className="btn btn--outline btn--block btn--sm" to="/dashboard#recommended" style={{ marginTop: 'var(--s4)' }}>
           See your matches
-        </a>
+        </Link>
       </div>
     </>
   );

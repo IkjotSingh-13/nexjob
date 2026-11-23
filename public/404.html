@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nexjob</title>
+  <!-- GitHub Pages shows this file for any address it does not have.
+       Old links such as jobs.html?q=react now live at #/jobs?q=react, so send them there.
+       Anything else lands on the app's "page not found" screen. -->
+  <script>
+    var page = location.pathname.split('/').pop().replace('.html', '');
+    location.replace('./#/' + page + location.search);
+  </script>
+</head>
+<body></body>
+</html>

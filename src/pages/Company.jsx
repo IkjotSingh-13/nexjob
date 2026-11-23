@@ -11,6 +11,7 @@ import JobCard from '../components/JobCard.jsx';
 import { PayScale, PayAxis, MidpointNote } from '../components/PayScale.jsx';
 import Mark from '../components/Mark.jsx';
 import LoadError from '../components/LoadError.jsx';
+import { Link } from 'react-router';
 
 export default function Company() {
   const { data, failed } = useBoardData();
@@ -30,7 +31,7 @@ export default function Company() {
       <div className="empty">
         <h3>No such company</h3>
         <p>That link does not match any company hiring here.</p>
-        <a className="btn btn--primary" href="./companies.html">See every company</a>
+        <Link className="btn btn--primary" to="/companies">See every company</Link>
       </div>
     );
   } else if (company) {
@@ -40,7 +41,7 @@ export default function Company() {
   return (
     <>
       <div className="wrap" style={{ paddingTop: 'var(--s5)' }}>
-        <a className="tick" href="./companies.html" style={{ textDecoration: 'none' }}>&larr; All companies</a>
+        <Link className="tick" to="/companies" style={{ textDecoration: 'none' }}>&larr; All companies</Link>
       </div>
 
       <section className="strip strip--tight" style={{ paddingTop: 'var(--s4)' }}>
@@ -70,11 +71,11 @@ function CompanyDetails({ company, data, saved, onSave }) {
 
           <div className="row row--tight">
             {open.length > 0 && (
-              <a className="btn btn--primary btn--sm" href={`./jobs.html?company=${company.id}`}>
+              <Link className="btn btn--primary btn--sm" to={`/jobs?company=${company.id}`}>
                 {plural(open.length, 'open role')}
-              </a>
+              </Link>
             )}
-            {route && <a className="btn btn--outline btn--sm" href={`./prep.html?company=${company.id}`}>How to get in</a>}
+            {route && <Link className="btn btn--outline btn--sm" to={`/prep?company=${company.id}`}>How to get in</Link>}
           </div>
         </div>
 
@@ -143,7 +144,7 @@ function CompanyDetails({ company, data, saved, onSave }) {
             <div className="empty">
               <h3>No open roles at {company.name}</h3>
               <p>Set up an alert and you will see the next one on your dashboard.</p>
-              <a className="btn btn--outline" href="./dashboard.html#alerts">Create an alert</a>
+              <Link className="btn btn--outline" to="/dashboard#alerts">Create an alert</Link>
             </div>
           )}
         </div>

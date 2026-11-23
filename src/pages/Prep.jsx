@@ -3,15 +3,16 @@
  * and how ready your profile looks for it.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useBoardData } from '../lib/hooks.js';
 import { prepFor, jobsAtCompany, readinessFor, payRange } from '../lib/data.js';
 import { money, plural } from '../lib/format.js';
-import { getParam } from '../lib/url.js';
+import { getParam, pushAddress } from '../lib/url.js';
 import { getProfile, profileCompleteness } from '../lib/store.js';
-import { currentUser } from '../lib/auth.js';
+import { UserContext } from '../lib/UserContext.jsx';
 import Mark from '../components/Mark.jsx';
 import LoadError from '../components/LoadError.jsx';
+import { Link } from 'react-router';
 
 const STATUS = {
   open:     ['ok',   'Open now'],
@@ -45,7 +46,7 @@ export default function Prep() {
 
   const pick = (id) => {
     setCompanyId(id);
-    history.pushState(null, '', `?company=${id}`);
+    pushAddress(`/prep?company=${id}`);   // a new history entry, so Back returns to the last company
     window.scrollTo({ top: main.current.offsetTop - 120, behavior: 'smooth' });
   };
 
@@ -260,12 +261,12 @@ function Summary({ entry, company, data }) {
         <p className="tick">At {company.name}</p>
         <p style={{ fontSize: 'var(--t-sm)', color: 'var(--ink-2)', margin: 'var(--s3) 0 var(--s4)' }}>{company.tagline || ''}</p>
         <div className="stack-2">
-          <a className="btn btn--primary btn--block btn--sm" href={`./jobs.html?company=${company.id}`}>
+          <Link className="btn btn--primary btn--block btn--sm" to={`/jobs?company=${company.id}`}>
             {plural(open.length, 'open role')}
-          </a>
-          <a className="btn btn--outline btn--block btn--sm" href={`./company.html?id=${company.id}`}>
+          </Link>
+          <Link className="btn btn--outline btn--block btn--sm" to={`/company?id=${company.id}`}>
             Company profile
-          </a>
+          </Link>
         </div>
       </div>
     </div>
@@ -274,7 +275,7 @@ function Summary({ entry, company, data }) {
 
 /** How many of this loop's focus areas the signed-in user's skills cover. */
 function Readiness({ entry }) {
-  const user = currentUser();
+  const { user } = useContext(UserContext);
   const text = { fontSize: 'var(--t-sm)', color: 'var(--ink-2)', margin: 'var(--s3) 0 var(--s4)' };
 
   if (!user) {
@@ -285,8 +286,8 @@ function Readiness({ entry }) {
           Sign in and add your skills, and this panel scores them against what this
           loop actually weights.
         </p>
-        <a className="btn btn--outline btn--block btn--sm"
-           href={`./auth.html?next=${encodeURIComponent(`prep.html?company=${entry.companyId}`)}`}>Sign in</a>
+        <Link className="btn btn--outline btn--block btn--sm"
+           to={`/auth?next=${encodeURIComponent(`/prep?company=${entry.companyId}`)}`}>Sign in</Link>
       </div>
     );
   }
@@ -301,7 +302,7 @@ function Readiness({ entry }) {
           Add a few skills to your profile and they get matched against the focus areas
           below. Your profile is {profileCompleteness(profile)}% filled in.
         </p>
-        <a className="btn btn--outline btn--block btn--sm" href="./profile.html">Add your skills</a>
+        <Link className="btn btn--outline btn--block btn--sm" to="/profile">Add your skills</Link>
       </div>
     );
   }
@@ -332,9 +333,9 @@ function Readiness({ entry }) {
         </p>
       )}
 
-      <a className="btn btn--outline btn--block btn--sm" href="./profile.html" style={{ marginTop: 'var(--s4)' }}>
+      <Link className="btn btn--outline btn--block btn--sm" to="/profile" style={{ marginTop: 'var(--s4)' }}>
         Update your skills
-      </a>
+      </Link>
     </div>
   );
 }

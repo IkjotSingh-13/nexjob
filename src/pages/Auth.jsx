@@ -1,21 +1,23 @@
 /**
  * Sign in and create account.
  *
- * ?next=page.html sends the visitor back where they were going afterwards.
+ * ?next=/job?id=3 sends the visitor back where they were going afterwards.
  * ?need=employer explains why they were sent here. ?tab=register&role=employer
  * opens the sign-up form for employers.
  */
 
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router';
 import { useBoardData } from '../lib/hooks.js';
-import { signIn, register, currentUser } from '../lib/auth.js';
+import { signIn, register } from '../lib/auth.js';
+import { UserContext } from '../lib/UserContext.jsx';
 import { getParam } from '../lib/url.js';
 import { toast } from '../lib/toast.js';
 
 /** Where to go after signing in. */
 const landing = (user) => {
-  if (getParam('next')) return `./${getParam('next')}`;
-  return user.role === 'employer' ? './employer.html' : './dashboard.html';
+  if (getParam('next')) return getParam('next');
+  return user.role === 'employer' ? '/employer' : '/dashboard';
 };
 
 const NEED_MESSAGE = {
@@ -24,16 +26,17 @@ const NEED_MESSAGE = {
 };
 
 export default function Auth() {
+  const { user } = useContext(UserContext);
+
   /* Already signed in? Go straight on. */
-  const existing = currentUser();
-  if (existing && !getParam('need')) {
-    location.replace(landing(existing));
-    return null;
-  }
+  if (user && !getParam('need')) return <Navigate to={landing(user)} replace />;
+
   return <AuthForms />;
 }
 
 function AuthForms() {
+  const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
   const { data, failed } = useBoardData();   // only needed for the employer's company list
 
   const [tab, setTab] = useState(getParam('tab') === 'register' ? 'register' : 'signin');
@@ -68,8 +71,9 @@ function AuthForms() {
 
     signIn(email, password)
       .then((user) => {                             // Promise resolve hua: sign in ho gaya
+        setUser(user);                              // context: header ab naya user dikhayega
         toast(`Signed in as ${user.name}`, 'ok');
-        location.href = landing(user);
+        navigate(landing(user));
       })
       .catch((err) => setError(err.message))        // Promise reject hua: error dikhao
       .finally(() => setBusy(false));               // dono case mein: button wapas theek
@@ -103,8 +107,9 @@ function AuthForms() {
 
     register(details)
       .then((user) => {
+        setUser(user);
         toast('Account created', 'ok');
-        location.href = landing(user);
+        navigate(landing(user));
       })
       .catch((err) => setError(err.message))
       .finally(() => setBusy(false));
@@ -120,7 +125,7 @@ function AuthForms() {
 
         <p style={{ marginTop: 'var(--s5)', color: 'var(--ink-2)', maxWidth: '46ch' }}>
           An account is what turns a job board into a pipeline. Everything below is stored
-          in this browser only — there is no server behind this project.
+          in this browser only — the backend keeps just the jobs and companies.
         </p>
 
         <ul className="bullets" style={{ marginTop: 'var(--s6)', maxWidth: '44ch' }}>

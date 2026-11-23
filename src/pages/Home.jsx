@@ -2,6 +2,7 @@
  * Home page. Every figure here is counted from the listings, nothing is typed in by hand.
  */
 
+import { Link, useNavigate } from 'react-router';
 import { useBoardData, useSaved } from '../lib/hooks.js';
 import { sortJobs, payRange } from '../lib/data.js';
 import { money, median, plural, posOn } from '../lib/format.js';
@@ -17,13 +18,14 @@ import Icon from '../components/Icon.jsx';
 const QUICK_SEARCHES = ['React', 'Python', 'Design systems', 'Remote'];
 
 export default function Home() {
+  const navigate = useNavigate();
   const { data, failed } = useBoardData();
   const [saved, toggleSave] = useSaved();
 
   const search = (event) => {
     event.preventDefault();
     const form = new FormData(event.target);
-    location.href = pageUrl('jobs.html', { q: form.get('q').trim(), where: form.get('where').trim() });
+    navigate(pageUrl('/jobs', { q: form.get('q').trim(), where: form.get('where').trim() }));
   };
 
   return (
@@ -70,7 +72,7 @@ export default function Home() {
               <span className="tick">Try</span>
               {QUICK_SEARCHES.map((term) => (
                 <button type="button" className="chip" key={term}
-                        onClick={() => { location.href = pageUrl('jobs.html', { q: term }); }}>
+                        onClick={() => navigate(pageUrl('/jobs', { q: term }))}>
                   {term}
                 </button>
               ))}
@@ -106,7 +108,7 @@ export default function Home() {
               <h2 id="featured-title">Worth a look</h2>
               <p>Roles the hiring team flagged, newest first.</p>
             </div>
-            <a className="btn btn--outline btn--sm" href="./jobs.html">All roles</a>
+            <Link className="btn btn--outline btn--sm" to="/jobs">All roles</Link>
           </div>
 
           <div className="stack">
@@ -125,7 +127,7 @@ export default function Home() {
               <h2 id="disc-title">What each discipline pays</h2>
               <p>Floor to ceiling across every open role, on the same scale as the cards above.</p>
             </div>
-            <a className="btn btn--outline btn--sm" href="./salaries.html">Open the pay explorer</a>
+            <Link className="btn btn--outline btn--sm" to="/salaries">Open the pay explorer</Link>
           </div>
 
           <div className="stack">
@@ -162,7 +164,7 @@ export default function Home() {
                 <p className="step-detail">
                   Each company has a page covering its interview loop stage by stage,
                   what the rounds actually weight, and the internships and assessments
-                  it runs. <a href="./prep.html">See the routes</a>.
+                  it runs. <Link to="/prep">See the routes</Link>.
                 </p>
               </div>
             </li>
@@ -196,7 +198,7 @@ export default function Home() {
               <h2 id="prep-title">Know the route in</h2>
               <p>The loop, the focus areas and the current intake for each company hiring here.</p>
             </div>
-            <a className="btn btn--outline btn--sm" href="./prep.html">All routes</a>
+            <Link className="btn btn--outline btn--sm" to="/prep">All routes</Link>
           </div>
 
           <div className="grid-cards">{data && <PrepTeasers {...data} />}</div>
@@ -216,8 +218,8 @@ export default function Home() {
               </p>
             </div>
             <div className="row">
-              <a className="btn btn--primary btn--lg" href="./post-job.html">Post a role</a>
-              <a className="btn btn--outline btn--lg" href="./employer.html">Employer dashboard</a>
+              <Link className="btn btn--primary btn--lg" to="/post-job">Post a role</Link>
+              <Link className="btn btn--outline btn--lg" to="/employer">Employer dashboard</Link>
             </div>
           </div>
         </div>
@@ -232,7 +234,7 @@ function Spectrum({ jobs, domain }) {
   return bySalary.map((job, i) => {
     const pay = `${money(job.salaryMin)} to ${money(job.salaryMax)}`;
     return (
-      <a className="spectrum-row" href={`./job.html?id=${job.id}`} key={job.id}
+      <Link className="spectrum-row" to={`/job?id=${job.id}`} key={job.id}
          title={`${job.title} at ${job.companyName} — ${pay}`}
          style={{
            '--lo': `${posOn(job.salaryMin, domain).toFixed(2)}%`,
@@ -240,7 +242,7 @@ function Spectrum({ jobs, domain }) {
            '--i': String(i)
          }}>
         <span className="visually-hidden">{job.title} at {job.companyName}, {pay}</span>
-      </a>
+      </Link>
     );
   });
 }
@@ -283,7 +285,7 @@ function PrepTeasers({ prep, companies }) {
     const openNow = entry.openings.filter((o) => o.status === 'open').length;
 
     return (
-      <a className="card prep-teaser" href={`./prep.html?company=${entry.companyId}`} key={entry.companyId}>
+      <Link className="card prep-teaser" to={`/prep?company=${entry.companyId}`} key={entry.companyId}>
         <div className="row" style={{ gap: 'var(--s3)' }}>
           <Mark company={company} />
           <div style={{ minWidth: 0 }}>
@@ -305,7 +307,7 @@ function PrepTeasers({ prep, companies }) {
         {openNow
           ? <span className="pill pill--flag pill--dot">{plural(openNow, 'intake')} open</span>
           : <span className="pill">No open intake</span>}
-      </a>
+      </Link>
     );
   });
 }

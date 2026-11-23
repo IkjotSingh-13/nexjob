@@ -2,7 +2,8 @@
  * One role: the details, its pay against the whole board, and the application form.
  */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { useBoardData, useSaved } from '../lib/hooks.js';
 import { jobById, jobsAtCompany, prepFor } from '../lib/data.js';
 import { money, relTime, dateShort, median } from '../lib/format.js';
@@ -10,7 +11,7 @@ import { getParam, pageUrl } from '../lib/url.js';
 import {
   pushRecent, hasApplied, addApplication, applicationsFor, stageIndex, stageLabel, getProfile
 } from '../lib/store.js';
-import { currentUser } from '../lib/auth.js';
+import { UserContext } from '../lib/UserContext.jsx';
 import { fakeServer } from '../lib/promise.js';
 import { toast } from '../lib/toast.js';
 import { PayScale, PayAxis, MidpointNote } from '../components/PayScale.jsx';
@@ -39,7 +40,7 @@ export default function Job() {
       <div className="empty">
         <h3>That role is not on the board</h3>
         <p>It may have been closed, or the link may be wrong. The rest of the board is still open.</p>
-        <a className="btn btn--primary" href="./jobs.html">Browse open roles</a>
+        <Link className="btn btn--primary" to="/jobs">Browse open roles</Link>
       </div>
     );
   } else if (job) {
@@ -50,7 +51,7 @@ export default function Job() {
   return (
     <>
       <div className="wrap" style={{ paddingTop: 'var(--s5)' }}>
-        <a className="tick" href="./jobs.html" style={{ textDecoration: 'none' }}>&larr; All roles</a>
+        <Link className="tick" to="/jobs" style={{ textDecoration: 'none' }}>&larr; All roles</Link>
       </div>
 
       <section className="strip strip--tight" style={{ paddingTop: 'var(--s4)' }}>
@@ -85,7 +86,7 @@ function JobDetails({ job, data, saved, onSave }) {
           <div className="job-hero-titles">
             <h1>{job.title}</h1>
             <p style={{ marginTop: 'var(--s2)', color: 'var(--ink-2)' }}>
-              <a href={`./company.html?id=${company.id}`}>{company.name}</a> · {job.location} · {job.type}
+              <Link to={`/company?id=${company.id}`}>{company.name}</Link> · {job.location} · {job.type}
             </p>
 
             <div className="job-meta">
@@ -152,7 +153,7 @@ function JobDetails({ job, data, saved, onSave }) {
           <h2>Skills named in this posting</h2>
           <div className="job-tags">
             {(job.tags || []).map((tag, i) => (
-              <a className="tag" href={pageUrl('jobs.html', { q: tag })} style={{ textDecoration: 'none' }} key={i}>{tag}</a>
+              <Link className="tag" to={pageUrl('/jobs', { q: tag })} style={{ textDecoration: 'none' }} key={i}>{tag}</Link>
             ))}
           </div>
         </div>
@@ -169,7 +170,7 @@ function Bullets({ items = [] }) {
 
 /** Sign-in prompt, the application form, or where your application has got to. */
 function ApplyPanel({ job }) {
-  const user = currentUser();
+  const { user } = useContext(UserContext);
   const [application, setApplication] = useState(() =>
     user && applicationsFor(user.id).find((a) => Number(a.jobId) === Number(job.id)));
   const [sending, setSending] = useState(false);
@@ -182,9 +183,9 @@ function ApplyPanel({ job }) {
           Sign in first so your application lands on your pipeline and you can follow
           what happens to it.
         </p>
-        <a className="btn btn--primary" href={`./auth.html?next=${encodeURIComponent(`job.html?id=${job.id}`)}`}>
+        <Link className="btn btn--primary" to={`/auth?next=${encodeURIComponent(`/job?id=${job.id}`)}`}>
           Sign in to apply
-        </a>
+        </Link>
       </div>
     );
   }
@@ -206,7 +207,7 @@ function ApplyPanel({ job }) {
         </p>
 
         <div className="row" style={{ marginTop: 'var(--s5)' }}>
-          <a className="btn btn--outline btn--sm" href="./dashboard.html#applications">Open your pipeline</a>
+          <Link className="btn btn--outline btn--sm" to="/dashboard#applications">Open your pipeline</Link>
         </div>
       </div>
     );
@@ -322,13 +323,13 @@ function JobRail({ job, data }) {
         </dl>
 
         <div className="stack-2" style={{ marginTop: 'var(--s5)' }}>
-          <a className="btn btn--outline btn--block btn--sm" href={`./company.html?id=${company.id}`}>
+          <Link className="btn btn--outline btn--block btn--sm" to={`/company?id=${company.id}`}>
             {openHere} open {openHere === 1 ? 'role' : 'roles'} at {company.name}
-          </a>
+          </Link>
           {route && (
-            <a className="btn btn--outline btn--block btn--sm" href={`./prep.html?company=${company.id}`}>
+            <Link className="btn btn--outline btn--block btn--sm" to={`/prep?company=${company.id}`}>
               How to get in
-            </a>
+            </Link>
           )}
         </div>
       </div>

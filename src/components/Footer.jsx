@@ -1,4 +1,5 @@
 import Icon from './Icon.jsx';
+import { Link } from 'react-router';
 
 export default function Footer() {
   return (
@@ -18,37 +19,37 @@ export default function Footer() {
         <div className="foot-col">
           <p className="tick">Find work</p>
           <ul>
-            <li><a href="./jobs.html">Browse roles</a></li>
-            <li><a href="./jobs.html?saved=1">Saved roles</a></li>
-            <li><a href="./dashboard.html#alerts">Job alerts</a></li>
-            <li><a href="./dashboard.html">Your dashboard</a></li>
+            <li><Link to="/jobs">Browse roles</Link></li>
+            <li><Link to="/jobs?saved=1">Saved roles</Link></li>
+            <li><Link to="/dashboard#alerts">Job alerts</Link></li>
+            <li><Link to="/dashboard">Your dashboard</Link></li>
           </ul>
         </div>
 
         <div className="foot-col">
           <p className="tick">Research</p>
           <ul>
-            <li><a href="./companies.html">Companies</a></li>
-            <li><a href="./salaries.html">Pay explorer</a></li>
-            <li><a href="./prep.html">How to get in</a></li>
+            <li><Link to="/companies">Companies</Link></li>
+            <li><Link to="/salaries">Pay explorer</Link></li>
+            <li><Link to="/prep">How to get in</Link></li>
           </ul>
         </div>
 
         <div className="foot-col">
           <p className="tick">Employers</p>
           <ul>
-            <li><a href="./post-job.html">Post a role</a></li>
-            <li><a href="./employer.html">Manage postings</a></li>
-            <li><a href="./auth.html?tab=register&role=employer">Create employer account</a></li>
+            <li><Link to="/post-job">Post a role</Link></li>
+            <li><Link to="/employer">Manage postings</Link></li>
+            <li><Link to="/auth?tab=register&role=employer">Create employer account</Link></li>
           </ul>
         </div>
 
         <div className="foot-col">
           <p className="tick">About</p>
           <ul>
-            <li><a href="./index.html#how">How Nexjob works</a></li>
-            <li><a href="./profile.html">Your profile</a></li>
-            <li><a href="./404.html">Anything else</a></li>
+            <li><Link to="/#how">How Nexjob works</Link></li>
+            <li><Link to="/profile">Your profile</Link></li>
+            <li><Link to="/404">Anything else</Link></li>
           </ul>
         </div>
       </div>
